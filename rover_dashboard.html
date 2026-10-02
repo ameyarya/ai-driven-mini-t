@@ -23,6 +23,11 @@ details{padding-top:10px;margin-top:10px}summary{font-size:12px}
 @media(max-height:620px){body{padding:10px}header{margin-bottom:8px}h1{font-size:20px}.panel{padding:10px}.manual{margin-top:8px;padding-top:8px}.hint{font-size:10px}.g{margin:6px 0}.g button{height:30px}details{padding-top:7px;margin-top:7px}#auto-status{margin:6px 0;min-height:30px}.video{max-height:calc(100dvh - 85px)}}
 @media(max-width:800px){body{padding:10px}main{grid-template-columns:minmax(0,1fr) 230px;gap:10px}.panel{padding:10px}}
 @media(max-width:540px){main{grid-template-columns:minmax(0,1fr) 190px;gap:8px}.panel{padding:8px}.muted{font-size:10px}h2{font-size:13px}.actions button{padding:8px}.hint{font-size:10px}.g{grid-template-columns:repeat(3,36px)}}
+
+/* Align the camera frame with the full control column. */
+main>section{justify-content:flex-start;align-items:stretch;position:relative}
+.video{height:100%;max-height:none;aspect-ratio:auto;flex:1 1 0;min-height:0}
+.camera-note{position:absolute;left:12px;bottom:10px;margin:0;padding:5px 8px;border-radius:6px;background:#10151dcc;pointer-events:none}
 </style></head><body>
 <header><h1>Rook</h1><span class="muted">Local Qwen · Tank POC</span></header>
 <main><section><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe><div class="camera-note">Live camera · about 1 second delay</div></section>

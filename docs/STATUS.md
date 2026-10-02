@@ -120,3 +120,6 @@ manual override, errors, or a 40-observation cap. Short autonomous moves remain
 at 40%; manual speed remains 100%. Launcher remains manual. Nine tests pass,
 including all four movement mappings and empty-goal rejection. General navigation
 on hardware remains unverified; camera battery recharge is pending.
+
+Aligned camera frame and control column to the same viewport-constrained height;
+video-delay caption overlays the camera instead of adding height below it.
