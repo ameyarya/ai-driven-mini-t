@@ -86,11 +86,14 @@ class ControllerTests(unittest.TestCase):
         c.run(c.cancelled)
         self.assertEqual(moves, ['X'])
 
-    def test_expired_browser_lease_cannot_move(self):
-        c, moves = self.controller(lambda *a, **k: result('right'))
+    def test_browser_disconnect_does_not_cancel(self):
+        answers = iter([result('right'), result('centre')])
+        c, moves = self.controller(lambda *a, **k: next(answers))
         c.lease = 0
-        c.run(c.cancelled)
-        self.assertEqual(moves, ['X'])
+        with patch.object(c.cancelled, 'wait', return_value=False):
+            c.run(c.cancelled)
+        self.assertEqual(moves, ['D', 'X', 'X'])
+        self.assertEqual(c.snapshot()['state'], 'complete')
 
 
 if __name__ == '__main__':

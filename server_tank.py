@@ -320,7 +320,9 @@ class Handler(BaseHTTPRequestHandler):
                         result=wireless_update.exchange(ser,b'V',wireless_update.secrets.token_bytes(4)).decode()
                     self.text_result(200,result)
                     return
-                autonomy.cancel('Manual control took over')
+                if autonomy.active():
+                    self.text_result(409, 'Autonomous goal running; use Stop to cancel')
+                    return
                 fire=int(params.get('fire',['0'])[0])
                 aim=int(params.get('aim',['0'])[0])
                 if fire not in (0,1) or aim not in (-1,0,1):
@@ -341,7 +343,9 @@ class Handler(BaseHTTPRequestHandler):
                 self.text_result(503,str(error))
             return
         if url.path == "/cmd":
-            autonomy.cancel('Manual control took over')
+            if autonomy.active():
+                self.text_result(409, 'Autonomous goal running; use Stop to cancel')
+                return
             key = parse_qs(url.query).get("c", [""])[0].upper()
             if key in MOVES:
                 try:

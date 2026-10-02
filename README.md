@@ -8,7 +8,7 @@ Keyboard control and live video work today. Qwen answers questions about camera
 snapshots. Autonomous control accepts a user-defined goal and runs a short move/observe loop.
 
 > Current mode: **manual driving + local vision + optional navigation goal**.
-> Click Start goal to enable bounded automatic turns; manual input takes over.
+> Click Start goal to enable bounded automatic turns; Stop cancels the run.
 
 ## What works today
 
@@ -139,13 +139,12 @@ Enter a goal in the empty **Navigation goal** box, then click **Start**.
 For example: “Turn until the red can is centred in the image, then stop.”
 Qwen chooses forward, backward, left, right, or stop, sees a fresh image after
 each short move, and reports whether the goal is achieved. Recent executed
-actions are supplied for context. **Stop**, Escape, or manual input cancels it.
-Closing/hiding the page requests stop; a browser heartbeat lease prevents new
-moves after disconnection.
+actions are supplied for context. **Stop** cancels the run. Leaving, hiding, or closing the page does not cancel
+it. Arrow keys and manual commands are ignored during autonomy.
 
 Each automatic move uses a 150 ms host pulse at 40% drive, followed by stop and
 a 1.5 second video settling wait. Manual speed remains 100%. The loop stops on
-reported completion, uncertainty, explicit STOP, lost video/browser, errors, old
+reported completion, uncertainty, explicit STOP, lost video, errors, old
 assessments, or a 40-observation limit. All five navigation actions are available;
 launcher control remains manual. General navigation accuracy is still unverified.
 
@@ -194,8 +193,7 @@ a fallback with the custom receiver application.
 | 4 | LLM-directed autonomous tasks | Visual questions verified; navigation controller ready for physical testing |
 
 Next: test the bounded navigation turns on the tank and verify that it stops
-when the target is centred. Navigation will use **move → stop → observe**, with manual
-override, before attempting more complex missions.
+when the target is centred. Navigation will use **move → stop → observe**, with explicit Stop control, before attempting more complex missions.
 
 A HAIBOXING truck conversion and drone camera reuse were investigated and are
 paused while we focus on the working tank POC. See [project status](docs/STATUS.md).

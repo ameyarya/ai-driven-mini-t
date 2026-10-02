@@ -49,7 +49,7 @@ header{flex-wrap:wrap;gap:10px}
 </style></head><body>
 <header><h1>Rook</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools" hidden><span id="vision-status" hidden></span></div></header>
 <main><section><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera · checking…</span> · about 1 second delay</div></section>
-<aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary" disabled>Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Short moves, then stop and look again.<br>Escape or manual input takes over.</div>
+<aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary" disabled>Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Short moves, then stop and look again.<br>Continues when you leave this tab. Press Stop to cancel.</div>
 <div class="manual" hidden><h2>Manual control</h2><div class="g"><span></span><button data-key="W" aria-label="Forward">↑</button><span></span><button data-key="A" aria-label="Left">←</button><span></span><button data-key="D" aria-label="Right">→</button><span></span><button data-key="S" aria-label="Backward">↓</button><span></span></div><div class="hint">Hold arrow keys to drive. Release to stop.</div><div id="status" role="status">Stopped</div></div>
 
 
@@ -61,6 +61,7 @@ const held=new Set();
 const keyMap={ArrowUp:'W',ArrowLeft:'A',ArrowDown:'S',ArrowRight:'D','1':'Q','2':'E',' ':'F',Escape:'X'};
 function state(){return wanted+'|'+fire+'|'+aim}
 async function pump(){
+ if(autoActive)return;
  if(busy || (state()==='X|0|0' && last===state()))return;
  busy=true;
  const sent=state(), k=wanted, f=fire, a=aim;
@@ -80,9 +81,10 @@ function update(){
  aim=q==='Q'?-1:q==='E'?1:0;
  pump();
 }
-function stop(){held.clear();update();stopAuto()}
+function stop(){held.clear();update()}
 setInterval(pump,100);
 addEventListener('keydown',e=>{
+  if(autoActive){if(keyMap[e.key])e.preventDefault();return;}
   if(e.key==='Escape'){e.preventDefault();stop();return;}
   if(e.target.matches('input,textarea'))return;
   const k=keyMap[e.key];
@@ -174,7 +176,7 @@ async function pollAuto(){
   if(autoActive)document.querySelector('#vision-status').textContent='Autonomous goal running · '+state.state;
   if(state.result)showAutoResult(state.result);
   if(autoActive)await fetch('/autonomy/heartbeat',{method:'POST',signal:AbortSignal.timeout(3000)});
- }catch(error){stopAuto();document.querySelector('#auto-status').textContent=error.message;}
+ }catch(error){document.querySelector('#auto-status').textContent=error.message;}
 }
 document.querySelector('#auto-start').addEventListener('click',async()=>{
  if(!cameraLive){document.querySelector('#auto-status').textContent='Camera offline — restart Mimo';return;}
@@ -187,8 +189,8 @@ document.querySelector('#auto-start').addEventListener('click',async()=>{
   autoActive=true;await pollAuto();
  }catch(error){document.querySelector('#auto-status').textContent=error.message;}
 });
-document.querySelector('#auto-stop').addEventListener('click',stop);
-addEventListener('pagehide',stopAuto);
+document.querySelector('#auto-stop').addEventListener('click',()=>{stopAuto();held.clear();wanted='X';fire=0;aim=0;last=state();});
+
 async function pollCamera(){
  try{
   const response=await fetch('/camera/status',{cache:'no-store',signal:AbortSignal.timeout(2000)});
@@ -199,7 +201,7 @@ async function pollCamera(){
  badge.textContent=cameraLive?'● Camera live':'● Camera offline';
  badge.style.color=cameraLive?'#91dfb7':'#f3ad87';
  document.querySelector('#auto-start').disabled=autoActive||!cameraLive;
- if(!cameraLive&&autoActive)stopAuto();
+
 }
 let polling=false;
 async function refreshStatus(){

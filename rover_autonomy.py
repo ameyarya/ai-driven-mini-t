@@ -47,7 +47,7 @@ class NavigationController:
             threading.Thread(target=self.run, args=(token,), daemon=True).start()
 
     def valid(self, token):
-        return token is self.cancelled and not token.is_set() and time.monotonic() < self.lease
+        return token is self.cancelled and not token.is_set()
 
     def run(self, token):
         try:
@@ -97,7 +97,7 @@ class NavigationController:
             with self.lock:
                 if token is self.cancelled and not token.is_set():
                     if self.active():
-                        self.state.update(state='stopped', message='Browser disconnected or step limit reached')
+                        self.state.update(state='stopped', message='Step limit reached')
                     self.drive('X')
         except Exception as error:
             with self.lock:

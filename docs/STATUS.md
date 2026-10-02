@@ -150,3 +150,13 @@ and model results remain. Standalone backend analysis is retained for later use.
 
 Removed Model results button and expandable panel. Latest decision remains
 visible; detailed renderer fields are hidden to preserve existing polling.
+
+## Runs persist independently of browser focus
+
+User requested autonomous goals continue when leaving the tab and ignore arrow
+keys. Removed browser heartbeat expiry as a cancellation condition; blur, hiding,
+closing, and UI polling failures no longer cancel autonomous goals. Manual
+commands are rejected while a goal is active; keyboard inputs are ignored during
+autonomy. Stop button cancels. Goal completion, uncertainty, camera loss, errors,
+and the 40-observation limit still stop the controller. Nine tests pass, including
+continued navigation after browser lease expiry and explicit cancellation.
