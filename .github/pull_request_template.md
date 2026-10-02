@@ -1,6 +1,6 @@
-## What changed
+## What
 
 ## Why
 
-## How tested
-- [ ] `python3 -m unittest test_rover_autonomy` passes
+## Tested
+- [x] `python3 -m unittest test_rover_autonomy` passes
