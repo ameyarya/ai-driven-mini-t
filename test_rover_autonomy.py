@@ -2,17 +2,29 @@ import threading
 import time
 import unittest
 from unittest.mock import patch
-from rover_autonomy import NavigationController, AdaptiveTurn
-from rover_vision import centering_decision, is_centering_goal, distance_alignment_guard
+from rover_autonomy import NavigationController
+from rover_vision import centering_decision, is_centering_goal, distance_alignment_guard, size_decision
 
 
 def result(position, uncertainty=None):
     return {'captured_at': time.time(), 'assessment': {
         'goal_achieved': position == 'centre', 'suggested_action': position if position in ('forward', 'backward', 'left', 'right') else 'stop',
-        'uncertainties': uncertainty or []}}
+        'uncertainties': uncertainty or [], 'duration_ms': 150}}
 
 
 class ControllerTests(unittest.TestCase):
+    def test_size_completion_and_clipping_override_forward(self):
+        goal = 'Move closer until it occupies 40% of image height'
+        for bbox, clipped, action, complete in [
+            ([450, 200, 550, 700], False, 'stop', True),
+            ([450, 200, 550, 400], False, 'forward', False),
+            ([100, 200, 200, 400], False, 'left', False),
+            ([450, 200, 550, 1000], True, 'stop', False),
+        ]:
+            a = size_decision({'target_visible': True, 'target_bbox': bbox, 'target_clipped': clipped, 'duration_ms': 250}, goal)
+            self.assertEqual(a['suggested_action'], action)
+            self.assertEqual(a['goal_achieved'], complete)
+
     def test_distance_alignment_overrides_forward(self):
         for x, expected in [(30, 'left'), (800, 'right'), (500, 'forward')]:
             a = distance_alignment_guard({'target_visible': True, 'target_x': x,
@@ -46,7 +58,7 @@ class ControllerTests(unittest.TestCase):
     def test_worsening_turn_stops(self):
         answers = iter([centering_decision({'target_visible': True, 'target_x': x, 'uncertainties': []}) for x in (34, 25)])
         def observe(*a, **k):
-            return {'captured_at': time.time(), 'assessment': next(answers)}
+            return {'captured_at': time.time(), 'assessment': dict(next(answers), duration_ms=150)}
         c, moves = self.controller(observe)
         with patch.object(c.cancelled, 'wait', return_value=False):
             c.run(c.cancelled)
@@ -58,18 +70,17 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(a['suggested_action'], 'stop')
         self.assertFalse(a['goal_achieved'])
 
-    def test_overshoot_reverses_and_halves_duration(self):
-        turn = AdaptiveTurn()
-        self.assertEqual(turn.next_duration(70), .15)
-        self.assertAlmostEqual(turn.next_duration(40), .075)
-        self.assertEqual(centering_decision({'target_visible': True, 'target_x': 40, 'uncertainties': []})['suggested_action'], 'left')
-
-    def test_turn_time_adapts_to_observed_motion(self):
-        turn = AdaptiveTurn()
-        turn.next_duration(80)
-        duration = turn.next_duration(70)
-        self.assertGreater(duration, .15)
-        self.assertLessEqual(duration, .30)
+    def test_model_controls_turn_duration(self):
+        for duration_ms in [75, 220, 600]:
+            r = result('right')
+            r['assessment']['duration_ms'] = duration_ms
+            answers = iter([r, result('centre')])
+            c, moves = self.controller(lambda *a, **k: next(answers))
+            with patch.object(c.cancelled, 'wait', return_value=False) as wait:
+                c.run(c.cancelled)
+            movement_waits = [call.args[0] for call in wait.call_args_list][:-1]
+            self.assertAlmostEqual(sum(movement_waits), duration_ms/1000)
+            self.assertEqual(moves, ['D', 'X', 'X'])
 
     def controller(self, observe):
         moves = []
@@ -132,16 +143,19 @@ class ControllerTests(unittest.TestCase):
                 c.run(c.cancelled)
             self.assertEqual(moves, [key, 'X', 'X'])
 
-    def test_translation_renews_watchdog_for_one_second(self):
+    def test_translation_uses_model_duration_and_renews_watchdog(self):
         for action in ('forward', 'backward'):
             answers = iter([result(action), result('centre')])
             c, moves = self.controller(lambda *a, **k: next(answers))
+            first = result(action)
+            first['assessment']['duration_ms'] = 750
+            answers = iter([first, result('centre')])
             renewed = []
             c.refresh = renewed.append
             with patch.object(c.cancelled, 'wait', return_value=False) as wait:
                 c.run(c.cancelled)
-            self.assertEqual([call.args[0] for call in wait.call_args_list], [.25]*4 + [1.5])
-            self.assertEqual(renewed, [moves[0]]*3)
+            self.assertEqual([call.args[0] for call in wait.call_args_list], [.25]*3 + [1.5])
+            self.assertEqual(renewed, [moves[0]]*2)
 
     def test_short_turn_does_not_renew_watchdog(self):
         answers = iter([result('right'), result('centre')])
@@ -152,6 +166,15 @@ class ControllerTests(unittest.TestCase):
             c.run(c.cancelled)
         self.assertEqual([call.args[0] for call in wait.call_args_list], [.15, 1.5])
         self.assertEqual(renewed, [])
+
+    def test_invalid_duration_cannot_move(self):
+        for duration in [None, True, 0, -10, 1001, 1.5, '500']:
+            r = result('forward')
+            r['assessment']['duration_ms'] = duration
+            c, moves = self.controller(lambda *a, **k: r)
+            c.run(c.cancelled)
+            self.assertEqual(moves, ['X'])
+            self.assertEqual(c.snapshot()['state'], 'error')
 
     def test_empty_goal_rejected(self):
         c, moves = self.controller(lambda *a, **k: result('centre'))

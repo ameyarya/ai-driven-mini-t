@@ -254,3 +254,27 @@ Python overrides forward/backward with a short corrective turn while off-center;
 missing/invalid target localization forces stop. Qwen still chooses translation
 from apparent size once aligned. All 19 tests pass. This depends on Qwen
 localization accuracy and does not yet measure calibrated distance.
+
+## Model-selected timing and apparent-size stopping (2026-10-02)
+
+Autonomous moves now require Qwen duration_ms, rather than fixed travel/turn
+times or the adaptive timing heuristic. Executed durations and pre-move target
+position/height are returned as history. Invalid durations stop; one second
+remains an execution ceiling, and watchdog renewals/stop-and-observe remain.
+
+An approach run contacted the can while Qwen repeatedly claimed it was under
+40% image height. For closer/approach goals specifying a percentage of image
+height, the model now reports normalized bounding boxes, clipping, visibility,
+and duration. Python compares measured height against the percentage in the
+user's goal; reached size or clipping stops further approach. Off-centre targets
+are aligned before travel when still below requested size. Reached size while
+off-centre stops without claiming the entire goal achieved. Other distance
+goals retain the general decision path. Measurements can still be wrong; no
+physical distance sensor or calibrated centimetres are provided.
+
+Validation: 20 tests pass, including model-selected turn/travel durations,
+watchdog renewals, invalid-duration rejection, target size and clipping stops.
+Saved close-up frame 165028 now measures 92.4% height and stops, rather than
+forward. A second saved frame measured 64.7% and stopped. Both requested
+150 ms themselves; this is model output, not a controller default. No hardware
+movement issued by these tests. Live behavior still needs testing.
