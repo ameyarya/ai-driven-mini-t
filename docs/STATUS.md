@@ -236,3 +236,11 @@ general navigation prompt. The prompt requires every requested condition before
 completion and explains apparent-size forward/backward decisions. Regression
 checks cover closer, away, and image-fill compound goals; all 15 tests pass.
 Physical approach behavior still needs testing; translation pulses remain 150 ms.
+
+## One-second translation pulses
+
+Forward/backward autonomy pulses now last one second. Turn durations remain
+unchanged, including adaptive centering. Host renews movement every 250 ms
+during longer pulses to retain the receiver 500 ms watchdog, then explicitly
+stops and waits for fresh video. Cancellation interrupts the waits. All 17 tests
+pass, including translation timing/renewal and unchanged short turns.

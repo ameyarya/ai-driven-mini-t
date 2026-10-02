@@ -119,6 +119,27 @@ class ControllerTests(unittest.TestCase):
                 c.run(c.cancelled)
             self.assertEqual(moves, [key, 'X', 'X'])
 
+    def test_translation_renews_watchdog_for_one_second(self):
+        for action in ('forward', 'backward'):
+            answers = iter([result(action), result('centre')])
+            c, moves = self.controller(lambda *a, **k: next(answers))
+            renewed = []
+            c.refresh = renewed.append
+            with patch.object(c.cancelled, 'wait', return_value=False) as wait:
+                c.run(c.cancelled)
+            self.assertEqual([call.args[0] for call in wait.call_args_list], [.25]*4 + [1.5])
+            self.assertEqual(renewed, [moves[0]]*3)
+
+    def test_short_turn_does_not_renew_watchdog(self):
+        answers = iter([result('right'), result('centre')])
+        c, moves = self.controller(lambda *a, **k: next(answers))
+        renewed = []
+        c.refresh = renewed.append
+        with patch.object(c.cancelled, 'wait', return_value=False) as wait:
+            c.run(c.cancelled)
+        self.assertEqual([call.args[0] for call in wait.call_args_list], [.15, 1.5])
+        self.assertEqual(renewed, [])
+
     def test_empty_goal_rejected(self):
         c, moves = self.controller(lambda *a, **k: result('centre'))
         with self.assertRaises(ValueError):

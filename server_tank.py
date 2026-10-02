@@ -175,7 +175,13 @@ def autonomous_drive(key):
         send('wire(%r)' % key)
 
 
-autonomy = rover_autonomy.NavigationController(rover_vision.assess, autonomous_drive)
+def autonomous_refresh(key):
+    # Renew the receiver's 500 ms motor watchdog without stop/reconfiguration.
+    with lock:
+        send('wire(%r)' % key)
+
+
+autonomy = rover_autonomy.NavigationController(rover_vision.assess, autonomous_drive, autonomous_refresh)
 
 
 def analyze_frame(goal):

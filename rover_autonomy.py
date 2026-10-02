@@ -43,8 +43,9 @@ class AdaptiveTurn:
 
 
 class NavigationController:
-    def __init__(self, observe, drive):
+    def __init__(self, observe, drive, refresh=None):
         self.observe, self.drive = observe, drive
+        self.refresh = refresh
         self.lock = threading.RLock()
         self.state = {'state': 'idle', 'goal': ''}
         self.cancelled = threading.Event()
@@ -111,7 +112,7 @@ class NavigationController:
                     if assessment.get('goal_achieved') and not assessment.get('uncertainties'):
                         self.state.update(state='complete', message='Qwen reports goal achieved — stopped')
                         break
-                    duration = 0.15
+                    duration = 1.0 if action in ('forward', 'backward') else 0.15
                     if rover_vision.is_centering_goal(goal) and assessment.get('target_x') is not None:
                         duration = turn.next_duration(assessment['target_x'])
                         self.state['turn_ms'] = round(duration * 1000)
@@ -121,13 +122,24 @@ class NavigationController:
                     if action == 'stop':
                         self.state.update(state='stopped', message='Qwen chose stop: ' + assessment.get('reason', ''))
                         break
+                    self.state['turn_ms'] = round(duration * 1000)
                     self.state.update(state='moving', message='Move ' + action + ' for ' + str(round(duration*1000)) + ' ms')
                     self.drive(ACTIONS[action])
                     self.state['last_action'] = action
                     history.append({'step': step, 'action': action, 'duration_ms': round(duration*1000)})
                 # Bounded adaptive pulse, followed by explicit stop. Firmware watchdog
                 # remains a separate 500 ms fallback if the host fails.
-                token.wait(duration)
+                remaining = duration
+                while remaining > 0:
+                    interval = min(.25, remaining)
+                    if token.wait(interval):
+                        return
+                    remaining -= interval
+                    if remaining > 0 and self.refresh is not None:
+                        with self.lock:
+                            if not self.valid(token):
+                                return
+                            self.refresh(ACTIONS[action])
                 with self.lock:
                     if token is not self.cancelled or token.is_set():
                         return
