@@ -91,3 +91,14 @@ then centre, manual cancellation during inference, step cap, stale frame rejecti
 and browser lease expiry. Python/JavaScript syntax checked. Physical centering
 accuracy awaits user-initiated dashboard test; no autonomous test movement issued
 by the development agent.
+
+## Dashboard simplified and camera battery limit
+
+Simplified the default page to live video, fixed can-centering goal Start/Stop,
+one autonomy status, and compact manual driving controls. Launcher, visual
+questions, snapshot, and detailed model output are collapsed by default.
+DOM IDs and JavaScript syntax verified; no controller behavior changed.
+User reports DJI battery died during livestream testing. Controller status was
+"Camera stream lost; autonomous turn cancelled" at step 1. Recharge camera and
+restart Mimo stream before continuing physical centering tests. External USB
+power is a possible longer-test option, not yet tested on the rover.
