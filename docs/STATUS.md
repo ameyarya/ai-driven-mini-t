@@ -147,3 +147,6 @@ JavaScript syntax and required element IDs verified.
 
 Removed the camera question input and Ask action from the page; navigation goal
 and model results remain. Standalone backend analysis is retained for later use.
+
+Removed Model results button and expandable panel. Latest decision remains
+visible; detailed renderer fields are hidden to preserve existing polling.
