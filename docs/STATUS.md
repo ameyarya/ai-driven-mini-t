@@ -126,3 +126,5 @@ video-delay caption overlays the camera instead of adding height below it.
 
 Manual driving/launcher widgets hidden from the dashboard; keyboard driving,
 launcher shortcuts, and Escape override remain available.
+
+Removed the Launcher section from the dashboard markup.
