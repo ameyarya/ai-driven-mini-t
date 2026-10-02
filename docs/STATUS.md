@@ -102,3 +102,8 @@ User reports DJI battery died during livestream testing. Controller status was
 "Camera stream lost; autonomous turn cancelled" at step 1. Recharge camera and
 restart Mimo stream before continuing physical centering tests. External USB
 power is a possible longer-test option, not yet tested on the rover.
+
+Dashboard now uses the browser viewport height: smaller adaptive camera feed,
+compact controls, and expanded detail panels overlay the sidebar instead of
+increasing page height. Page-level scrolling is disabled; long optional model
+details can scroll inside their overlay. Controller behavior is unchanged.

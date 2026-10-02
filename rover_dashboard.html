@@ -2,6 +2,27 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rook · Rover</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui;background:#10151d;color:#edf2fa}*{box-sizing:border-box}body{max-width:1300px;margin:auto;padding:24px}header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}h1{font-size:24px;margin:0}h2{font-size:17px;margin:0 0 14px}.muted,summary,label{color:#a7b3c5;font-size:13px}main{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:20px}.video{width:100%;aspect-ratio:16/9;border:0;border-radius:12px;background:#080b10;pointer-events:none}.panel{padding:20px;background:#19212d;border:1px solid #2c3748;border-radius:12px}button{font:inherit;color:inherit;background:#29364a;border:1px solid #40516b;border-radius:8px;padding:11px 15px;cursor:pointer;touch-action:none;user-select:none}button:hover{background:#344662}button:active{background:#42648e}button:disabled{opacity:.5;cursor:wait}.primary{background:#277b58;border-color:#46a477}.actions{display:flex;gap:8px}.actions button{flex:1}#auto-status{line-height:1.5;color:#91dfb7;min-height:44px;font-size:14px}.g{display:grid;grid-template-columns:repeat(3,48px);gap:6px;justify-content:center;margin:16px 0}.g button{padding:8px;height:44px;font-size:22px}.manual{border-top:1px solid #354154;margin-top:20px;padding-top:18px}.hint{font-size:12px;line-height:1.6;color:#9caec5}#status{font-size:13px;color:#a7b3c5}details{border-top:1px solid #354154;padding-top:14px;margin-top:16px}summary{cursor:pointer}input{width:100%;padding:10px;color:inherit;background:#101722;border:1px solid #40516b;border-radius:8px;font:inherit;margin:8px 0}label{display:block;margin-top:14px}#analyze{width:100%;font-size:14px}#vision-status{font-size:13px;color:#b6c9e6;line-height:1.5;margin-top:10px}#snapshot{width:100%;border-radius:8px;margin:14px 0}#result{font-size:13px;line-height:1.5}.result-label{font-size:11px;color:#8295af;text-transform:uppercase;margin-top:12px}#answer,#action{color:#91dfb7}.aux{display:flex;gap:6px;margin-top:12px}.aux button{font-size:12px;padding:9px}.camera-note{font-size:12px;color:#8295af;margin-top:8px}@media(max-width:800px){body{padding:14px}main{grid-template-columns:1fr}.panel{padding:16px}}
+
+/* Fit the control surface to the browser viewport. */
+html{height:100%;overflow:hidden}
+body{height:100dvh;max-width:1200px;padding:16px;display:flex;flex-direction:column;overflow:hidden}
+header{flex:0 0 auto;margin-bottom:12px}
+main{flex:1;min-height:0;position:relative;grid-template-columns:minmax(0,1fr) 260px;gap:16px}
+main>section{min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.video{display:block;max-height:calc(100dvh - 105px);flex:0 1 auto;min-height:0}
+.panel{min-height:0;padding:14px;position:relative}
+h2{font-size:15px;margin-bottom:10px}button{padding:9px 12px;font-size:14px}
+#auto-status{font-size:13px;min-height:36px;margin:10px 0}
+.hint{font-size:11px;line-height:1.45}.manual{margin-top:12px;padding-top:12px}
+.g{grid-template-columns:repeat(3,42px);gap:4px;margin:10px 0}.g button{height:36px;padding:5px;font-size:20px}
+details{padding-top:10px;margin-top:10px}summary{font-size:12px}
+.panel details[open]{position:absolute;z-index:2;inset:0;background:#19212d;border:1px solid #40516b;border-radius:12px;margin:0;padding:16px;overflow:auto}
+.panel details[open]>summary{position:sticky;top:0;background:#19212d;padding:6px 0 12px;color:#edf2fa}
+.panel details[open]>summary::after{content:' · click to close';color:#8295af;font-size:11px}
+#snapshot{max-height:180px;object-fit:contain}
+@media(max-height:620px){body{padding:10px}header{margin-bottom:8px}h1{font-size:20px}.panel{padding:10px}.manual{margin-top:8px;padding-top:8px}.hint{font-size:10px}.g{margin:6px 0}.g button{height:30px}details{padding-top:7px;margin-top:7px}#auto-status{margin:6px 0;min-height:30px}.video{max-height:calc(100dvh - 85px)}}
+@media(max-width:800px){body{padding:10px}main{grid-template-columns:minmax(0,1fr) 230px;gap:10px}.panel{padding:10px}}
+@media(max-width:540px){main{grid-template-columns:minmax(0,1fr) 190px;gap:8px}.panel{padding:8px}.muted{font-size:10px}h2{font-size:13px}.actions button{padding:8px}.hint{font-size:10px}.g{grid-template-columns:repeat(3,36px)}}
 </style></head><body>
 <header><h1>Rook</h1><span class="muted">Local Qwen · Tank POC</span></header>
 <main><section><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe><div class="camera-note">Live camera · about 1 second delay</div></section>
