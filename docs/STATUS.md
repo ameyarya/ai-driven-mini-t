@@ -244,3 +244,13 @@ unchanged, including adaptive centering. Host renews movement every 250 ms
 during longer pulses to retain the receiver 500 ms watchdog, then explicitly
 stops and waits for fresh video. Cancellation interrupts the waits. All 17 tests
 pass, including translation timing/renewal and unchanged short turns.
+
+## Align before distance changes
+
+Logs showed repeated forward decisions despite off-center target descriptions.
+Saved frame 201408 shows only a sliver of the can at the left edge. Distance
+goals now require explicit visibility and normalized horizontal coordinates.
+Python overrides forward/backward with a short corrective turn while off-center;
+missing/invalid target localization forces stop. Qwen still chooses translation
+from apparent size once aligned. All 19 tests pass. This depends on Qwen
+localization accuracy and does not yet measure calibrated distance.

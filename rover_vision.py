@@ -67,6 +67,24 @@ def centering_decision(observation):
             'uncertainties': uncertainty}
 
 
+def is_distance_goal(goal):
+    return bool(re.search(r'\b(closer|nearer|away|approach|distance|farther|further)\b|\d+\s*%', goal.lower()))
+
+
+def distance_alignment_guard(assessment):
+    assessment = dict(assessment)
+    x = assessment.get('target_x')
+    if assessment.get('target_visible') is not True or type(x) is not int or not 0 <= x <= 1000:
+        assessment.update(suggested_action='stop', goal_achieved=False,
+                          reason='Target lost; stopped before further travel',
+                          uncertainties=['Target not reliably localized'])
+    elif not 450 <= x <= 550:
+        assessment.update(suggested_action='left' if x < 450 else 'right',
+                          goal_achieved=False, reason='Align target before changing distance')
+    assessment['target_x'] = x / 10 if type(x) is int and 0 <= x <= 1000 else None
+    return assessment
+
+
 def analyze_image(goal, frame, autonomous=False, history=None):
     prompt = (
         'Answer the user question directly using this camera image. '
@@ -125,6 +143,19 @@ def analyze_image(goal, frame, autonomous=False, history=None):
     if autonomous:
         schema['properties']['goal_achieved'] = {'type': 'boolean'}
         schema['required'].append('goal_achieved')
+    distance = autonomous and is_distance_goal(goal)
+    if distance:
+        prompt += (
+            '\nAlso locate the requested target in THIS image: target_visible=false '
+            'when absent or uncertain; never infer visibility from previous actions. '
+            'target_x is its horizontal centre as an INTEGER normalized to image '
+            'width: left edge=0, centre=500, right edge=1000. Use null when absent. '
+            'Align before advancing: if off-centre, turn toward it. If target is '
+            'missing, stop; forward movement is not a target search strategy.'
+        )
+        schema['properties'].update(target_visible={'type': 'boolean'},
+                                    target_x={'type': ['integer', 'null'], 'minimum': 0, 'maximum': 1000})
+        schema['required'].extend(['target_visible', 'target_x'])
     centering = autonomous and is_centering_goal(goal)
     if centering:
         prompt = (
@@ -155,6 +186,8 @@ def analyze_image(goal, frame, autonomous=False, history=None):
         raw_x = assessment.get('target_x')
         assessment['target_x'] = raw_x / 10 if type(raw_x) is int and 0 <= raw_x <= 1000 else None
         assessment = centering_decision(assessment)
+    elif distance:
+        assessment = distance_alignment_guard(assessment)
     if assessment.get('suggested_action') not in ('forward', 'backward', 'left', 'right', 'stop'):
         raise RuntimeError('Model returned an invalid action; no usable assessment.')
     return assessment, round(time.monotonic() - start, 2), response['model']

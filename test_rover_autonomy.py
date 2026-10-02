@@ -3,7 +3,7 @@ import time
 import unittest
 from unittest.mock import patch
 from rover_autonomy import NavigationController, AdaptiveTurn
-from rover_vision import centering_decision, is_centering_goal
+from rover_vision import centering_decision, is_centering_goal, distance_alignment_guard
 
 
 def result(position, uncertainty=None):
@@ -13,6 +13,19 @@ def result(position, uncertainty=None):
 
 
 class ControllerTests(unittest.TestCase):
+    def test_distance_alignment_overrides_forward(self):
+        for x, expected in [(30, 'left'), (800, 'right'), (500, 'forward')]:
+            a = distance_alignment_guard({'target_visible': True, 'target_x': x,
+                'suggested_action': 'forward', 'goal_achieved': False, 'uncertainties': []})
+            self.assertEqual(a['suggested_action'], expected)
+
+    def test_distance_lost_target_cannot_advance_or_complete(self):
+        for visible, x in [(False, None), (True, None), (True, 1100)]:
+            a = distance_alignment_guard({'target_visible': visible, 'target_x': x,
+                'suggested_action': 'forward', 'goal_achieved': True, 'uncertainties': []})
+            self.assertEqual(a['suggested_action'], 'stop')
+            self.assertFalse(a['goal_achieved'])
+
     def test_coordinates_override_wrong_turn_and_complete(self):
         for x, action, achieved in [(34, 'left', False), (46, 'stop', True), (72, 'right', False)]:
             a = centering_decision({'target_visible': True, 'target_x': x, 'uncertainties': []})
