@@ -82,6 +82,7 @@ class NavigationController:
                         break
                     self.state.update(state='moving', message='Short move ' + action)
                     self.drive(ACTIONS[action])
+                    self.state['last_action'] = action
                     history.append({'step': step, 'action': action, 'answer': assessment.get('answer', '')})
                 # One 150 ms pulse, followed by explicit stop. Firmware watchdog
                 # remains a separate 500 ms fallback if the host fails.

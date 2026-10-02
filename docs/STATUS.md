@@ -128,3 +128,15 @@ Manual driving/launcher widgets hidden from the dashboard; keyboard driving,
 launcher shortcuts, and Escape override remain available.
 
 Removed the Launcher section from the dashboard markup.
+
+## Camera availability and clearer progress
+
+Added /camera/status to report MediaMTX stream readiness. Dashboard shows
+Camera live/offline; Start remains disabled while offline, and server rejects
+starts without a live source. Camera status polling requests cancellation when
+the source disappears. This detects stream availability, not a frozen image.
+Run status now explicitly shows analyzing, moving, waiting for video, completion,
+stopped, or error, with the most recent action retained between observations.
+Latest model decision and reason are visible without opening detailed results.
+Viewport-sized layout and hidden manual widgets are preserved. Nine controller
+tests and JavaScript/Python syntax checks passed.

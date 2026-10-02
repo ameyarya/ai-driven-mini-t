@@ -30,10 +30,12 @@ main>section{justify-content:flex-start;align-items:stretch;position:relative}
 .camera-note{position:absolute;left:12px;bottom:10px;margin:0;padding:5px 8px;border-radius:6px;background:#10151dcc;pointer-events:none}
 
 .manual[hidden]{display:none}
+
+#decision{line-height:1.5;margin:10px 0;max-height:6em;overflow:auto;color:#c4d2e4}
 </style></head><body>
 <header><h1>Rook</h1><span class="muted">Local Qwen · Tank POC</span></header>
-<main><section><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe><div class="camera-note">Live camera · about 1 second delay</div></section>
-<aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary">Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><div class="hint">Short moves, then stop and look again.<br>Escape or manual input takes over.</div>
+<main><section><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera · checking…</span> · about 1 second delay</div></section>
+<aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary" disabled>Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Short moves, then stop and look again.<br>Escape or manual input takes over.</div>
 <div class="manual" hidden><h2>Manual control</h2><div class="g"><span></span><button data-key="W" aria-label="Forward">↑</button><span></span><button data-key="A" aria-label="Left">←</button><span></span><button data-key="D" aria-label="Right">→</button><span></span><button data-key="S" aria-label="Backward">↓</button><span></span></div><div class="hint">Hold arrow keys to drive. Release to stop.</div><div id="status" role="status">Stopped</div></div>
 <details><summary>Ask the camera</summary><label for="goal">Question · answers only</label><input id="goal" maxlength="1000" placeholder="Ask about the camera view"><button id="analyze">Analyze frame</button><div id="vision-status" role="status">Ready to analyze</div></details>
 <details><summary>Latest model result</summary><div id="result" hidden><img id="snapshot" alt="Frame analyzed by Qwen"><div class="result-label">Answer</div><div id="answer"></div><div class="result-label">Suggested movement</div><div id="action"></div><div class="result-label">Scene</div><div id="scene"></div><div class="result-label">Reason</div><div id="reason"></div><div class="result-label">Obstacles</div><div id="obstacles"></div><div class="result-label">Uncertainty</div><div id="uncertainties"></div><p id="timing" class="hint"></p></div></details>
@@ -90,7 +92,7 @@ document.querySelectorAll('button[data-key]').forEach(b=>{
  b.addEventListener('lostpointercapture',release);
 });
 
-let autoActive=false;
+let autoActive=false,cameraLive=false;
 const analyzeButton=document.querySelector('#analyze');
 let displayedFrame='',latestCapture=0;
 async function pollVision(){
@@ -107,6 +109,7 @@ async function pollVision(){
   const r=state.result,a=r.assessment;
   if(r.captured_at<latestCapture)return;
   latestCapture=r.captured_at;
+  document.querySelector('#decision').textContent=String(a.answer||a.reason||'No answer');
   label.textContent='Analysis complete · '+r.inference_seconds+'s inference';
   if(displayedFrame!==r.frame){
    displayedFrame=r.frame;
@@ -138,6 +141,7 @@ function showAutoResult(r){
  if(r.captured_at<latestCapture)return;
  latestCapture=r.captured_at;
  const a=r.assessment;
+ document.querySelector('#decision').textContent=String(a.suggested_action).toUpperCase()+' — '+String(a.reason||a.answer||'');
  document.querySelector('#result').hidden=false;
  if(displayedFrame!==r.frame){
   displayedFrame=r.frame;
@@ -155,15 +159,21 @@ async function pollAuto(){
   if(!response.ok)throw Error('Autonomy server unavailable');
   const state=await response.json();
   autoActive=['observing','moving','settling'].includes(state.state);
-  document.querySelector('#auto-start').disabled=autoActive;
+  document.querySelector('#auto-start').disabled=autoActive||!cameraLive;
   analyzeButton.disabled=autoActive;
-  document.querySelector('#auto-status').textContent=(state.message||'Autonomous control idle')+(state.step?' · step '+state.step+'/40':'');
+  const progress={idle:'Ready',observing:state.step>1?'Analyzing again':'Analyzing',moving:'Moving',settling:'Stopped · waiting for fresh video',complete:'Goal achieved',stopped:'Stopped',error:'Run failed'};
+  let line=progress[state.state]||state.state;
+  if(state.state==='moving')line+=' '+(state.last_action||'');
+  if(state.state==='observing'&&state.last_action)line+=' · last move '+state.last_action;
+  if(['stopped','error'].includes(state.state))line+=' — '+(state.message||'');
+  document.querySelector('#auto-status').textContent=line+(state.step?' · step '+state.step+'/40':'');
   if(autoActive)document.querySelector('#vision-status').textContent='Autonomous goal running · '+state.state;
   if(state.result)showAutoResult(state.result);
   if(autoActive)await fetch('/autonomy/heartbeat',{method:'POST',signal:AbortSignal.timeout(3000)});
  }catch(error){stopAuto();document.querySelector('#auto-status').textContent=error.message;}
 }
 document.querySelector('#auto-start').addEventListener('click',async()=>{
+ if(!cameraLive){document.querySelector('#auto-status').textContent='Camera offline — restart Mimo';return;}
  held.clear();wanted='X';fire=0;aim=0;
  while(busy)await new Promise(resolve=>setTimeout(resolve,30));
  last=state();
@@ -175,6 +185,23 @@ document.querySelector('#auto-start').addEventListener('click',async()=>{
 });
 document.querySelector('#auto-stop').addEventListener('click',stop);
 addEventListener('pagehide',stopAuto);
-setInterval(async()=>{await pollAuto();if(!autoActive)await pollVision();},1000);
-pollAuto();pollVision();
+async function pollCamera(){
+ try{
+  const response=await fetch('/camera/status',{cache:'no-store',signal:AbortSignal.timeout(2000)});
+  if(!response.ok)throw Error('Camera status unavailable');
+  cameraLive=(await response.json()).live===true;
+ }catch{cameraLive=false;}
+ const badge=document.querySelector('#camera-status');
+ badge.textContent=cameraLive?'● Camera live':'● Camera offline';
+ badge.style.color=cameraLive?'#91dfb7':'#f3ad87';
+ document.querySelector('#auto-start').disabled=autoActive||!cameraLive;
+ if(!cameraLive&&autoActive)stopAuto();
+}
+let polling=false;
+async function refreshStatus(){
+ if(polling)return;polling=true;
+ try{await pollCamera();await pollAuto();if(!autoActive)await pollVision();}
+ finally{polling=false;}
+}
+setInterval(refreshStatus,1000);refreshStatus();
 </script></body></html>

@@ -208,6 +208,9 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 path = urlparse(self.path).path
                 if path == '/autonomy/start':
+                    paths = rover_vision.read_json('http://127.0.0.1:9997/v3/paths/list', timeout=1)['items']
+                    if not any(p['name'] == 'live/tank' and p['ready'] for p in paths):
+                        raise ValueError('Camera offline — restart the Mimo livestream')
                     with vision_lock:
                         if vision_state['state'] == 'running':
                             raise ValueError('Wait for the current analysis to finish')
@@ -269,6 +272,14 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         url = urlparse(self.path)
+        if url.path == '/camera/status':
+            try:
+                paths = rover_vision.read_json('http://127.0.0.1:9997/v3/paths/list', timeout=1)['items']
+                live = any(p['name'] == 'live/tank' and p['ready'] for p in paths)
+                self.text_result(200, json.dumps({'live': live}))
+            except Exception:
+                self.text_result(200, json.dumps({'live': False}))
+            return
         if url.path == '/autonomy/status':
             self.text_result(200, json.dumps(autonomy.snapshot()))
             return
