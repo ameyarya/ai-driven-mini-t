@@ -51,7 +51,8 @@ wireless streaming to avoid introducing another hardware project.
 
 ## Limits
 
-The local model only advises. Automatic navigation, firing, and obstacle avoidance
+The model advises by default. The new can-centering goal can execute bounded
+turns when started. General navigation, automatic firing, and obstacle avoidance
 are not implemented. Video delay is about one second; initial model responses
 are around 10–12 seconds. Single images do not establish accurate range or
 collision clearance. Hardware backups, signing keys, captured frames, and personal
@@ -67,3 +68,26 @@ advertised 33 ms is a project benchmark, not a measured rover/M4 result.
 No installation or integration performed. Keep current POC until a concrete
 decision-layer need emerges; can-centering from measured image coordinates can
 also use direct control rules.
+
+## First autonomous goal implemented
+
+Goal: turn until the Coca-Cola can is centred in the camera image, then stop.
+Dashboard Start goal/Stop goal controls activate a background turn/observe loop.
+Qwen supplies target_position and suggested_action; controller checks agreement
+and executes only left/right, with 150 ms host pulses at 40% drive setting.
+Explicit stop and 1.5 second settling wait separate observations. Centre is
+prompted as the middle 10% of image width. No forward, backward, or automatic
+launcher commands. Manual controls retain full requested speed.
+
+Manual commands/Escape cancel the goal. Browser blur/hide/close requests stop;
+a five-second heartbeat lease blocks subsequent turns after disconnection.
+Stops on missing/uncertain target, position/action disagreement, assessment age
+over 25 seconds, camera stream loss, errors, or eight-observation limit. Existing
+receiver 500 ms watchdog remains the independent fallback. A frozen-but-connected
+video source is not yet detected. No arbitrary autonomous goals supported yet.
+
+Seven controller tests passed: centred completion, missing/uncertain stop, turn
+then centre, manual cancellation during inference, step cap, stale frame rejection,
+and browser lease expiry. Python/JavaScript syntax checked. Physical centering
+accuracy awaits user-initiated dashboard test; no autonomous test movement issued
+by the development agent.

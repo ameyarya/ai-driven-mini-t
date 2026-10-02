@@ -9,6 +9,7 @@ import time
 import json
 from pathlib import Path
 import rover_vision
+import rover_autonomy
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -29,7 +30,7 @@ MOVES = {
 BOARD_CODE = 'import espnow\nimport network\nimport time\ne = espnow.ESPNow()\ne.active(True)\npeer = bytes.fromhex("206ef1497d7c")\ntry:\n e.add_peer(peer)\nexcept OSError:\n pass\ndef wire(c):\n for attempt in range(3):\n  if e.send(peer,b"cbdrive1:"+c.encode()):\n   return\n  time.sleep_ms(10)\n raise OSError("Receiver unavailable")\nconfirmed = False\nfor attempt in range(5):\n try:\n  wire("X")\n  ack = e.recv(150)\n  if ack[0] == peer and ack[1] == b"cbdrive1:ACK":\n   confirmed = True\n   break\n except OSError:\n  pass\n time.sleep_ms(20)\nif not confirmed:\n raise OSError("Receiver did not acknowledge stop")\nprint("WIRELESS HOLD CONTROL READY")\nimport ubinascii\ndef ota(raw):\n packet = bytes.fromhex(raw)\n e.send(peer,packet,False)\n start = time.ticks_ms()\n while time.ticks_diff(time.ticks_ms(),start)<280:\n  host,msg = e.recv(0)\n  if host==peer and msg and msg.startswith(b"CBU1"):\n   print("OTA",ubinascii.hexlify(msg).decode())\n   return\n  time.sleep_ms(2)\n print("OTA NONE")\n'
 SETUP = 'exec(%r)\r\n' % BOARD_CODE
 
-lock = threading.Lock()
+lock = threading.RLock()
 ser = serial.Serial()
 ser.port = PORT
 ser.baudrate = 115200
@@ -161,6 +162,22 @@ vision_lock = threading.Lock()
 vision_state = {'state': 'idle'}
 
 
+def autonomous_drive(key):
+    if key != 'X':
+        paths = rover_vision.read_json('http://127.0.0.1:9997/v3/paths/list')['items']
+        if not any(p['name'] == 'live/tank' and p['ready'] for p in paths):
+            raise RuntimeError('Camera stream lost; autonomous turn cancelled')
+    with lock:
+        # Enable protocol extensions and keep the launcher idle. Reduced speed
+        # applies only to short autonomous turns; manual control still uses 100%.
+        send("wire('X')")
+        wireless_update.exchange(ser, b'L', wireless_update.secrets.token_bytes(4), bytes((0, 1, 40)))
+        send('wire(%r)' % key)
+
+
+autonomy = rover_autonomy.CenteringController(rover_vision.assess, autonomous_drive)
+
+
 def analyze_frame(goal):
     global vision_state
     try:
@@ -187,8 +204,26 @@ class Handler(BaseHTTPRequestHandler):
         if self.headers.get('Origin') not in (None,'http://localhost:8000','http://127.0.0.1:8000'):
             self.send_error(403)
             return
+        if urlparse(self.path).path in ('/autonomy/start', '/autonomy/stop', '/autonomy/heartbeat'):
+            try:
+                path = urlparse(self.path).path
+                if path == '/autonomy/start':
+                    with vision_lock:
+                        if vision_state['state'] == 'running':
+                            raise ValueError('Wait for the current analysis to finish')
+                    autonomy.start()
+                elif path == '/autonomy/stop':
+                    autonomy.cancel()
+                else:
+                    autonomy.heartbeat()
+                self.text_result(200, json.dumps(autonomy.snapshot()))
+            except Exception as error:
+                self.text_result(503, str(error))
+            return
         if urlparse(self.path).path == '/vision/analyze':
             try:
+                if autonomy.active():
+                    raise ValueError('Stop autonomous control before manual analysis')
                 length = int(self.headers.get('Content-Length', '0'))
                 if not 0 < length <= 4096:
                     raise ValueError('Invalid request size')
@@ -212,6 +247,7 @@ class Handler(BaseHTTPRequestHandler):
         if path not in ('/update','/rollback'):
             self.send_error(404)
             return
+        autonomy.cancel('Stopped for application update')
         try:
             length = int(self.headers.get('Content-Length','0'))
             if not 0<=length<=32768:
@@ -229,6 +265,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         url = urlparse(self.path)
+        if url.path == '/autonomy/status':
+            self.text_result(200, json.dumps(autonomy.snapshot()))
+            return
         if url.path == '/vision/status':
             with vision_lock:
                 body = json.dumps(vision_state)
@@ -237,6 +276,8 @@ class Handler(BaseHTTPRequestHandler):
         if url.path == '/vision/frame':
             with vision_lock:
                 filename = vision_state.get('result', {}).get('frame')
+            if parse_qs(url.query).get('source') == ['autonomy']:
+                filename = autonomy.snapshot().get('result', {}).get('frame')
             if not filename:
                 self.send_error(404)
                 return
@@ -264,6 +305,7 @@ class Handler(BaseHTTPRequestHandler):
                         result=wireless_update.exchange(ser,b'V',wireless_update.secrets.token_bytes(4)).decode()
                     self.text_result(200,result)
                     return
+                autonomy.cancel('Manual control took over')
                 fire=int(params.get('fire',['0'])[0])
                 aim=int(params.get('aim',['0'])[0])
                 if fire not in (0,1) or aim not in (-1,0,1):
@@ -284,6 +326,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.text_result(503,str(error))
             return
         if url.path == "/cmd":
+            autonomy.cancel('Manual control took over')
             key = parse_qs(url.query).get("c", [""])[0].upper()
             if key in MOVES:
                 try:

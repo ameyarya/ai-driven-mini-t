@@ -6,7 +6,7 @@
 <header><div><h1>Rook / Rover vision</h1><p class="small" style="margin:6px 0 0">Camera → local Qwen → navigation advice</p></div><span class="badge">Qwen3-VL 4B · Local</span></header>
 <main class="layout"><section class="card"><h2>Live camera</h2><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe>
 <p class="small">DJI via Mimo · approximately 1 second video delay</p><div class="controls"><div class="g"><span></span><button data-key="W" aria-label="Forward">↑</button><span></span><button data-key="A" aria-label="Left">←</button><span></span><button data-key="D" aria-label="Right">→</button><span></span><button data-key="S" aria-label="Backward">↓</button><span></span></div><div><h2>Manual control</h2><p class="small">Hold arrow keys to drive. Release to stop.<br>Escape stops everything.</p><div class="aux"><button data-key="Q">Launcher ↑ / 1</button><button data-key="E">Launcher ↓ / 2</button><button data-key="F">Fire / Space</button></div><p id="status">Stopped</p></div></div></section>
-<section class="card"><h2>Local vision</h2><label for="goal">Question or navigation goal</label><input id="goal" maxlength="1000" value="Find a clear path ahead."><button id="analyze" class="primary">Analyze camera frame</button><div id="vision-status" role="status" aria-live="polite">Ready to analyze</div><p class="small">Advice only. You control the tank.</p><div id="result" hidden><img id="snapshot" alt="Frame analyzed by Qwen"><div class="result-label">Answer</div><div id="answer"></div><div class="result-label">Suggested movement</div><div id="action"></div><div class="result-label">Scene</div><div id="scene"></div><div class="result-label">Reason</div><div id="reason"></div><div class="result-label">Visible obstacles</div><div id="obstacles"></div><div class="result-label">Uncertainty</div><div id="uncertainties"></div><p id="timing" class="small"></p></div></section></main><script>
+<section class="card"><h2>Local vision</h2><label for="goal">Question or navigation goal</label><input id="goal" maxlength="1000" value="Find a clear path ahead."><button id="analyze" class="primary">Analyze camera frame</button><div id="vision-status" role="status" aria-live="polite">Ready to analyze</div><p class="small">Analyze gives advice. Start goal enables short automatic turns.</p><div style="border-top:1px solid #40516b;padding-top:14px"><h2>Goal: centre the Coca-Cola can</h2><p class="small">Turns only · 150 ms pulses · stop and observe between turns</p><button id="auto-start">Start goal</button> <button id="auto-stop">Stop goal</button><p id="auto-status" role="status">Autonomous control idle</p></div><div id="result" hidden><img id="snapshot" alt="Frame analyzed by Qwen"><div class="result-label">Answer</div><div id="answer"></div><div class="result-label">Suggested movement</div><div id="action"></div><div class="result-label">Scene</div><div id="scene"></div><div class="result-label">Reason</div><div id="reason"></div><div class="result-label">Visible obstacles</div><div id="obstacles"></div><div class="result-label">Uncertainty</div><div id="uncertainties"></div><p id="timing" class="small"></p></div></section></main><script>
 
 let wanted='X', fire=0, aim=0, busy=false, last='X|0|0';
 const held=new Set();
@@ -32,9 +32,10 @@ function update(){
  aim=q==='Q'?-1:q==='E'?1:0;
  pump();
 }
-function stop(){held.clear();update()}
+function stop(){held.clear();update();stopAuto()}
 setInterval(pump,100);
 addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.preventDefault();stop();return;}
   if(e.target.matches('input,textarea'))return;
   const k=keyMap[e.key];
   if(!k)return;
@@ -57,9 +58,11 @@ document.querySelectorAll('button[data-key]').forEach(b=>{
  b.addEventListener('lostpointercapture',release);
 });
 
+let autoActive=false;
 const analyzeButton=document.querySelector('#analyze');
-let displayedFrame='';
+let displayedFrame='',latestCapture=0;
 async function pollVision(){
+ if(autoActive)return;
  try{
   const response=await fetch('/vision/status',{cache:'no-store',signal:AbortSignal.timeout(3000)});
   if(!response.ok)throw Error('Vision server unavailable');
@@ -70,6 +73,8 @@ async function pollVision(){
   if(state.state==='error'){label.textContent='Analysis failed: '+state.error;return;}
   if(state.state!=='done')return;
   const r=state.result,a=r.assessment;
+  if(r.captured_at<latestCapture)return;
+  latestCapture=r.captured_at;
   label.textContent='Analysis complete · '+r.inference_seconds+'s inference';
   if(displayedFrame!==r.frame){
    displayedFrame=r.frame;
@@ -92,5 +97,52 @@ analyzeButton.addEventListener('click',async()=>{
   await pollVision();
  }catch(error){document.querySelector('#vision-status').textContent=error.message;analyzeButton.disabled=false;}
 });
-setInterval(pollVision,1000);pollVision();
+
+function stopAuto(){
+ autoActive=false;
+ fetch('/autonomy/stop',{method:'POST',keepalive:true}).catch(()=>{});
+}
+function showAutoResult(r){
+ if(r.captured_at<latestCapture)return;
+ latestCapture=r.captured_at;
+ const a=r.assessment;
+ document.querySelector('#result').hidden=false;
+ if(displayedFrame!==r.frame){
+  displayedFrame=r.frame;
+  document.querySelector('#snapshot').src='/vision/frame?source=autonomy&t='+r.captured_at;
+ }
+ document.querySelector('#action').textContent=String(a.suggested_action).toUpperCase();
+ for(const name of ['answer','scene','reason','obstacles','uncertainties']){
+  const value=a[name];document.querySelector('#'+name).textContent=Array.isArray(value)?value.join(' · ')||'None reported':String(value||'None reported');
+ }
+ document.querySelector('#timing').textContent='Snapshot '+Math.max(0,Math.floor(Date.now()/1000-r.captured_at))+'s ago';
+}
+async function pollAuto(){
+ try{
+  const response=await fetch('/autonomy/status',{cache:'no-store',signal:AbortSignal.timeout(3000)});
+  if(!response.ok)throw Error('Autonomy server unavailable');
+  const state=await response.json();
+  autoActive=['observing','turning','settling'].includes(state.state);
+  document.querySelector('#auto-start').disabled=autoActive;
+  analyzeButton.disabled=autoActive;
+  document.querySelector('#auto-status').textContent=(state.message||'Autonomous control idle')+(state.step?' · step '+state.step+'/8':'');
+  if(autoActive)document.querySelector('#vision-status').textContent='Autonomous goal running · '+state.state;
+  if(state.result)showAutoResult(state.result);
+  if(autoActive)await fetch('/autonomy/heartbeat',{method:'POST',signal:AbortSignal.timeout(3000)});
+ }catch(error){stopAuto();document.querySelector('#auto-status').textContent=error.message;}
+}
+document.querySelector('#auto-start').addEventListener('click',async()=>{
+ held.clear();wanted='X';fire=0;aim=0;
+ while(busy)await new Promise(resolve=>setTimeout(resolve,30));
+ last=state();
+ try{
+  const response=await fetch('/autonomy/start',{method:'POST',signal:AbortSignal.timeout(5000)});
+  if(!response.ok)throw Error(await response.text());
+  autoActive=true;await pollAuto();
+ }catch(error){document.querySelector('#auto-status').textContent=error.message;}
+});
+document.querySelector('#auto-stop').addEventListener('click',stop);
+addEventListener('pagehide',stopAuto);
+setInterval(async()=>{await pollAuto();if(!autoActive)await pollVision();},1000);
+pollAuto();pollVision();
 </script></body></html>

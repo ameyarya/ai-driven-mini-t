@@ -19,7 +19,7 @@ def read_json(url, body=None, timeout=5):
         return json.load(response)
 
 
-def assess(goal):
+def assess(goal, centering=False):
     paths = read_json('http://127.0.0.1:9997/v3/paths/list')['items']
     if not any(p['name'] == 'live/tank' and p['ready'] for p in paths):
         raise RuntimeError('DJI stream is offline. Start the Mimo livestream first.')
@@ -50,17 +50,38 @@ def assess(goal):
         'advisory only. User question or goal: ' + goal
     )
     start = time.monotonic()
+    if centering:
+        prompt = (
+            'Locate the Coca-Cola can in this image for a toy tank centering task. '
+            'Goal: turn to centre the can, then stop. Report target_position as '
+            'left, centre, right, not_visible, or uncertain. Centre means the can\'s '
+            'horizontal centre lies within the middle 10% of image width. '
+            'Use left/right relative to the IMAGE. suggested_action must be left '
+            'for a can on the left, right for a can on the right, and stop for '
+            'centre, not_visible, or uncertain. Never move forward or backward. '
+            'answer should state the position. Keep all descriptions brief. '
+            'uncertainties should be empty if the can is clearly identifiable and '
+            'its horizontal position is clear. Only report uncertainty that '
+            'actually prevents identification or localization; do not speculate '
+            'about focus, hidden objects, or camera calibration. '
+            'If no can is visible use not_visible; if localization is ambiguous '
+            'use uncertain. Return the requested JSON fields.'
+        )
+    schema = {'type': 'object', 'properties': {
+        'answer': {'type': 'string', 'maxLength': 240},
+        'scene': {'type': 'string', 'maxLength': 180},
+        'obstacles': {'type': 'array', 'maxItems': 4, 'items': {'type': 'string', 'maxLength': 80}},
+        'suggested_action': {'type': 'string', 'enum': ['forward', 'backward', 'left', 'right', 'stop']},
+        'reason': {'type': 'string', 'maxLength': 180},
+        'uncertainties': {'type': 'array', 'maxItems': 3, 'items': {'type': 'string', 'maxLength': 80}},
+    }, 'required': ['answer', 'scene', 'obstacles', 'suggested_action', 'reason', 'uncertainties'],
+               'additionalProperties': False}
+    if centering:
+        schema['properties']['target_position'] = {'type': 'string', 'enum': ['left', 'centre', 'right', 'not_visible', 'uncertain']}
+        schema['required'].append('target_position')
     response = read_json('http://127.0.0.1:11434/api/chat', {
         'model': 'qwen3-vl:4b-instruct', 'stream': False,
-        'format': {'type': 'object', 'properties': {
-            'answer': {'type': 'string', 'maxLength': 240},
-            'scene': {'type': 'string', 'maxLength': 180},
-            'obstacles': {'type': 'array', 'maxItems': 4, 'items': {'type': 'string', 'maxLength': 80}},
-            'suggested_action': {'type': 'string', 'enum': ['forward', 'backward', 'left', 'right', 'stop']},
-            'reason': {'type': 'string', 'maxLength': 180},
-            'uncertainties': {'type': 'array', 'maxItems': 3, 'items': {'type': 'string', 'maxLength': 80}},
-        }, 'required': ['answer', 'scene', 'obstacles', 'suggested_action', 'reason', 'uncertainties'],
-                   'additionalProperties': False},
+        'format': schema,
         'messages': [{'role': 'user', 'content': prompt,
                       'images': [base64.b64encode(frame.read_bytes()).decode()]}],
         'options': {'num_ctx': 4096, 'num_predict': 800, 'temperature': 0},

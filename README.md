@@ -4,11 +4,11 @@
 
 Rook is a rover proof of concept built around a 3D-printed CyberBrick Mini-T
 tank, a DJI camera, and a local vision-language model running on a Mac.
-Keyboard control and live video work today. Qwen can inspect a camera snapshot
-and answer questions about the scene; autonomous driving is the next milestone.
+Keyboard control and live video work today. Qwen answers questions about camera
+snapshots. The first autonomous goal turns the tank to centre a Coca-Cola can.
 
-> Current mode: **manual driving + local visual question answering**.
-> Model suggestions are displayed, not executed.
+> Current mode: **manual driving + local vision + optional can-centering goal**.
+> Click Start goal to enable bounded automatic turns; manual input takes over.
 
 ## What works today
 
@@ -17,6 +17,7 @@ and answer questions about the scene; autonomous driving is the next milestone.
 - Local **Qwen3-VL 4B Instruct** image analysis through Ollama.
 - Visual questions such as: *“Find the Coca-Cola can. Is it left, centre, or right?”*
 - Analyzed snapshot, direct answer, movement suggestion, reasoning, and uncertainty.
+- Optional can-centering goal: short left/right turns followed by stop and observation.
 - Manual launcher elevation and firing.
 - Signed receiver application updates with verification and rollback.
 
@@ -133,6 +134,20 @@ Enter a question, then click **Analyze camera frame**. For example:
 
 The dashboard captures a frame, asks local Qwen, and displays the answer.
 Observation questions request a STOP movement suggestion. You retain control.
+
+For the first autonomous experiment, put the can off-centre in the camera view
+and click **Start goal**. The supported goal is fixed: centre the Coca-Cola can,
+then stop. The editable question field remains for visual questions, not arbitrary
+autonomous missions. Click **Stop goal**, press Escape, or use manual controls to
+cancel it. Closing/hiding the page cancels the goal; a browser heartbeat lease
+also prevents new turns after the browser disconnects.
+
+Each autonomous turn uses a 150 ms host pulse at 40% of the existing drive setting,
+then explicit stop and a 1.5 second wait for video to catch up. Manual speed stays
+at 100%. The controller allows up to eight observations; it stops on missing or
+uncertain targets, inconsistent position/action, old assessments, camera loss, or
+errors. The receiver's existing 500 ms motor watchdog remains a separate fallback.
+It never advances toward the can or controls the launcher.
 Snapshots and assessments are saved locally in `vision-output/`, excluded from Git.
 
 A terminal-only assessment is also available:
@@ -165,8 +180,8 @@ controls have their own timeout. Forward/reverse includes the tested approximate
 - Tank status remained responsive during background analysis.
 
 These are initial POC observations, not a navigation reliability benchmark.
-Wireless video has approximately **one second of delay**. Automated movement,
-obstacle avoidance, target centering, and camera-to-launcher aiming calibration
+Wireless video has approximately **one second of delay**. Bounded can-centering control is implemented; physical turn accuracy is pending
+user testing. Obstacle avoidance and camera-to-launcher aiming calibration
 are not implemented yet. The original physical remote has not been verified as
 a fallback with the custom receiver application.
 
@@ -177,10 +192,10 @@ a fallback with the custom receiver application.
 | 1 | Keyboard rover control | Working |
 | 2 | Camera feed and driving dashboard | Working POC; mounting/range validation continues |
 | 3 | Obstacle avoidance | Pending |
-| 4 | LLM-directed autonomous tasks | Visual question answering working; automated motion pending |
+| 4 | LLM-directed autonomous tasks | Visual questions verified; can-centering controller ready for physical testing |
 
-Next: verify object position across several views, then test short bounded turns
-that center a target. Navigation will use **move → stop → observe**, with manual
+Next: test the bounded can-centering turns on the tank and verify that it stops
+when the target is centred. Navigation will use **move → stop → observe**, with manual
 override, before attempting more complex missions.
 
 A HAIBOXING truck conversion and drone camera reuse were investigated and are
@@ -193,6 +208,8 @@ paused while we focus on the working tank POC. See [project status](docs/STATUS.
 | `server_tank.py` | Local controls, USB bridge, and background vision endpoints |
 | `rover_dashboard.html` | Live video, manual controls, and model results |
 | `rover_vision.py` | RTMP frame capture and local Qwen assessment |
+| `rover_autonomy.py` | Bounded can-centering loop with cancellation and browser lease |
+| `test_rover_autonomy.py` | Tests for stop, cancellation, stale observations, and step limits |
 | `tank_app.py` | Receiver application: track calibration and launcher control |
 | `tank_wireless_service.py` | ESP-NOW receiver, watchdog, signed updates, and rollback |
 | `wireless_update.py` | Host-side signed application uploader |
