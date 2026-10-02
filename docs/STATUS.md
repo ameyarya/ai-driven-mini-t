@@ -123,3 +123,6 @@ on hardware remains unverified; camera battery recharge is pending.
 
 Aligned camera frame and control column to the same viewport-constrained height;
 video-delay caption overlays the camera instead of adding height below it.
+
+Manual driving/launcher widgets hidden from the dashboard; keyboard driving,
+launcher shortcuts, and Escape override remain available.
