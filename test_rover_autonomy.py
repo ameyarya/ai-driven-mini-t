@@ -2,19 +2,20 @@ import threading
 import time
 import unittest
 from unittest.mock import patch
-from rover_autonomy import CenteringController
+from rover_autonomy import NavigationController
 
 
 def result(position, uncertainty=None):
     return {'captured_at': time.time(), 'assessment': {
-        'target_position': position, 'suggested_action': position if position in ('left', 'right') else 'stop',
+        'goal_achieved': position == 'centre', 'suggested_action': position if position in ('forward', 'backward', 'left', 'right') else 'stop',
         'uncertainties': uncertainty or []}}
 
 
 class ControllerTests(unittest.TestCase):
     def controller(self, observe):
         moves = []
-        c = CenteringController(observe, moves.append)
+        c = NavigationController(observe, moves.append)
+        c.state['goal'] = 'Centre a test target'
         c.heartbeat()
         return c, moves
 
@@ -60,9 +61,23 @@ class ControllerTests(unittest.TestCase):
         c, moves = self.controller(lambda *a, **k: result('right'))
         with patch.object(c.cancelled, 'wait', return_value=False):
             c.run(c.cancelled)
-        self.assertEqual(moves.count('D'), 8)
+        self.assertEqual(moves.count('D'), 40)
         self.assertEqual(moves[-1], 'X')
         self.assertEqual(c.snapshot()['state'], 'stopped')
+
+    def test_all_navigation_actions(self):
+        for action, key in [('forward', 'W'), ('backward', 'S'), ('left', 'A'), ('right', 'D')]:
+            answers = iter([result(action), result('centre')])
+            c, moves = self.controller(lambda *a, **k: next(answers))
+            with patch.object(c.cancelled, 'wait', return_value=False):
+                c.run(c.cancelled)
+            self.assertEqual(moves, [key, 'X', 'X'])
+
+    def test_empty_goal_rejected(self):
+        c, moves = self.controller(lambda *a, **k: result('centre'))
+        with self.assertRaises(ValueError):
+            c.start('   ')
+        self.assertEqual(moves, [])
 
     def test_stale_assessment_cannot_move(self):
         r = result('right')

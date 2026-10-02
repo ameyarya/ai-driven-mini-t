@@ -1,15 +1,16 @@
-"""Bounded turn/observe controller for the first can-centering experiment."""
+"""Bounded move/observe controller for user-supplied navigation goals."""
 import threading
 import time
 
-GOAL = 'Turn to centre the Coca-Cola can in the camera image, then stop.'
+ACTIONS = {'forward': 'W', 'backward': 'S', 'left': 'A', 'right': 'D', 'stop': 'X'}
+MAX_STEPS = 40
 
 
-class CenteringController:
+class NavigationController:
     def __init__(self, observe, drive):
         self.observe, self.drive = observe, drive
         self.lock = threading.RLock()
-        self.state = {'state': 'idle', 'goal': GOAL}
+        self.state = {'state': 'idle', 'goal': ''}
         self.cancelled = threading.Event()
         self.lease = 0
 
@@ -18,7 +19,7 @@ class CenteringController:
             return dict(self.state)
 
     def active(self):
-        return self.snapshot()['state'] in ('observing', 'turning', 'settling')
+        return self.snapshot()['state'] in ('observing', 'moving', 'settling')
 
     def heartbeat(self):
         with self.lock:
@@ -31,7 +32,9 @@ class CenteringController:
                 self.state.update(state='stopped', message=reason)
                 self.drive('X')
 
-    def start(self):
+    def start(self, goal):
+        if not isinstance(goal, str) or not goal.strip() or len(goal) > 1000:
+            raise ValueError('Enter a navigation goal under 1000 characters')
         with self.lock:
             if self.active():
                 raise ValueError('Autonomous goal already running')
@@ -39,8 +42,8 @@ class CenteringController:
             self.cancelled = token
             self.heartbeat()
             self.drive('X')
-            self.state = {'state': 'observing', 'goal': GOAL, 'step': 0,
-                          'message': 'Looking for the can'}
+            self.state = {'state': 'observing', 'goal': goal.strip(), 'step': 0,
+                          'message': 'Analyzing the goal'}
             threading.Thread(target=self.run, args=(token,), daemon=True).start()
 
     def valid(self, token):
@@ -48,32 +51,38 @@ class CenteringController:
 
     def run(self, token):
         try:
-            for step in range(1, 9):
+            with self.lock:
+                goal = self.state['goal']
+            history = []
+            for step in range(1, MAX_STEPS + 1):
                 with self.lock:
                     if not self.valid(token):
                         break
-                    self.state.update(state='observing', step=step, message='Looking for the can')
-                result = self.observe(GOAL, centering=True)
+                    self.state.update(state='observing', step=step, message='Analyzing the goal')
+                result = self.observe(goal, autonomous=True, history=history[-6:])
                 with self.lock:
                     if not self.valid(token):
                         break
                     self.state['result'] = result
                     assessment = result['assessment']
-                    position = assessment.get('target_position')
+                    action = assessment.get('suggested_action')
                     if time.time() - result['captured_at'] > 25:
                         self.state.update(state='stopped', message='Assessment too old; stopped')
                         break
-                    if position == 'centre' and not assessment.get('uncertainties'):
-                        self.state.update(state='complete', message='Can centred — goal complete')
+                    if not isinstance(assessment.get('goal_achieved'), bool):
+                        raise ValueError('Model did not report goal completion')
+                    if assessment.get('goal_achieved') and not assessment.get('uncertainties'):
+                        self.state.update(state='complete', message='Qwen reports goal achieved — stopped')
                         break
-                    if position not in ('left', 'right') or assessment.get('uncertainties'):
-                        self.state.update(state='stopped', message='Can missing or uncertain; stopped')
+                    if action not in ACTIONS or assessment.get('uncertainties'):
+                        self.state.update(state='stopped', message='Uncertain observation or invalid action; stopped')
                         break
-                    if assessment.get('suggested_action') != position:
-                        self.state.update(state='stopped', message='Model position and action disagree; stopped')
+                    if action == 'stop':
+                        self.state.update(state='stopped', message='Qwen chose stop: ' + assessment.get('reason', ''))
                         break
-                    self.state.update(state='turning', message='Short turn ' + position)
-                    self.drive('A' if position == 'left' else 'D')
+                    self.state.update(state='moving', message='Short move ' + action)
+                    self.drive(ACTIONS[action])
+                    history.append({'step': step, 'action': action, 'answer': assessment.get('answer', '')})
                 # One 150 ms pulse, followed by explicit stop. Firmware watchdog
                 # remains a separate 500 ms fallback if the host fails.
                 token.wait(0.15)

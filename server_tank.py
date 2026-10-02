@@ -175,7 +175,7 @@ def autonomous_drive(key):
         send('wire(%r)' % key)
 
 
-autonomy = rover_autonomy.CenteringController(rover_vision.assess, autonomous_drive)
+autonomy = rover_autonomy.NavigationController(rover_vision.assess, autonomous_drive)
 
 
 def analyze_frame(goal):
@@ -211,7 +211,11 @@ class Handler(BaseHTTPRequestHandler):
                     with vision_lock:
                         if vision_state['state'] == 'running':
                             raise ValueError('Wait for the current analysis to finish')
-                    autonomy.start()
+                    length = int(self.headers.get('Content-Length', '0'))
+                    if not 0 < length <= 4096:
+                        raise ValueError('Invalid goal request')
+                    goal = json.loads(self.rfile.read(length)).get('goal', '')
+                    autonomy.start(goal)
                 elif path == '/autonomy/stop':
                     autonomy.cancel()
                 else:

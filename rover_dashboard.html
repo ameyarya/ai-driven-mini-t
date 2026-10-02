@@ -26,9 +26,9 @@ details{padding-top:10px;margin-top:10px}summary{font-size:12px}
 </style></head><body>
 <header><h1>Rook</h1><span class="muted">Local Qwen · Tank POC</span></header>
 <main><section><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe><div class="camera-note">Live camera · about 1 second delay</div></section>
-<aside class="panel"><h2>Centre the Coca-Cola can</h2><div class="actions"><button id="auto-start" class="primary">Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><div class="hint">Short turns, then stop and look again.<br>Escape or manual input takes over.</div>
+<aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary">Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><div class="hint">Short moves, then stop and look again.<br>Escape or manual input takes over.</div>
 <div class="manual"><h2>Manual control</h2><div class="g"><span></span><button data-key="W" aria-label="Forward">↑</button><span></span><button data-key="A" aria-label="Left">←</button><span></span><button data-key="D" aria-label="Right">→</button><span></span><button data-key="S" aria-label="Backward">↓</button><span></span></div><div class="hint">Hold arrow keys to drive. Release to stop.</div><div id="status" role="status">Stopped</div><details><summary>Launcher</summary><div class="aux"><button data-key="Q">↑ / 1</button><button data-key="E">↓ / 2</button><button data-key="F">Fire / Space</button></div></details></div>
-<details><summary>Ask the camera</summary><label for="goal">Question · answers only</label><input id="goal" maxlength="1000" value="Where is the Coca-Cola can?"><button id="analyze">Analyze frame</button><div id="vision-status" role="status">Ready to analyze</div></details>
+<details><summary>Ask the camera</summary><label for="goal">Question · answers only</label><input id="goal" maxlength="1000" placeholder="Ask about the camera view"><button id="analyze">Analyze frame</button><div id="vision-status" role="status">Ready to analyze</div></details>
 <details><summary>Latest model result</summary><div id="result" hidden><img id="snapshot" alt="Frame analyzed by Qwen"><div class="result-label">Answer</div><div id="answer"></div><div class="result-label">Suggested movement</div><div id="action"></div><div class="result-label">Scene</div><div id="scene"></div><div class="result-label">Reason</div><div id="reason"></div><div class="result-label">Obstacles</div><div id="obstacles"></div><div class="result-label">Uncertainty</div><div id="uncertainties"></div><p id="timing" class="hint"></p></div></details>
 </aside></main><script>
 
@@ -147,10 +147,10 @@ async function pollAuto(){
   const response=await fetch('/autonomy/status',{cache:'no-store',signal:AbortSignal.timeout(3000)});
   if(!response.ok)throw Error('Autonomy server unavailable');
   const state=await response.json();
-  autoActive=['observing','turning','settling'].includes(state.state);
+  autoActive=['observing','moving','settling'].includes(state.state);
   document.querySelector('#auto-start').disabled=autoActive;
   analyzeButton.disabled=autoActive;
-  document.querySelector('#auto-status').textContent=(state.message||'Autonomous control idle')+(state.step?' · step '+state.step+'/8':'');
+  document.querySelector('#auto-status').textContent=(state.message||'Autonomous control idle')+(state.step?' · step '+state.step+'/40':'');
   if(autoActive)document.querySelector('#vision-status').textContent='Autonomous goal running · '+state.state;
   if(state.result)showAutoResult(state.result);
   if(autoActive)await fetch('/autonomy/heartbeat',{method:'POST',signal:AbortSignal.timeout(3000)});
@@ -161,7 +161,7 @@ document.querySelector('#auto-start').addEventListener('click',async()=>{
  while(busy)await new Promise(resolve=>setTimeout(resolve,30));
  last=state();
  try{
-  const response=await fetch('/autonomy/start',{method:'POST',signal:AbortSignal.timeout(5000)});
+  const response=await fetch('/autonomy/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:document.querySelector('#nav-goal').value}),signal:AbortSignal.timeout(5000)});
   if(!response.ok)throw Error(await response.text());
   autoActive=true;await pollAuto();
  }catch(error){document.querySelector('#auto-status').textContent=error.message;}

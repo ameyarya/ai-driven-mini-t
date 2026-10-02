@@ -107,3 +107,16 @@ Dashboard now uses the browser viewport height: smaller adaptive camera feed,
 compact controls, and expanded detail panels overlay the sidebar instead of
 increasing page height. Page-level scrolling is disabled; long optional model
 details can scroll inside their overlay. Controller behavior is unchanged.
+
+## User-defined navigation goals
+
+Replaced fixed can-centering goal with an empty Navigation goal input passed to
+Qwen. General controller supports forward/backward/left/right/stop. Each model
+response includes goal_achieved; loop uses recent executed actions, sends one
+150 ms movement pulse, stops, waits for video, and analyzes again. Completes
+only when Qwen reports goal achieved without blocking uncertainty. Stops on
+explicit STOP, uncertainty, invalid output, stale assessment, lost camera/browser,
+manual override, errors, or a 40-observation cap. Short autonomous moves remain
+at 40%; manual speed remains 100%. Launcher remains manual. Nine tests pass,
+including all four movement mappings and empty-goal rejection. General navigation
+on hardware remains unverified; camera battery recharge is pending.
