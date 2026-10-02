@@ -140,3 +140,7 @@ stopped, or error, with the most recent action retained between observations.
 Latest model decision and reason are visible without opening detailed results.
 Viewport-sized layout and hidden manual widgets are preserved. Nine controller
 tests and JavaScript/Python syntax checks passed.
+
+Moved camera questions to an empty text box in the top toolbar. Detailed model
+results now open in a separate overlay; right column stays focused on navigation.
+JavaScript syntax and required element IDs verified.
