@@ -1,0 +1,20 @@
+logLevel: info
+logDestinations: [file]
+logFile: tank-camera.log
+rtsp: no
+rtmp: yes
+rtmpAddress: 0.0.0.0:1935
+hls: no
+webrtc: yes
+webrtcAddress: 127.0.0.1:8889
+webrtcLocalUDPAddress: 127.0.0.1:8189
+webrtcAdditionalHosts: [127.0.0.1]
+srt: no
+moq: no
+api: yes
+apiAddress: 127.0.0.1:9997
+paths:
+  tank:
+    source: publisher
+  live/tank:
+    source: publisher

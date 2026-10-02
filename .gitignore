@@ -1,0 +1,20 @@
+# Credentials and local settings
+.env
+.env.*
+!.env.example
+*.key
+tank_camera.yml
+
+# Runtime files, captured images, and hardware backups
+*.log
+vision-output/
+images/
+photos/
+*-backup-*/
+tools/
+
+# Python and macOS
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store

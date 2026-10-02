@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rook · Rover vision</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui;background:#0d121b;color:#edf2fa}*{box-sizing:border-box}body{margin:0;padding:28px;max-width:1450px;margin:auto}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}h1{font-size:26px;margin:0}h2{font-size:18px;margin:0 0 16px}p{color:#a7b3c5;line-height:1.5}.badge{padding:8px 12px;border:1px solid #344556;border-radius:20px;color:#80e0b0;font-size:13px}.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:20px}.card{background:#171f2c;border:1px solid #2a3648;border-radius:18px;padding:22px}.video{width:100%;aspect-ratio:16/9;border:0;border-radius:10px;background:#080b10;pointer-events:none}.g{display:grid;grid-template-columns:repeat(3,60px);gap:8px;justify-content:center}button{font:inherit;color:inherit;background:#253247;border:1px solid #40516b;border-radius:10px;padding:12px;cursor:pointer;touch-action:none;user-select:none}button:hover{background:#344662}button:active{background:#42648e}button:disabled{opacity:.5;cursor:wait}.g button{height:54px;font-size:24px}.controls{display:flex;gap:24px;align-items:center;margin-top:20px}.aux{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:13px}.primary{background:#277b58;border-color:#46a477;width:100%;margin:12px 0}input{width:100%;padding:12px;color:inherit;background:#101722;border:1px solid #40516b;border-radius:10px;font:inherit}label{display:block;color:#b8c5d6;margin-bottom:8px;font-size:13px}#snapshot{width:100%;border-radius:10px;margin-top:14px}#action{font-size:24px;color:#89e6bb;margin:12px 0}#answer,#scene,#reason,#obstacles,#uncertainties{line-height:1.5;white-space:pre-wrap}#vision-status{color:#b6c9e6}.result-label{color:#8194ac;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-top:16px}#status{color:#89e6bb} @media(max-width:850px){body{padding:16px}.layout{grid-template-columns:1fr}.controls{flex-wrap:wrap}header{gap:12px}.badge{font-size:11px}}
+</style></head><body>
+<header><div><h1>Rook / Rover vision</h1><p class="small" style="margin:6px 0 0">Camera → local Qwen → navigation advice</p></div><span class="badge">Qwen3-VL 4B · Local</span></header>
+<main class="layout"><section class="card"><h2>Live camera</h2><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe>
+<p class="small">DJI via Mimo · approximately 1 second video delay</p><div class="controls"><div class="g"><span></span><button data-key="W" aria-label="Forward">↑</button><span></span><button data-key="A" aria-label="Left">←</button><span></span><button data-key="D" aria-label="Right">→</button><span></span><button data-key="S" aria-label="Backward">↓</button><span></span></div><div><h2>Manual control</h2><p class="small">Hold arrow keys to drive. Release to stop.<br>Escape stops everything.</p><div class="aux"><button data-key="Q">Launcher ↑ / 1</button><button data-key="E">Launcher ↓ / 2</button><button data-key="F">Fire / Space</button></div><p id="status">Stopped</p></div></div></section>
+<section class="card"><h2>Local vision</h2><label for="goal">Question or navigation goal</label><input id="goal" maxlength="1000" value="Find a clear path ahead."><button id="analyze" class="primary">Analyze camera frame</button><div id="vision-status" role="status" aria-live="polite">Ready to analyze</div><p class="small">Advice only. You control the tank.</p><div id="result" hidden><img id="snapshot" alt="Frame analyzed by Qwen"><div class="result-label">Answer</div><div id="answer"></div><div class="result-label">Suggested movement</div><div id="action"></div><div class="result-label">Scene</div><div id="scene"></div><div class="result-label">Reason</div><div id="reason"></div><div class="result-label">Visible obstacles</div><div id="obstacles"></div><div class="result-label">Uncertainty</div><div id="uncertainties"></div><p id="timing" class="small"></p></div></section></main><script>
+
+let wanted='X', fire=0, aim=0, busy=false, last='X|0|0';
+const held=new Set();
+const keyMap={ArrowUp:'W',ArrowLeft:'A',ArrowDown:'S',ArrowRight:'D','1':'Q','2':'E',' ':'F',Escape:'X'};
+function state(){return wanted+'|'+fire+'|'+aim}
+async function pump(){
+ if(busy || (state()==='X|0|0' && last===state()))return;
+ busy=true;
+ const sent=state(), k=wanted, f=fire, a=aim;
+ try{
+  const r=await fetch('/control?c='+k+'&fire='+f+'&aim='+a+'&speed='+100,{cache:'no-store',signal:AbortSignal.timeout(700)});
+  if(!r.ok)throw Error('Command failed');
+  last=sent;
+  document.querySelector('#status').textContent=[k==='X'?'':('Driving '+k),f?'Firing':'',a?'Moving launcher':''].filter(Boolean).join(' · ')||'Stopped';
+ }catch(e){wanted='X';fire=0;aim=0;held.clear();document.querySelector('#status').textContent='Connection lost';}
+ finally{busy=false;if(state()!==sent)pump();}
+}
+function update(){
+ const keys=[...held];
+ wanted=keys.filter(k=>'WASD'.includes(k)).at(-1)||'X';
+ fire=held.has('F')?1:0;
+ const q=keys.filter(k=>k==='Q'||k==='E').at(-1);
+ aim=q==='Q'?-1:q==='E'?1:0;
+ pump();
+}
+function stop(){held.clear();update()}
+setInterval(pump,100);
+addEventListener('keydown',e=>{
+  if(e.target.matches('input,textarea'))return;
+  const k=keyMap[e.key];
+  if(!k)return;
+  e.preventDefault();
+  if(e.repeat)return;
+  if(k==='X'){stop();return;}
+  held.delete(k);held.add(k);update();
+});
+addEventListener('keyup',e=>{
+ const k=keyMap[e.key];
+ if(held.delete(k))update();
+});
+addEventListener('blur',stop);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()});
+document.querySelectorAll('button[data-key]').forEach(b=>{
+ b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);held.add(b.dataset.key);update()});
+ const release=()=>{held.delete(b.dataset.key);update()};
+ b.addEventListener('pointerup',release);
+ b.addEventListener('pointercancel',release);
+ b.addEventListener('lostpointercapture',release);
+});
+
+const analyzeButton=document.querySelector('#analyze');
+let displayedFrame='';
+async function pollVision(){
+ try{
+  const response=await fetch('/vision/status',{cache:'no-store',signal:AbortSignal.timeout(3000)});
+  if(!response.ok)throw Error('Vision server unavailable');
+  const state=await response.json();
+  analyzeButton.disabled=state.state==='running';
+  const label=document.querySelector('#vision-status');
+  if(state.state==='running'){label.textContent='Capturing frame / Qwen analyzing… '+Math.max(0,Math.floor(Date.now()/1000-state.started_at))+'s';return;}
+  if(state.state==='error'){label.textContent='Analysis failed: '+state.error;return;}
+  if(state.state!=='done')return;
+  const r=state.result,a=r.assessment;
+  label.textContent='Analysis complete · '+r.inference_seconds+'s inference';
+  if(displayedFrame!==r.frame){
+   displayedFrame=r.frame;
+   document.querySelector('#snapshot').src='/vision/frame?t='+r.captured_at;
+   document.querySelector('#result').hidden=false;
+   document.querySelector('#action').textContent=String(a.suggested_action).toUpperCase();
+   for(const name of ['answer','scene','reason','obstacles','uncertainties']){
+    const value=a[name];document.querySelector('#'+name).textContent=Array.isArray(value)?value.join(' · ')||'None reported':String(value||'None reported');
+   }
+  }
+  document.querySelector('#timing').textContent='Snapshot '+Math.max(0,Math.floor(Date.now()/1000-r.captured_at))+'s ago · no automatic movement';
+ }catch(error){document.querySelector('#vision-status').textContent=error.message;analyzeButton.disabled=false;}
+}
+analyzeButton.addEventListener('click',async()=>{
+ stop();analyzeButton.disabled=true;
+ try{
+  const response=await fetch('/vision/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:document.querySelector('#goal').value}),signal:AbortSignal.timeout(3000)});
+  if(!response.ok)throw Error(await response.text());
+  document.querySelector('#result').hidden=true;
+  await pollVision();
+ }catch(error){document.querySelector('#vision-status').textContent=error.message;analyzeButton.disabled=false;}
+});
+setInterval(pollVision,1000);pollVision();
+</script></body></html>
