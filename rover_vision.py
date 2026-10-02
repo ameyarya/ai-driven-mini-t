@@ -12,6 +12,9 @@ import subprocess
 import time
 import urllib.request
 
+# Preserve target detection on small and edge-clipped objects.
+FRAME_WIDTH = 640
+
 
 def read_json(url, body=None, timeout=5):
     data = None if body is None else json.dumps(body).encode()
@@ -30,13 +33,15 @@ def assess(goal, autonomous=False, history=None):
     subprocess.run([
         'ffmpeg', '-hide_banner', '-loglevel', 'error', '-rw_timeout', '15000000',
         '-i', 'rtmp://192.168.1.192:1935/live/tank', '-an', '-frames:v', '1',
-        '-vf', 'scale=640:-2', '-q:v', '3', '-y', str(frame),
+        '-vf', 'scale=%d:-2' % FRAME_WIDTH, '-q:v', '3', '-y', str(frame),
     ], check=True, timeout=25)
     captured_at = time.time()
-    assessment, inference_seconds, model = analyze_image(goal, frame, autonomous, history)
+    assessment, inference_seconds, model, timings = analyze_image(goal, frame, autonomous, history)
     result = {'model': model, 'frame': str(frame),
               'captured_at': captured_at, 'goal': goal,
               'inference_seconds': inference_seconds,
+              'prompt_eval_ms': timings['prompt_eval_ms'],
+              'eval_ms': timings['eval_ms'],
               'assessment': assessment, 'motor_commands_sent': False}
     frame.with_suffix('.json').write_text(json.dumps(result, indent=2) + '\n')
     return result
@@ -140,10 +145,21 @@ def analyze_image(goal, frame, autonomous=False, history=None):
         'uncertainties': {'type': 'array', 'maxItems': 3, 'items': {'type': 'string', 'maxLength': 80}},
     }, 'required': ['answer', 'scene', 'obstacles', 'suggested_action', 'reason', 'uncertainties'],
                'additionalProperties': False}
-    if autonomous:
-        schema['properties']['goal_achieved'] = {'type': 'boolean'}
-        schema['required'].append('goal_achieved')
     distance = autonomous and is_distance_goal(goal)
+    centering = autonomous and is_centering_goal(goal)
+    if autonomous and not centering:
+        # Driving path: the controller only reads suggested_action, reason,
+        # uncertainties, goal_achieved (and target fields for distance goals).
+        # The verbose answer/scene/obstacles fields exist for the manual
+        # observe mode and the dashboard; generating them here costs most of
+        # the per-frame latency, so they are dropped on this path.
+        schema = {'type': 'object', 'properties': {
+            'suggested_action': {'type': 'string', 'enum': ['forward', 'backward', 'left', 'right', 'stop']},
+            'reason': {'type': 'string', 'maxLength': 120},
+            'uncertainties': {'type': 'array', 'maxItems': 3, 'items': {'type': 'string', 'maxLength': 60}},
+            'goal_achieved': {'type': 'boolean'},
+        }, 'required': ['suggested_action', 'reason', 'uncertainties', 'goal_achieved'],
+                   'additionalProperties': False}
     if distance:
         prompt += (
             '\nAlso locate the requested target in THIS image: target_visible=false '
@@ -156,7 +172,6 @@ def analyze_image(goal, frame, autonomous=False, history=None):
         schema['properties'].update(target_visible={'type': 'boolean'},
                                     target_x={'type': ['integer', 'null'], 'minimum': 0, 'maximum': 1000})
         schema['required'].extend(['target_visible', 'target_x'])
-    centering = autonomous and is_centering_goal(goal)
     if centering:
         prompt = (
             'Locate the target requested by this goal in the image: ' + goal +
@@ -172,12 +187,13 @@ def analyze_image(goal, frame, autonomous=False, history=None):
             'target_visible': {'type': 'boolean'},
             'target_x': {'type': ['integer', 'null'], 'minimum': 0, 'maximum': 1000},
         }, 'required': ['target_visible', 'target_x'], 'additionalProperties': False}
+    num_predict = 80 if centering else (120 if autonomous else 800)
     response = read_json('http://127.0.0.1:11434/api/chat', {
         'model': 'qwen3-vl:4b-instruct', 'stream': False,
         'format': schema,
         'messages': [{'role': 'user', 'content': prompt,
                       'images': [base64.b64encode(frame.read_bytes()).decode()]}],
-        'options': {'num_ctx': 4096, 'num_predict': 250 if centering else 800, 'temperature': 0},
+        'options': {'num_ctx': 4096, 'num_predict': num_predict, 'temperature': 0},
     }, timeout=120)
     if response.get('done_reason') == 'length':
         raise RuntimeError('Model output was truncated; no usable assessment.')
@@ -190,7 +206,11 @@ def analyze_image(goal, frame, autonomous=False, history=None):
         assessment = distance_alignment_guard(assessment)
     if assessment.get('suggested_action') not in ('forward', 'backward', 'left', 'right', 'stop'):
         raise RuntimeError('Model returned an invalid action; no usable assessment.')
-    return assessment, round(time.monotonic() - start, 2), response['model']
+    timings = {
+        'prompt_eval_ms': round(response.get('prompt_eval_duration', 0) / 1e6, 1),
+        'eval_ms': round(response.get('eval_duration', 0) / 1e6, 1),
+    }
+    return assessment, round(time.monotonic() - start, 2), response['model'], timings
 
 
 if __name__ == '__main__':
