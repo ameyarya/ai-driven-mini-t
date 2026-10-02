@@ -56,3 +56,14 @@ are not implemented. Video delay is about one second; initial model responses
 are around 10–12 seconds. Single images do not establish accurate range or
 collision clearance. Hardware backups, signing keys, captured frames, and personal
 images remain outside the public repository.
+
+## Laya suitability review
+
+Reviewed https://github.com/NandhaKishorM/laya . Laya is a local text-based
+System 1 decision engine with typed choices/scores/yes-no outputs, not a camera
+vision replacement. Could consume a scene description or detector output, but
+adding it after Qwen would not remove the existing image-analysis latency. Its
+advertised 33 ms is a project benchmark, not a measured rover/M4 result.
+No installation or integration performed. Keep current POC until a concrete
+decision-layer need emerges; can-centering from measured image coordinates can
+also use direct control rules.
