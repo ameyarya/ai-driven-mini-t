@@ -160,3 +160,31 @@ commands are rejected while a goal is active; keyboard inputs are ignored during
 autonomy. Stop button cancels. Goal completion, uncertainty, camera loss, errors,
 and the 40-observation limit still stop the controller. Nine tests pass, including
 continued navigation after browser lease expiry and explicit cancellation.
+
+## Target POC mission: find, approach, aim, and shoot
+
+User-defined end-to-end goal:
+
+1. Quickly scan the surroundings through a full 360° tank rotation to locate a
+   Coca-Cola can. The goal is fast target acquisition rather than waiting for
+   a long model response after every tiny search turn.
+2. Once found, turn toward the can and advance toward it.
+3. Centre the can in the camera view and position the tank for shooting. Camera
+   centering alone does not establish launcher aim; camera-to-launcher alignment,
+   useful shooting distance, and launcher elevation need physical calibration.
+4. Fire at the can and observe the result.
+5. Shooting has **six turns**, as specified by the user. Meaning pending: six
+   firing attempts, six available projectiles, or another six-turn mechanism.
+   Do not silently interpret this as six confirmed shots or automatic refills.
+
+This is the desired POC, not a claim about current capabilities. Current
+autonomy supports bounded navigation actions and visual reassessment, but does
+not autonomously fire, measure a full 360° rotation, estimate calibrated shooting
+distance, or verify projectile hits. No code/control changes made during the
+current running test.
+
+The control interface should support these mission stages and their required
+actions rather than constrain every task to one narrow centering response. A
+structured response can remain extensible (stage, next action, target observation,
+completion, and reason); short output need not restrict the mission itself.
+Firing control and its six-turn interpretation must be added explicitly later.

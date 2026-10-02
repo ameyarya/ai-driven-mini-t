@@ -198,6 +198,15 @@ when the target is centred. Navigation will use **move → stop → observe**, w
 A HAIBOXING truck conversion and drone camera reuse were investigated and are
 paused while we focus on the working tank POC. See [project status](docs/STATUS.md).
 
+## Target POC mission
+
+**Scan 360° quickly → identify the Coca-Cola can → approach → centre and aim → shoot.**
+
+The intended shooting sequence has **six turns**; the exact meaning is still to
+be clarified. This is the target mission, not current implemented behavior.
+Automatic firing, calibrated scan rotation, approach distance, launcher alignment,
+and hit verification remain future work. See [project status](docs/STATUS.md).
+
 ## Code map
 
 | File | Purpose |
