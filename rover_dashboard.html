@@ -45,7 +45,7 @@ header{flex-wrap:wrap;gap:10px}
 .camera-tools details[open]>summary::after{content:' · close';color:#8295af}
 @media(max-width:800px){.camera-tools #vision-status{display:none}}
 </style></head><body>
-<header><h1>Rook</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools"><input id="goal" maxlength="1000" placeholder="Ask the camera…" aria-label="Ask the camera" autocomplete="off"><button id="analyze">Ask</button><details><summary>Model results</summary><div id="result" hidden><img id="snapshot" alt="Frame analyzed by Qwen"><div class="result-label">Answer</div><div id="answer"></div><div class="result-label">Suggested movement</div><div id="action"></div><div class="result-label">Scene</div><div id="scene"></div><div class="result-label">Reason</div><div id="reason"></div><div class="result-label">Obstacles</div><div id="obstacles"></div><div class="result-label">Uncertainty</div><div id="uncertainties"></div><p id="timing" class="hint"></p></div></details><span id="vision-status" role="status">Ready</span></div></header>
+<header><h1>Rook</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools"><details><summary>Model results</summary><div id="result" hidden><img id="snapshot" alt="Frame analyzed by Qwen"><div class="result-label">Answer</div><div id="answer"></div><div class="result-label">Suggested movement</div><div id="action"></div><div class="result-label">Scene</div><div id="scene"></div><div class="result-label">Reason</div><div id="reason"></div><div class="result-label">Obstacles</div><div id="obstacles"></div><div class="result-label">Uncertainty</div><div id="uncertainties"></div><p id="timing" class="hint"></p></div></details><span id="vision-status" hidden></span></div></header>
 <main><section><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera · checking…</span> · about 1 second delay</div></section>
 <aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary" disabled>Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Short moves, then stop and look again.<br>Escape or manual input takes over.</div>
 <div class="manual" hidden><h2>Manual control</h2><div class="g"><span></span><button data-key="W" aria-label="Forward">↑</button><span></span><button data-key="A" aria-label="Left">←</button><span></span><button data-key="D" aria-label="Right">→</button><span></span><button data-key="S" aria-label="Backward">↓</button><span></span></div><div class="hint">Hold arrow keys to drive. Release to stop.</div><div id="status" role="status">Stopped</div></div>
@@ -105,7 +105,7 @@ document.querySelectorAll('button[data-key]').forEach(b=>{
 });
 
 let autoActive=false,cameraLive=false;
-const analyzeButton=document.querySelector('#analyze');
+
 let displayedFrame='',latestCapture=0;
 async function pollVision(){
  if(autoActive)return;
@@ -113,7 +113,7 @@ async function pollVision(){
   const response=await fetch('/vision/status',{cache:'no-store',signal:AbortSignal.timeout(3000)});
   if(!response.ok)throw Error('Vision server unavailable');
   const state=await response.json();
-  analyzeButton.disabled=state.state==='running';
+
   const label=document.querySelector('#vision-status');
   if(state.state==='running'){label.textContent='Capturing frame / Qwen analyzing… '+Math.max(0,Math.floor(Date.now()/1000-state.started_at))+'s';return;}
   if(state.state==='error'){label.textContent='Analysis failed: '+state.error;return;}
@@ -133,18 +133,8 @@ async function pollVision(){
    }
   }
   document.querySelector('#timing').textContent='Snapshot '+Math.max(0,Math.floor(Date.now()/1000-r.captured_at))+'s ago · no automatic movement';
- }catch(error){document.querySelector('#vision-status').textContent=error.message;analyzeButton.disabled=false;}
+ }catch(error){document.querySelector('#vision-status').textContent=error.message;}
 }
-analyzeButton.addEventListener('click',async()=>{
- stop();analyzeButton.disabled=true;
- try{
-  const response=await fetch('/vision/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:document.querySelector('#goal').value}),signal:AbortSignal.timeout(3000)});
-  if(!response.ok)throw Error(await response.text());
-  document.querySelector('#result').hidden=true;
-  await pollVision();
- }catch(error){document.querySelector('#vision-status').textContent=error.message;analyzeButton.disabled=false;}
-});
-
 function stopAuto(){
  autoActive=false;
  fetch('/autonomy/stop',{method:'POST',keepalive:true}).catch(()=>{});
@@ -172,7 +162,7 @@ async function pollAuto(){
   const state=await response.json();
   autoActive=['observing','moving','settling'].includes(state.state);
   document.querySelector('#auto-start').disabled=autoActive||!cameraLive;
-  analyzeButton.disabled=autoActive;
+
   const progress={idle:'Ready',observing:state.step>1?'Analyzing again':'Analyzing',moving:'Moving',settling:'Stopped · waiting for fresh video',complete:'Goal achieved',stopped:'Stopped',error:'Run failed'};
   let line=progress[state.state]||state.state;
   if(state.state==='moving')line+=' '+(state.last_action||'');

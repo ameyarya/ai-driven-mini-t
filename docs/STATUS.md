@@ -144,3 +144,6 @@ tests and JavaScript/Python syntax checks passed.
 Moved camera questions to an empty text box in the top toolbar. Detailed model
 results now open in a separate overlay; right column stays focused on navigation.
 JavaScript syntax and required element IDs verified.
+
+Removed the camera question input and Ask action from the page; navigation goal
+and model results remain. Standalone backend analysis is retained for later use.
