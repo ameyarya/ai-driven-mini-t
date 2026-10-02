@@ -12,9 +12,8 @@ import subprocess
 import time
 import urllib.request
 
-# Frame width in pixels sent to Qwen. Qwen needs far less than 640 to judge a
-# clear path; smaller frames mean fewer image tokens and faster prefill.
-FRAME_WIDTH = 448
+# Preserve target detection on small and edge-clipped objects.
+FRAME_WIDTH = 640
 
 
 def read_json(url, body=None, timeout=5):
