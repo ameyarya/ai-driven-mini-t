@@ -45,7 +45,9 @@ def assess(goal, autonomous=False, history=None):
 def is_centering_goal(goal):
     text = goal.lower()
     return bool(re.search(r'\b(cent(?:er|re)(?:ed|ing)?|middle)\b', text)) and not re.search(
-        r'\b(approach|advance|shoot|fire|forward|backward|search|scan|360)\b', text)
+        r'\b(approach|advance|shoot|fire|forward|backward|search|scan|360|'
+        r'closer|nearer|away|distance|farther|further|height|width|size|'
+        r'occup(?:y|ies)|fill(?:s)?|percent)\b|%', text)
 
 
 def centering_decision(observation):
@@ -94,7 +96,11 @@ def analyze_image(goal, frame, autonomous=False, history=None):
             'goal is satisfied; otherwise false. If achieved, choose stop. '
             'Use image left/right to choose turns. For centering goals the target '
             'must lie near the image horizontal centre. Do not claim completion '
-            'merely because the target is visible. Compare with recent actions to '
+            'merely because the target is visible or centred. For compound goals, '
+            'ALL requested conditions must be satisfied. For a requested image-size '
+            'goal, compare the target height with the full image height: move forward '
+            'if too small, backward if too large and clearance permits. '
+            'Compare with recent actions to '
             'assess progress. Do not invent distance, clearance, hidden obstacles '
             'or target visibility. If blocked, target missing, image unusable, or '
             'the goal cannot be done with navigation alone, choose stop and explain. '

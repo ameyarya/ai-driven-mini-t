@@ -22,6 +22,13 @@ class ControllerTests(unittest.TestCase):
     def test_complex_mission_is_not_reduced_to_centering(self):
         self.assertTrue(is_centering_goal('position red can in center'))
         self.assertFalse(is_centering_goal('scan 360, approach the can, centre it and shoot'))
+        for goal in [
+            'Move closer to the red can until it occupies roughly 40% of the image height. Keep it centered, then stop.',
+            'Move away from the can and keep it in the center',
+            'Keep the can centered and make it fill half the image',
+        ]:
+            with self.subTest(goal=goal):
+                self.assertFalse(is_centering_goal(goal))
 
     def test_worsening_turn_stops(self):
         answers = iter([centering_decision({'target_visible': True, 'target_x': x, 'uncertainties': []}) for x in (34, 25)])

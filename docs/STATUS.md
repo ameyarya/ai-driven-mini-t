@@ -226,3 +226,13 @@ Architecture direction: visual servoing for image-error correction; a behavior
 tree for mission stages and explicit running/success/failure outcomes. References:
 https://github.com/lagadic/visp and
 https://www.behaviortree.dev/docs/learn-the-basics/BT_basics/ .
+
+## Compound distance-goal routing fix
+
+The centering-only shortcut incorrectly matched “move closer ... 40% of image
+height ... keep it centered” and stopped as soon as horizontal alignment was
+satisfied. Distance/size wording now bypasses that shortcut and reaches Qwen's
+general navigation prompt. The prompt requires every requested condition before
+completion and explains apparent-size forward/backward decisions. Regression
+checks cover closer, away, and image-fill compound goals; all 15 tests pass.
+Physical approach behavior still needs testing; translation pulses remain 150 ms.
