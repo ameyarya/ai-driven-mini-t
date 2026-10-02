@@ -188,3 +188,41 @@ actions rather than constrain every task to one narrow centering response. A
 structured response can remain extensible (stage, next action, target observation,
 completion, and reason); short output need not restrict the mission itself.
 Firing control and its six-turn interpretation must be added explicitly later.
+
+## Repeated-right navigation failure observed
+
+Reviewed saved frames/assessments around 19:46–19:48. Eight consecutive recent
+responses chose right, including explanations explicitly saying the can was on
+the left but a right turn would centre it. Inspected frames: can centre moved
+from approximately 46% to 34% of image width, so continuing right worsened
+alignment. Failure is model direction/goal-completion reasoning, not a forced
+right action in the controller. Repeated action history may bias decisions;
+this is an inference, not proven cause. Latest controller state was error on
+FFmpeg frame capture (exit 234), separately from the wrong-turn issue.
+No control or prompt changes made during this diagnosis. Next candidate fix:
+require image-based target location/coordinates, explicit image-direction rules,
+and detect turns that fail to reduce centering error before repeating them.
+
+## Adaptive image feedback (2026-10-01)
+
+Simple centering goals now ask Qwen only for target visibility and horizontal
+location (0–1000 normalized image coordinates). Python derives left/right from
+that location and stops within the middle 45–55% of image width. This removes
+the contradictory model direction reasoning seen in the repeated-right run.
+Each move is followed by an explicit stop, 1.5 seconds for video settling, and
+a new captured frame. The first turn is a 150 ms calibration pulse. Subsequent
+pulses estimate image shift per second, aim for 80% of remaining error, and
+reverse/halve after crossing centre. Pulses are bounded to 40–300 ms. Wrong-way
+or repeated motion without visible progress stops the run. Complex goals retain
+the general navigation schema; adaptive centering does not implement the full
+search/approach/fire mission.
+
+Validation: 15 controller/localization tests passed. Saved failure frames now
+produce 46% → STOP and 34.5% → LEFT; local inference was 1.08–1.09 seconds in
+these two saved-image tests (not a live-loop timing guarantee). Physical adaptive
+turning still needs a live test.
+
+Architecture direction: visual servoing for image-error correction; a behavior
+tree for mission stages and explicit running/success/failure outcomes. References:
+https://github.com/lagadic/visp and
+https://www.behaviortree.dev/docs/learn-the-basics/BT_basics/ .

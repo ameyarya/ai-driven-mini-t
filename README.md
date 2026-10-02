@@ -18,6 +18,7 @@ snapshots. Autonomous control accepts a user-defined goal and runs a short move/
 - Visual questions such as: *“Find the Coca-Cola can. Is it left, centre, or right?”*
 - Analyzed snapshot, direct answer, movement suggestion, reasoning, and uncertainty.
 - Optional navigation goal: short movement steps followed by stop and observation.
+- Adaptive centering: image coordinates determine direction; measured motion adjusts turn duration and overshoot halves the correction.
 - Manual launcher elevation and firing.
 - Signed receiver application updates with verification and rollback.
 

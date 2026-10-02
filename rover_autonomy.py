@@ -1,9 +1,45 @@
 """Bounded move/observe controller for user-supplied navigation goals."""
 import threading
 import time
+import rover_vision
 
 ACTIONS = {'forward': 'W', 'backward': 'S', 'left': 'A', 'right': 'D', 'stop': 'X'}
 MAX_STEPS = 40
+
+
+class AdaptiveTurn:
+    """Estimate image movement per second; halve pulses after crossing centre."""
+    def __init__(self):
+        self.previous_x = None
+        self.duration = 0.15
+        self.gain = None
+        self.stalled = 0
+
+    def next_duration(self, x):
+        error = x - 50
+        if self.previous_x is not None:
+            previous_error = self.previous_x - 50
+            shift = abs(x - self.previous_x)
+            crossed = error * previous_error < 0
+            expected_shift = self.previous_x - x if previous_error > 0 else x - self.previous_x
+            if expected_shift < -3:
+                raise ValueError('Turn moved target the wrong way; check motor/camera alignment')
+            self.stalled = self.stalled + 1 if shift < 1 else 0
+            if self.stalled >= 3:
+                raise ValueError('No visible target movement after three turns')
+            if shift >= 1:
+                measured_gain = shift / self.duration
+                self.gain = measured_gain if self.gain is None else .5*self.gain + .5*measured_gain
+            if crossed:
+                self.duration *= .5
+            elif self.gain:
+                # Aim for 80% of the remaining correction to avoid overshoot.
+                self.duration = .8*abs(error)/self.gain
+            else:
+                self.duration *= 1.5
+        self.previous_x = x
+        self.duration = max(.04, min(.30, self.duration))
+        return self.duration
 
 
 class NavigationController:
@@ -54,6 +90,7 @@ class NavigationController:
             with self.lock:
                 goal = self.state['goal']
             history = []
+            turn = AdaptiveTurn()
             for step in range(1, MAX_STEPS + 1):
                 with self.lock:
                     if not self.valid(token):
@@ -74,19 +111,23 @@ class NavigationController:
                     if assessment.get('goal_achieved') and not assessment.get('uncertainties'):
                         self.state.update(state='complete', message='Qwen reports goal achieved — stopped')
                         break
+                    duration = 0.15
+                    if rover_vision.is_centering_goal(goal) and assessment.get('target_x') is not None:
+                        duration = turn.next_duration(assessment['target_x'])
+                        self.state['turn_ms'] = round(duration * 1000)
                     if action not in ACTIONS or assessment.get('uncertainties'):
                         self.state.update(state='stopped', message='Uncertain observation or invalid action; stopped')
                         break
                     if action == 'stop':
                         self.state.update(state='stopped', message='Qwen chose stop: ' + assessment.get('reason', ''))
                         break
-                    self.state.update(state='moving', message='Short move ' + action)
+                    self.state.update(state='moving', message='Move ' + action + ' for ' + str(round(duration*1000)) + ' ms')
                     self.drive(ACTIONS[action])
                     self.state['last_action'] = action
-                    history.append({'step': step, 'action': action, 'answer': assessment.get('answer', '')})
-                # One 150 ms pulse, followed by explicit stop. Firmware watchdog
+                    history.append({'step': step, 'action': action, 'duration_ms': round(duration*1000)})
+                # Bounded adaptive pulse, followed by explicit stop. Firmware watchdog
                 # remains a separate 500 ms fallback if the host fails.
-                token.wait(0.15)
+                token.wait(duration)
                 with self.lock:
                     if token is not self.cancelled or token.is_set():
                         return

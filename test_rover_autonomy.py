@@ -2,7 +2,8 @@ import threading
 import time
 import unittest
 from unittest.mock import patch
-from rover_autonomy import NavigationController
+from rover_autonomy import NavigationController, AdaptiveTurn
+from rover_vision import centering_decision, is_centering_goal
 
 
 def result(position, uncertainty=None):
@@ -12,6 +13,44 @@ def result(position, uncertainty=None):
 
 
 class ControllerTests(unittest.TestCase):
+    def test_coordinates_override_wrong_turn_and_complete(self):
+        for x, action, achieved in [(34, 'left', False), (46, 'stop', True), (72, 'right', False)]:
+            a = centering_decision({'target_visible': True, 'target_x': x, 'uncertainties': []})
+            self.assertEqual(a['suggested_action'], action)
+            self.assertEqual(a['goal_achieved'], achieved)
+
+    def test_complex_mission_is_not_reduced_to_centering(self):
+        self.assertTrue(is_centering_goal('position red can in center'))
+        self.assertFalse(is_centering_goal('scan 360, approach the can, centre it and shoot'))
+
+    def test_worsening_turn_stops(self):
+        answers = iter([centering_decision({'target_visible': True, 'target_x': x, 'uncertainties': []}) for x in (34, 25)])
+        def observe(*a, **k):
+            return {'captured_at': time.time(), 'assessment': next(answers)}
+        c, moves = self.controller(observe)
+        with patch.object(c.cancelled, 'wait', return_value=False):
+            c.run(c.cancelled)
+        self.assertEqual(moves, ['A', 'X', 'X'])
+        self.assertIn('wrong way', c.snapshot()['message'])
+
+    def test_missing_coordinates_stop(self):
+        a = centering_decision({'target_visible': False, 'target_x': None, 'uncertainties': []})
+        self.assertEqual(a['suggested_action'], 'stop')
+        self.assertFalse(a['goal_achieved'])
+
+    def test_overshoot_reverses_and_halves_duration(self):
+        turn = AdaptiveTurn()
+        self.assertEqual(turn.next_duration(70), .15)
+        self.assertAlmostEqual(turn.next_duration(40), .075)
+        self.assertEqual(centering_decision({'target_visible': True, 'target_x': 40, 'uncertainties': []})['suggested_action'], 'left')
+
+    def test_turn_time_adapts_to_observed_motion(self):
+        turn = AdaptiveTurn()
+        turn.next_duration(80)
+        duration = turn.next_duration(70)
+        self.assertGreater(duration, .15)
+        self.assertLessEqual(duration, .30)
+
     def controller(self, observe):
         moves = []
         c = NavigationController(observe, moves.append)

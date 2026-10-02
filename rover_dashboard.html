@@ -169,7 +169,7 @@ async function pollAuto(){
 
   const progress={idle:'Ready',observing:state.step>1?'Analyzing again':'Analyzing',moving:'Moving',settling:'Stopped · waiting for fresh video',complete:'Goal achieved',stopped:'Stopped',error:'Run failed'};
   let line=progress[state.state]||state.state;
-  if(state.state==='moving')line+=' '+(state.last_action||'');
+  if(state.state==='moving')line+=' '+(state.last_action||'')+(state.turn_ms?' · '+state.turn_ms+' ms':'');
   if(state.state==='observing'&&state.last_action)line+=' · last move '+state.last_action;
   if(['stopped','error'].includes(state.state))line+=' — '+(state.message||'');
   document.querySelector('#auto-status').textContent=line+(state.step?' · step '+state.step+'/40':'');
