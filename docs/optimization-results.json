@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-02",
+  "goal": "Move closer to the red can until it occupies roughly 50% of the image height. Keep it centered, then stop.",
+  "timing_definition": "First captured frame timestamp through final result JSON modification timestamp; excludes startup and initial capture. After includes initial Qwen planning.",
+  "before": {
+    "architecture": "Qwen for every observation",
+    "observations": 21,
+    "qwen_calls": 21,
+    "logged_window_seconds": 346.43,
+    "mean_reported_inference_seconds": 13.03,
+    "total_reported_inference_seconds": 273.61,
+    "initial_target_x_percent": 40.25,
+    "initial_target_height_percent": 35.3,
+    "final_target_x_percent": 47.5,
+    "final_target_height_percent": 50.1
+  },
+  "after": {
+    "architecture": "One Qwen plan plus detector-driven visual feedback",
+    "observations": 14,
+    "qwen_calls": 1,
+    "logged_window_seconds": 69.15,
+    "planner_inference_seconds": 11.44,
+    "mean_live_controller_observation_seconds": 2.11,
+    "initial_target_x_percent": 17.15,
+    "initial_target_height_percent": 34.6,
+    "final_target_x_percent": 48.65,
+    "final_target_height_percent": 49.0,
+    "height_tolerance_percentage_points": 1,
+    "centering_tolerance_percentage_points": 5
+  },
+  "limitations": [
+    "One successful physical run per architecture, not a controlled repeated benchmark.",
+    "Different starting alignment and possibly other conditions.",
+    "After accepts 49% for a roughly 50% goal; before used a >=50% size check.",
+    "Counts and timings reconstructed from local JSON logs; images and raw private logs are not published."
+  ]
+}

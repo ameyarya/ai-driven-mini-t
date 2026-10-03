@@ -10,6 +10,18 @@ short move/observe loop without a model call for each adjustment.
 > Current mode: **manual driving + local vision + optional navigation goal**.
 > Click Start goal to enable bounded automatic turns; Stop cancels the run.
 
+## A measured speed improvement
+
+The same approach-and-center goal completed in a **69-second logged window,
+down from 346 seconds** after moving repeated adjustments into a Python visual
+feedback controller. Qwen calls fell **21 → 1**, and observations **21 → 14**.
+
+![Rook navigation before and after](docs/assets/navigation-performance.svg)
+
+This is a two-run POC case study with different starting poses and a 1% height
+tolerance in the new controller, not a controlled benchmark.
+[See the measurements, architecture, and limitations](docs/PERFORMANCE.md).
+
 ## What works today
 
 - Hold-to-drive keyboard control over a USB transmitter and ESP-NOW.
