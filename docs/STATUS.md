@@ -298,3 +298,15 @@ tests pass, Python/JavaScript syntax checks pass, saved-image Qwen checks return
 bounds for centering and approach, pinned JPEG matches the requested file, and
 path traversal is rejected. Chrome screenshot with a mock result verified the
 overlay and no page scrolling at 1200×800. No tank movement issued by tests.
+
+## Independent detector offline test (2026-10-02)
+
+YOLO-World small v2 tested on a fixed manifest of 196 saved frames. Best prompt
+in development spot-checks: “red soda can”. Rerun median detection 18.8 ms
+(p95 25.3 ms) on Apple MPS, excluding model setup, capture, annotations and Qwen.
+Seven reviewed positive cases and three negative cases all matched presence at
+confidence 0.10; floor, edge-sliver and close-up cases fall below 0.25. The
+pushing-run close-up measures 94.87% height and touches the image edge. Not a
+full accuracy benchmark: correlated frames, sparse labels, no held-out set.
+Offline runner and detailed findings added to docs/DETECTOR_EVALUATION.md; raw
+frames and reports stay local. Detector is not integrated with motor control.
