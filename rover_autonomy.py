@@ -79,7 +79,7 @@ class NavigationController:
                         self.state.update(state='complete', message='Qwen reports goal achieved — stopped')
                         break
                     if action not in ACTIONS or assessment.get('uncertainties'):
-                        self.state.update(state='stopped', message='Uncertain observation or invalid action; stopped')
+                        self.state.update(state='stopped', message=('Uncertain observation: ' + '; '.join(map(str, assessment['uncertainties'])) if assessment.get('uncertainties') else 'Invalid action: ' + str(action)) + '; stopped')
                         break
                     if action == 'stop':
                         self.state.update(state='stopped', message='Qwen chose stop: ' + assessment.get('reason', ''))

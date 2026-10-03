@@ -84,3 +84,6 @@ verification, frame age, and inference state. It remains frozen until the next
 observation. Qwen also receives measured changes after previous actions.
 A saved-frame check proposed 500 ms after ineffective 50 ms turns; real-world
 improvement remains unverified. Controller and labeled-input tests: 22 passed.
+
+
+Centering stop diagnosis: Qwen mislabeled unfinished centering as uncertainty. Exact progress-only statements are filtered for centering; genuine warnings remain blocking and raw model output remains preserved. Stop messages now include the actual warning. Regression suite: 23 passed. Logged LEFT moved target from 42.35% to 29.25%; direction mismatch guard retained pending physical verification.

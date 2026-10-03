@@ -38,6 +38,18 @@ class LabeledInputTests(unittest.TestCase):
             self.assertEqual(rover_vision.input_snapshot()['result']['input_sha256'],timings['input_sha256'])
             self.assertEqual(rover_vision.input_snapshot()['state'],'done')
 
+    def test_centering_progress_is_not_uncertainty(self):
+        observation={'target_visible':True,'target_x':29.25,
+                     'uncertainties':['Target is not centered; continue adjusting.']}
+        decision=rover_vision.centering_decision(observation)
+        self.assertEqual(decision['suggested_action'],'left')
+        self.assertEqual(decision['uncertainties'],[])
+        self.assertFalse(decision['goal_achieved'])
+        observation['uncertainties'].append('Target partially hidden; location unclear')
+        decision=rover_vision.centering_decision(observation)
+        self.assertEqual(decision['suggested_action'],'stop')
+        self.assertEqual(decision['uncertainties'],['Target partially hidden; location unclear'])
+
     def test_feedback_measures_actual_change(self):
         feedback=progress({'target_x':34.1,'target_height':25},[{'action':'left','duration_ms':50,'target_x_before':34,'target_height_before':24}])
         self.assertEqual(feedback['center_change_percent'],.1)
