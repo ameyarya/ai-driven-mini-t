@@ -30,6 +30,15 @@ missed small target and rejected replan; that handling was corrected. The latest
 logged combined run reached the 40-step limit while still aligning a distant
 can (12.7% image height). It is not yet reliably completing this mission.
 
+## Offline playground
+
+Saved-frame Qwen planning tests now run independently at localhost:8001, without
+the rover, camera, detector worker, or motor server. Human-reviewed corrections
+export to Qwen’s image/conversation dataset format. Official upstream training
+source is downloaded locally; a CUDA LoRA launcher is prepared. No weights have
+been trained. This is recorded-scene testing, not a physics simulator.
+See [setup and limitations](PLAYGROUND.md).
+
 ## Bounds and remaining work
 
 - Exact 360° coverage remains uncalibrated; search has explicit time/step bounds.
@@ -38,7 +47,7 @@ can (12.7% image height). It is not yet reliably completing this mission.
   wrong-way turn checks, and 40-step limit remain active.
 - Live capture plus controller observation was around two seconds in recorded
   tests; the 1.5-second settling wait and movement time are additional.
-- 51 current navigation/vision tests pass. Hardware behavior still needs physical
+- 56 navigation/vision/playground tests pass. Hardware behavior still needs physical
   checks; unit tests are not a substitute for successful tank runs.
 
 ## Workspace

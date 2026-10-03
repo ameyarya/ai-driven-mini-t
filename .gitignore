@@ -28,3 +28,6 @@ detector-output/
 local-archive/
 local-notes/
 weights/
+
+# Private offline review examples, datasets, and training checkpoints
+playground-data/

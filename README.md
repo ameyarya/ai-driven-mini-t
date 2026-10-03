@@ -61,6 +61,14 @@ The Mac handles video and model inference. CyberBrick handles motors and servos.
 The vision path uses snapshots rather than sending every video frame to the model.
 No cloud model or paid API key is needed for the current POC.
 
+## Offline testing and training preparation
+
+No rover required: `python3 rover_playground.py`, then open
+[localhost:8001](http://localhost:8001). Test the production Qwen planner on
+saved labeled frames, correct its plans, and export reviewed training examples.
+This does not open serial ports, train a model, or simulate physical motion.
+See [the playground and fine-tuning guide](docs/PLAYGROUND.md).
+
 ## Hardware
 
 | Component | Role |
