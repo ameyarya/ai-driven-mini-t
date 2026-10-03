@@ -23,7 +23,7 @@ def main():
     names = json.loads(args.manifest.read_text()) if args.manifest else None
     if names is not None and any(Path(name).name != name or not name.endswith('.jpg') for name in names):
         raise SystemExit('Manifest must contain JPEG basenames only')
-    frames = [args.frames_dir/name for name in names] if names is not None else sorted(args.frames_dir.glob('*.jpg'))
+    frames = [args.frames_dir/name for name in names] if names is not None else sorted(p for p in args.frames_dir.glob('*.jpg') if '-labeled' not in p.stem)
     if args.limit:
         frames = frames[:args.limit]
     if not frames:

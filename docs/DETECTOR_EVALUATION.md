@@ -75,3 +75,12 @@ The annotated JPEGs and full per-frame reports remain in local `detector-output/
 images are not published. Reproduce with [the offline runner](../experiments/README.md).
 
 Model documentation: https://docs.ultralytics.com/models/yolo-world/
+
+
+### Exact labeled vision input
+Independent YOLO-World measures each captured frame and Python labels it before
+Qwen inference. One dashboard view shows exactly that JPEG, with SHA-256
+verification, frame age, and inference state. It remains frozen until the next
+observation. Qwen also receives measured changes after previous actions.
+A saved-frame check proposed 500 ms after ineffective 50 ms turns; real-world
+improvement remains unverified. Controller and labeled-input tests: 22 passed.

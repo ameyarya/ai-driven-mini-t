@@ -13,7 +13,7 @@ snapshots. Autonomous control accepts a user-defined goal and runs a short move/
 ## What works today
 
 - Hold-to-drive keyboard control over a USB transmitter and ESP-NOW.
-- Wireless DJI video and the exact analyzed snapshot in a localhost dashboard.
+- Wireless DJI capture and one exact Qwen-input view in a localhost dashboard.
 - Target-box overlay, crosshair, image grid, offset/size measurements, snapshot age, and target-position trail.
 - Local **Qwen3-VL 4B Instruct** image analysis through Ollama.
 - Visual questions such as: *“Find the Coca-Cola can. Is it left, centre, or right?”*
@@ -33,9 +33,10 @@ flowchart LR
     T -->|ESP-NOW| R[Tank receiver]
     R --> M[Tracks and launcher]
     C[DJI Action 5 Pro] -->|Wi-Fi RTMP · started with Mimo| V[MediaMTX on Mac]
-    V --> D[Live dashboard video]
     V --> F[FFmpeg snapshot]
-    F --> Q[Local Qwen via Ollama]
+    F --> L[YOLO-World measurements and labeled JPEG]
+    L --> Q[Local Qwen via Ollama]
+    L --> D[Exact same JPEG on dashboard]
     Q --> A[Answer and advice on dashboard]
 ```
 
@@ -129,14 +130,26 @@ a different key does not reconnect an already configured receiver.
 
 Open **http://localhost:8000**.
 
-### 5. Ask the camera a question
+### 5. Start a navigation goal
 
-Enter a question, then click **Analyze camera frame**. For example:
+The single camera pane displays the exact labeled JPEG sent to Qwen, verified
+by SHA-256 in the browser. It updates on each observation and remains frozen
+while the model thinks. Frame age and inference status are explicit; this is
+not live video. The browser draws no additional overlays. Qwen receives the
+independent detector's measurements and measured changes after previous moves.
+Detector scores are not calibrated probabilities; arbitrary targets are unvalidated.
 
-> Find the Coca-Cola can. Is it left, centre, or right in the image?
+Install the detector in a separate Python 3.12 environment beside the server:
 
-The dashboard captures a frame, asks local Qwen, and displays the answer.
-Observation questions request a STOP movement suggestion. You retain control.
+```sh
+python3.12 -m venv .detector-venv
+.detector-venv/bin/pip install -r experiments/requirements.txt
+mkdir -p tools
+```
+
+Place official `yolov8s-worldv2.pt` weights in `tools/`. The worker starts and
+warms up automatically before capture; first use may download CLIP weights.
+Weights and camera images are excluded from Git.
 
 Enter a goal in the empty **Navigation goal** box, then click **Start**.
 For example: “Turn until the red can is centred in the image, then stop.”
@@ -145,7 +158,7 @@ each short move, and reports whether the goal is achieved. Recent executed
 actions are supplied for context. **Stop** cancels the run. Leaving, hiding, or closing the page does not cancel
 it. Arrow keys and manual commands are ignored during autonomy.
 
-Each automatic move uses a 150 ms host pulse at 40% drive, followed by stop and
+Qwen selects movement duration between 1 and 1000 ms, followed by stop and
 a 1.5 second video settling wait. Manual speed remains 100%. The loop stops on
 reported completion, uncertainty, explicit STOP, lost video, errors, old
 assessments, or a 40-observation limit. All five navigation actions are available;

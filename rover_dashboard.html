@@ -48,7 +48,7 @@ header{flex-wrap:wrap;gap:10px}
 .camera-tools[hidden],#result{display:none}
 
 /* Live feed and the exact analyzed frame share the screen without page scroll. */
-.camera-stack{display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:10px;height:100%;min-height:0}
+.exact-input{width:100%;height:100%;min-height:0}
 .camera-pane{position:relative;min-height:0;overflow:hidden;border:1px solid #2c3748;border-radius:12px;background:#080b10}
 .camera-pane .video{width:100%;height:100%;border:0;border-radius:0}
 .pane-label{position:absolute;top:8px;left:10px;z-index:1;font-size:11px;padding:4px 7px;border-radius:5px;background:#10151de6;pointer-events:none}
@@ -65,11 +65,8 @@ header{flex-wrap:wrap;gap:10px}
 @media(max-height:650px){.telemetry{gap:6px;margin-top:8px;padding-top:8px}#decision{max-height:3em}.hint{font-size:10px}}
 </style></head><body>
 <header><h1>Rook</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools" hidden><span id="vision-status" hidden></span></div></header>
-<main><section><div class="camera-stack">
-<div class="camera-pane"><span class="pane-label">Live camera</span><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera · checking…</span> · ~1s delay</div></div>
-<div class="camera-pane"><span class="pane-label">Qwen input · analyzed snapshot</span><canvas id="model-canvas" width="640" height="360" aria-label="Analyzed camera frame with target bounds, grid, crosshair and target position trail"></canvas><div id="model-empty">Waiting for an analyzed frame</div><span id="frame-age">No frame yet</span></div>
-</div></section>
-<aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary" disabled>Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Short moves, then stop and look again.<br>Continues when you leave this tab. Press Stop to cancel.</div>
+<main><section><div class="camera-pane exact-input"><span class="pane-label" id="input-stage">Qwen input · waiting</span><canvas id="model-canvas" width="640" height="360" aria-label="Exact labeled camera image submitted to Qwen"></canvas><div id="model-empty">Start a goal to capture Qwen's first frame</div><span id="frame-age">No frame yet</span><div class="camera-note"><span id="camera-status" role="status">Camera source · checking…</span></div></div></section>
+<aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary" disabled>Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">This is Qwen’s exact input, not live video.<br>New frame after each move. Press Stop to cancel.</div>
 <div class="telemetry" aria-live="polite">
 <div><span>Target direction</span><strong id="target-direction">—</strong></div>
 <div><span>Center offset</span><strong id="target-offset">—</strong></div>
@@ -195,8 +192,13 @@ let modelImage=null,modelResult=null,modelLoading='',trail=[],trailGoal='';
 function validBox(box){return Array.isArray(box)&&box.length===4&&box.every(v=>Number.isFinite(v)&&v>=0&&v<=1000)&&box[0]<box[2]&&box[1]<box[3];}
 function showModelFrame(r){
  if(!r.frame||r.captured_at<(modelResult?.captured_at||0))return;
- if(modelResult?.frame===r.frame||modelLoading===r.frame)return;
+ if(modelResult?.frame===r.frame){modelResult=r;updateModelMetrics(r);return;}
+ if(modelLoading===r.frame)return;
  modelLoading=r.frame;
+ document.querySelector('#model-canvas').style.visibility='hidden';
+ document.querySelector('#model-empty').hidden=false;
+ document.querySelector('#model-empty').textContent='Loading exact Qwen input…';
+ document.querySelector('#frame-age').textContent='Checking image';
  const img=new Image();
  img.onload=()=>{
   if(modelLoading!==r.frame)return;
@@ -209,43 +211,61 @@ function showModelFrame(r){
   trail=trail.slice(-20);
   const height=validBox(b)?(b[3]-b[1])/10:a.target_height;
   document.querySelector('#model-empty').hidden=true;
-  document.querySelector('#target-direction').textContent=Number.isFinite(x)?(x<45?'Left':x>55?'Right':'Centered'):'Not located';
-  document.querySelector('#target-offset').textContent=Number.isFinite(x)?Math.abs(x-50).toFixed(1)+'% '+(x<50?'left':x>50?'right':''):'—';
-  document.querySelector('#target-height').textContent=Number.isFinite(height)?height.toFixed(1)+'%'+(a.target_clipped?' · clipped':''):'Not measured';
-  document.querySelector('#target-move').textContent=String(a.suggested_action||'—').toUpperCase()+(a.suggested_action!=='stop'&&Number.isFinite(a.duration_ms)?' · '+a.duration_ms+' ms':'');
-  document.querySelector('#model-latency').textContent=r.inference_seconds+'s';
-  document.querySelector('#perception-json').textContent=JSON.stringify({assessment:a,prompt_eval_ms:r.prompt_eval_ms,eval_ms:r.eval_ms},null,2);
+  document.querySelector('#model-canvas').style.visibility='visible';
+  updateModelMetrics(r);
   drawModelFrame();updateFrameAge();
  };
  img.onerror=()=>{if(modelLoading===r.frame){modelLoading='';document.querySelector('#frame-age').textContent='Analyzed image unavailable';}};
- const file=r.frame.split('/').at(-1);
- img.src='/vision/frame?file='+encodeURIComponent(file);
+ const file=(r.model_frame||r.frame).split('/').at(-1);
+ fetch('/vision/frame?file='+encodeURIComponent(file),{cache:'no-store',signal:AbortSignal.timeout(5000)})
+ .then(async response=>{
+  if(!response.ok)throw Error('Input image unavailable');
+  const bytes=await response.arrayBuffer();
+  if(r.input_sha256){
+   const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),v=>v.toString(16).padStart(2,'0')).join('');
+   if(hash!==r.input_sha256)throw Error('Input image mismatch; waiting for exact frame');
+  }
+  if(modelLoading!==r.frame)return;
+  const url=URL.createObjectURL(new Blob([bytes],{type:'image/jpeg'}));
+  img.addEventListener('load',()=>URL.revokeObjectURL(url),{once:true});
+  img.addEventListener('error',()=>URL.revokeObjectURL(url),{once:true});
+  img.src=url;
+ }).catch(error=>{if(modelLoading===r.frame){modelLoading='';document.querySelector('#frame-age').textContent=error.message;document.querySelector('#model-empty').textContent='Exact input unavailable';}});
+}
+function updateModelMetrics(r){
+ const a=r.assessment,b=a.target_bbox;
+ const x=validBox(b)?(b[0]+b[2])/20:a.target_x;
+ const height=validBox(b)?(b[3]-b[1])/10:a.target_height;
+  document.querySelector('#target-direction').textContent=Number.isFinite(x)?(x<45?'Left':x>55?'Right':'Centered'):'Not located';
+  document.querySelector('#target-offset').textContent=Number.isFinite(x)?Math.abs(x-50).toFixed(1)+'% '+(x<50?'left':x>50?'right':''):'—';
+  document.querySelector('#target-height').textContent=Number.isFinite(height)?height.toFixed(1)+'%'+(a.target_clipped?' · clipped':''):'Not measured';
+  document.querySelector('#target-move').textContent=String(a.suggested_action||'Analyzing').toUpperCase()+(a.suggested_action!=='stop'&&Number.isFinite(a.duration_ms)?' · '+a.duration_ms+' ms':'');
+  document.querySelector('#model-latency').textContent=Number.isFinite(r.inference_seconds)?r.inference_seconds+'s':'Analyzing';
+  document.querySelector('#perception-json').textContent=JSON.stringify({assessment:a,prompt_eval_ms:r.prompt_eval_ms,eval_ms:r.eval_ms},null,2);
 }
 function drawModelFrame(){
  if(!modelImage||!modelResult)return;
  const c=document.querySelector('#model-canvas'),ctx=c.getContext('2d');
  c.width=modelImage.naturalWidth;c.height=modelImage.naturalHeight;
- const w=c.width,h=c.height,a=modelResult.assessment,b=a.target_bbox;
- ctx.drawImage(modelImage,0,0,w,h);
- ctx.strokeStyle='#ffffff25';ctx.lineWidth=1;
- for(let i=1;i<10;i++){ctx.beginPath();ctx.moveTo(w*i/10,0);ctx.lineTo(w*i/10,h);ctx.moveTo(0,h*i/10);ctx.lineTo(w,h*i/10);ctx.stroke();}
- ctx.fillStyle='#91dfb712';ctx.fillRect(w*.45,0,w*.1,h);
- ctx.strokeStyle='#ffffffa0';ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(w/2,0);ctx.lineTo(w/2,h);ctx.moveTo(w/2-12,h/2);ctx.lineTo(w/2+12,h/2);ctx.stroke();ctx.setLineDash([]);
- ctx.strokeStyle='#f2c875';ctx.lineWidth=2;ctx.beginPath();trail.forEach((p,i)=>i?ctx.lineTo(p.x*w/100,p.y*h/100):ctx.moveTo(p.x*w/100,p.y*h/100));ctx.stroke();
- if(validBox(b)){
-  const x=b[0]*w/1000,y=b[1]*h/1000;
-  ctx.strokeStyle='#91dfb7';ctx.lineWidth=2;ctx.strokeRect(x,y,(b[2]-b[0])*w/1000,(b[3]-b[1])*h/1000);
-  ctx.font='12px system-ui';const label='Target · '+((b[3]-b[1])/10).toFixed(1)+'% height';
-  const ly=Math.min(h-18,Math.max(0,y-20));ctx.fillStyle='#10151de6';ctx.fillRect(x,ly,ctx.measureText(label).width+12,19);ctx.fillStyle='#91dfb7';ctx.fillText(label,x+6,ly+14);
- }
- const x=validBox(b)?(b[0]+b[2])*w/2000:Number.isFinite(a.target_x)?a.target_x*w/100:null;
- const y=validBox(b)?(b[1]+b[3])*h/2000:h/2;
- if(x!==null){ctx.strokeStyle='#91dfb7';ctx.beginPath();ctx.moveTo(w/2,y);ctx.lineTo(x,y);ctx.stroke();ctx.fillStyle='#91dfb7';ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}
+ ctx.drawImage(modelImage,0,0,c.width,c.height);
+ // No client annotations: every displayed pixel comes from the Qwen input JPEG.
 }
 function updateFrameAge(){
  if(modelResult)document.querySelector('#frame-age').textContent=Math.max(0,Math.floor(Date.now()/1000-modelResult.captured_at))+'s old · '+modelImage.naturalWidth+'×'+modelImage.naturalHeight;
 }
 setInterval(updateFrameAge,1000);
+async function pollModelInput(){
+ try{
+  const response=await fetch('/vision/input',{cache:'no-store',signal:AbortSignal.timeout(3000)});
+  if(!response.ok)return;
+  const input=await response.json();
+  if(input.result){
+   latestCapture=Math.max(latestCapture,input.result.captured_at);
+   showModelFrame(input.result);
+   document.querySelector('#input-stage').textContent=input.state==='analyzing'?'Qwen input · analyzing this frame':input.state==='error'?'Qwen input · analysis failed':'Qwen input · decision complete';
+  }
+ }catch{}
+}
 async function pollAuto(){
  try{
   const response=await fetch('/autonomy/status',{cache:'no-store',signal:AbortSignal.timeout(3000)});
@@ -285,7 +305,7 @@ async function pollCamera(){
   cameraLive=(await response.json()).live===true;
  }catch{cameraLive=false;}
  const badge=document.querySelector('#camera-status');
- badge.textContent=cameraLive?'● Camera live':'● Camera offline';
+ badge.textContent=cameraLive?'● Camera source live':'● Camera source offline';
  badge.style.color=cameraLive?'#91dfb7':'#f3ad87';
  document.querySelector('#auto-start').disabled=autoActive||!cameraLive;
 
@@ -293,7 +313,7 @@ async function pollCamera(){
 let polling=false;
 async function refreshStatus(){
  if(polling)return;polling=true;
- try{await pollCamera();await pollAuto();if(!autoActive)await pollVision();}
+ try{await pollCamera();await pollModelInput();await pollAuto();if(!autoActive)await pollVision();}
  finally{polling=false;}
 }
 setInterval(refreshStatus,1000);refreshStatus();

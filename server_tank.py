@@ -289,6 +289,9 @@ class Handler(BaseHTTPRequestHandler):
         if url.path == '/autonomy/status':
             self.text_result(200, json.dumps(autonomy.snapshot()))
             return
+        if url.path == '/vision/input':
+            self.text_result(200, json.dumps(rover_vision.input_snapshot()))
+            return
         if url.path == '/vision/status':
             with vision_lock:
                 body = json.dumps(vision_state)
