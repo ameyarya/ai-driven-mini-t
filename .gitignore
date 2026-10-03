@@ -23,3 +23,8 @@ __pycache__/
 .detector-venv/
 detector-output/
 *.pt
+
+# Private workspace history and local model cache
+local-archive/
+local-notes/
+weights/

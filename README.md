@@ -22,6 +22,9 @@ This is a two-run POC case study with different starting poses and a 1% height
 tolerance in the new controller, not a controlled benchmark.
 [See the measurements, architecture, and limitations](docs/PERFORMANCE.md).
 
+Project notes: [current status](docs/STATUS.md) · [prompts](docs/PROMPTS.md) ·
+[ideas](docs/IDEAS.md) · [workspace layout](docs/WORKSPACE.md).
+
 ## What works today
 
 - Hold-to-drive keyboard control over a USB transmitter and ESP-NOW.
