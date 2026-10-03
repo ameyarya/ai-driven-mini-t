@@ -194,23 +194,25 @@ python3 rover_vision.py --goal "Find a clear path ahead."
 ## Find a target by rotating in place
 
 Enter **“Find the red can by doing 360 turn in place”** and press Start.
-Qwen selects the target and search mode once. Python turns right in 500 ms
-pulses, stops, waits for fresh video, and checks the detector. It stops rotating
-at the first candidate and confirms the target in a second stationary frame
-before reporting success. The find goal does not approach, center, or fire.
-Request a centering or approach goal afterward.
+Qwen selects the target and search mode once. Python turns right in 250 ms
+pulses, stops, waits for fresh video, and checks the detector. It switches from searching to
+centering as soon as a candidate appears. Success requires a fully visible,
+centered target confirmed in two stationary frames. It does not approach or fire;
+request an approach goal afterward.
 
 An exact full turn cannot be inferred from motor time without calibration.
 The dashboard explicitly shows **360° not calibrated; bounded search** by
-default. Search stops without claiming success after 19.5 seconds of commanded
+default. Search stops without claiming success after 9.75 seconds of commanded
 rotation or the global 40-observation limit. This limit does not guarantee a
 full circle, and targets between sampled viewpoints can be missed.
 
 If measured on the actual tank, surface, and current autonomous speed, set
-`ROOK_FULL_TURN_MS` to the motor-on duration for one full turn (500–19000 ms)
+`ROOK_FULL_TURN_MS` to the motor-on duration for one full turn (250–9500 ms)
 when starting the server. That provides a timed 360° estimate, not heading
-feedback; traction and battery changes can affect it. The scan stops early
-when the target is found. No calibration is assumed or invented.
+feedback; traction and battery changes can affect it. Search turns use 100% power on both tracks (mirrored motor wiring), rather
+than the previous 40% setting; approach remains at 40%. Calibration must be
+measured at this turn power. The scan stops early when the target is found
+and then centers it. No calibration is assumed or invented.
 
 ## Controls
 

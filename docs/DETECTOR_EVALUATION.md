@@ -121,3 +121,17 @@ Default is explicitly labeled uncalibrated, bounded at 19.5 seconds motor-on
 rotation / 40 observations; it never claims a measured full turn. Saved absent-
 target Qwen planning succeeded without movement. 41 tests pass; physical search
 performance awaits user testing.
+
+
+### Search completion and pivot correction
+A user search run completed at x=98.15% with a clipped can. Find now centers
+the detected candidate and requires it to be fully visible in two stationary
+frames before completion. Centered but vertically clipped targets stop with
+a clear warning. No extra centering phrase is required.
+Receiver A/D mappings already command both motors: (1024,1024) / (-1024,-1024).
+Because motors are mirrored, these signs mean opposite track directions.
+Autonomous pivots now use 100% instead of 40% power to address possible low-
+power stalling; physical confirmation that both tracks move is still needed.
+Search pulses shortened to 250 ms at this higher power; uncalibrated search
+budget is 9.75 s motor-on / 40 observations. Existing timed calibration must
+be remeasured at 100% turn power. Approach speed remains 40%. 43 tests pass.

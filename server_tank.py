@@ -169,10 +169,10 @@ def autonomous_drive(key):
         if not any(p['name'] == 'live/tank' and p['ready'] for p in paths):
             raise RuntimeError('Camera stream lost; autonomous turn cancelled')
     with lock:
-        # Enable protocol extensions and keep the launcher idle. Reduced speed
-        # applies only to short autonomous turns; manual control still uses 100%.
+        # Full-power pivots drive both tracks; approach retains reduced speed.
+        # Keep launcher idle and stop before configuring the next movement.
         send("wire('X')")
-        wireless_update.exchange(ser, b'L', wireless_update.secrets.token_bytes(4), bytes((0, 1, 40)))
+        wireless_update.exchange(ser, b'L', wireless_update.secrets.token_bytes(4), bytes((0, 1, rover_autonomy.autonomous_speed(key))))
         send('wire(%r)' % key)
 
 

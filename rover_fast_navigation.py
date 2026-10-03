@@ -13,8 +13,8 @@ MAX_DURATION_MS = 1000
 MIN_DURATION_MS = 50
 CENTER_TOLERANCE = 5.0
 HEIGHT_TOLERANCE = 1.0
-SEARCH_PULSE_MS = 500
-DEFAULT_SEARCH_BUDGET_MS = 19500
+SEARCH_PULSE_MS = 250
+DEFAULT_SEARCH_BUDGET_MS = 9750
 
 
 def search_goal(goal):
@@ -48,9 +48,9 @@ def plan_goal(goal, history=None):
                 'content': 'Translate this toy rover goal into a visual setpoint. Goal: '+goal+
                 '\nSupported: center one object, or approach it until a specified percentage '
                 'of IMAGE HEIGHT while centered, or FIND an object by rotating in place. '
-                'For a find/search/360 goal return find; stop once the object is detected. '
+                'For a find/search/360 goal return find; finish with the object centered and fully visible. '
                 'Target absence is expected during search, NOT an uncertainty. '
-                'height_percent is 0 for find. Search does not include approach or firing. '
+                'height_percent is 0 for find. Search includes centering after discovery, but not approach or firing. '
                 'Return unsupported for firing, '
                 'moving away, physical distances, or other missions. Never silently omit '
                 'parts of a mission. target is an object name, not an action. height_percent '
@@ -69,8 +69,8 @@ def plan_goal(goal, history=None):
             plan['search_direction']='left' if re.search(r'\bleft\b',goal,re.I) else 'right'
             calibrated=os.environ.get('ROOK_FULL_TURN_MS')
             plan['full_turn_ms']=int(calibrated) if calibrated else None
-            if plan['full_turn_ms'] is not None and not 500<=plan['full_turn_ms']<=19000:
-                raise ValueError('ROOK_FULL_TURN_MS must be 500..19000 at current speed and surface')
+            if plan['full_turn_ms'] is not None and not 250<=plan['full_turn_ms']<=9500:
+                raise ValueError('ROOK_FULL_TURN_MS must be 250..9500 at current speed and surface')
             plan['heading_calibrated']=plan['full_turn_ms'] is not None
         result.update(plan=plan, inference_seconds=round(time.monotonic()-start,2),
                       model=response['model'], prompt_eval_ms=round(response.get('prompt_eval_duration',0)/1e6,1),
@@ -88,8 +88,8 @@ def validate_plan(plan, goal=None):
         raise ValueError('This fast controller supports finding, centering, and image-size approach only')
     if goal and search_goal(goal) and plan.get('mode')!='find':
         raise ValueError('Planner omitted the requested search')
-    if plan.get('mode')=='find' and goal and re.search(r'\b(center|centre|centered|centred|approach|closer|advance)\b|%',goal,re.I):
-        raise ValueError('Search supports find-and-stop; combined missions are not yet implemented')
+    if plan.get('mode')=='find' and goal and re.search(r'\b(approach|closer|advance)\b|%',goal,re.I):
+        raise ValueError('Search supports find-center-and-stop; combined missions are not yet implemented')
     requested = vision.requested_height(goal) if goal else None
     if goal and vision.is_distance_goal(goal) and plan.get('mode')=='center':
         raise ValueError('Planner omitted the requested approach')
@@ -179,12 +179,21 @@ def search_decision(plan, measurement, history, assessment):
     if measurement.get('candidate_count',0)>1:
         return dict(assessment,reason='Multiple target candidates; stopped',uncertainties=['Ambiguous search target'])
     if candidate:
+        if abs(x-50)>CENTER_TOLERANCE:
+            action='left' if x<50 else 'right'
+            return dict(assessment,suggested_action=action,
+                        duration_ms=movement_duration(action,abs(x-50),measurement,history),
+                        reason='Target found; center it before stopping',phase='find_align')
+        if measurement.get('target_clipped') is not False:
+            return dict(assessment,reason='Target centered but clipped; full visibility unavailable',
+                        uncertainties=['Target not fully visible'],phase='find_align')
         previous=history[-1] if history else {}
         old_x=previous.get('target_x_before')
-        confirmed=(previous.get('phase')=='find_confirmation' and type(old_x) in (int,float) and abs(x-old_x)<=10)
+        confirmed=(previous.get('phase')=='find_confirmation' and type(old_x) in (int,float)
+                   and abs(old_x-50)<=CENTER_TOLERANCE and abs(x-old_x)<=10)
         if confirmed:
-            return dict(assessment,goal_achieved=True,reason='Target found in two stationary observations',phase='found')
-        return dict(assessment,reason='Target candidate found; stopped to confirm',observe_again=True,phase='find_confirmation')
+            return dict(assessment,goal_achieved=True,reason='Target fully visible and centered; confirmed twice',phase='found')
+        return dict(assessment,reason='Target centered; stopped to confirm full visibility',observe_again=True,phase='find_confirmation')
     spent=sum(h.get('duration_ms',0) for h in history if h.get('phase')=='search')
     calibrated_limit=plan.get('full_turn_ms')
     limit=calibrated_limit if calibrated_limit is not None else DEFAULT_SEARCH_BUDGET_MS

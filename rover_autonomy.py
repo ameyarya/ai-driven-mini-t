@@ -7,6 +7,12 @@ ACTIONS = {'forward': 'W', 'backward': 'S', 'left': 'A', 'right': 'D', 'stop': '
 MAX_STEPS = 40
 
 
+def autonomous_speed(key):
+    # Pivot both tracks at full power; low-duty reverse can stall a track.
+    return 100 if key in ('A','D','X') else 40
+
+
+
 class NavigationController:
     def __init__(self, observe, drive, refresh=None, planner=None, fast_observe=None):
         self.observe, self.drive = observe, drive
