@@ -99,6 +99,10 @@ def validate_plan(plan, goal=None):
         raise ValueError('Planner could not proceed: '+str(plan.get('reason','unsupported goal'))+'; '+str(plan.get('uncertainties',[])))
     if goal and re.search(r'\b(shoot|fire|launcher|backward|away|farther|further)\b',goal,re.I):
         raise ValueError('This fast controller supports finding, centering, and image-size approach only')
+    if goal and re.search(r'\b(?:centimeters?|centimetres?|cm|meters?|metres?|feet|foot|inches?|inch)\b',goal,re.I):
+        raise ValueError('Physical distance goals require calibration and are unsupported')
+    if goal and vision.is_centering_goal(goal) and plan.get('mode') != 'center':
+        raise ValueError('Planner changed a centering-only goal into another mission')
     if goal and search_goal(goal) and plan.get('mode') not in ('find','find_approach_size'):
         raise ValueError('Planner omitted the requested search')
     if plan.get('mode')=='find' and goal and re.search(r'\b(approach|closer|advance)\b|%',goal,re.I):

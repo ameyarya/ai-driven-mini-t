@@ -2,6 +2,9 @@ import hashlib
 import json
 from pathlib import Path
 import tempfile
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
 import unittest
 from unittest.mock import patch
 
@@ -77,6 +80,64 @@ class PlaygroundTests(unittest.TestCase):
                 expected=dict(mode='center', target='red can',height_percent=0,reason='OK',uncertainties=[]))))
         counts = p.export_dataset(items)
         self.assertIn(2, (counts['train'], counts['validation']))
+
+    def test_concurrent_inferences_keep_prompts_isolated(self):
+        item = next(iter(p.catalog(self.frames).values()))
+        entered = threading.Event()
+        release = threading.Event()
+        goals = ['Center red can', 'Center soda can']
+        calls = []
+
+        def transport(url, body=None, timeout=5):
+            calls.append(body['messages'][0]['content'])
+            if len(calls) == 1:
+                entered.set()
+                self.assertTrue(release.wait(3))
+            return dict(model='test', message=dict(content=json.dumps(dict(
+                mode='center', target='red can', height_percent=0, reason='Center', uncertainties=[]))))
+
+        with patch.object(p.navigation.vision, 'read_json', side_effect=transport), ThreadPoolExecutor(2) as pool:
+            first = pool.submit(p.infer, item, goals[0])
+            self.assertTrue(entered.wait(3))
+            second = pool.submit(p.infer, item, goals[1])
+            # Wait until the second request has created its private run and is
+            # blocked on the first request, which still owns the patched globals.
+            deadline = time.monotonic() + 3
+            while len(list((p.DATA / 'runs').glob('*/frame.jpg'))) < 2 and time.monotonic() < deadline:
+                time.sleep(.01)
+            self.assertEqual(len(list((p.DATA / 'runs').glob('*/frame.jpg'))), 2)
+            release.set()
+            results = [first.result(timeout=3), second.result(timeout=3)]
+        for goal, result in zip(goals, results):
+            self.assertNotIn('error', result)
+            self.assertIn('Goal: ' + goal, result['prompt'])
+        self.assertEqual(len(calls), 2)
+        self.assertNotEqual(results[0]['prompt'], results[1]['prompt'])
+
+    def test_export_rejects_changed_reviewed_input(self):
+        items = p.catalog(self.frames)
+        item = next(iter(items.values()))
+        run = p.DATA / 'runs' / ('a' * 32)
+        run.mkdir(parents=True)
+        (run / 'result.json').write_text(json.dumps(dict(source=item['id'],
+            image_sha256='wrong', expected={}, id=run.name)))
+        with self.assertRaisesRegex(ValueError, 'changed'):
+            p.export_dataset(items)
+
+    def test_invalid_review_values_are_rejected(self):
+        valid = dict(mode='center',target='can',height_percent=0,reason='OK',uncertainties=[])
+        for bad in [dict(valid,height_percent=True),dict(valid,height_percent=float('nan')),
+                    dict(valid,uncertainties=[42]),dict(valid,reason='x'*121),dict(valid,extra='field')]:
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                p.validate_label(bad, 'Center can')
+
+    def test_planner_cannot_convert_center_or_physical_distance_to_search(self):
+        plan = dict(mode='find',target='red can',height_percent=0,reason='Search',uncertainties=[])
+        for goal in ('Center the red can in the image, then stop.',
+                     'Move within 20 centimeters of the red can.',
+                     'Move within 20 cm of the red can.'):
+            with self.subTest(goal=goal), self.assertRaises(ValueError):
+                p.navigation.validate_plan(plan, goal)
 
     def test_bad_review_cannot_discard_requested_search(self):
         with self.assertRaises(ValueError):

@@ -54,18 +54,25 @@ def infer(item, goal):
     shutil.copy2(item['raw'], frame)
     prepared = dict(model_frame=str(item['image']), measurement=item['measurement'])
     captured_request = {}
-    original_request = navigation.vision.read_json
-
-    def request(url, body=None, timeout=5):
-        captured_request.update(body or {})
-        return original_request(url, body, timeout)
-
     start = time.monotonic()
     result = dict(id=run.name, source=item['id'], goal=goal,
                   image_sha256=item['sha256'], motor_commands_sent=False)
     # One server process, serialized calls. Never touch the live dashboard state
     # or original logs. No capture, camera, detector or serial connection needed.
-    with LOCK, patch.object(navigation.vision, 'capture_frame', return_value=frame), \
+    with LOCK:
+        # Resolve the real transport only after acquiring the lock. A second
+        # concurrent request must not capture the first request’s patched wrapper.
+        original_request = navigation.vision.read_json
+
+        def request(url, body=None, timeout=5):
+            captured_request.update(body or {})
+            return original_request(url, body, timeout)
+
+        return _infer_locked(item, goal, run, frame, prepared, captured_request, request, result, start)
+
+
+def _infer_locked(item, goal, run, frame, prepared, captured_request, request, result, start):
+    with patch.object(navigation.vision, 'capture_frame', return_value=frame), \
             patch.object(navigation.vision, 'prepare_detector_image', return_value=prepared), \
             patch.object(navigation.vision, 'publish_input'), \
             patch.object(navigation.vision, 'read_json', side_effect=request):

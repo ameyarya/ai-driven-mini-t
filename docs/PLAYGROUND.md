@@ -98,3 +98,8 @@ real Qwen model. On a centering-only goal, Qwen incorrectly proposed
 `find_approach_size`; the production validator rejected it for lacking an
 explicit size goal. The failed output was retained locally without approval.
 This establishes the testing path, not a passing model-quality benchmark.
+
+## Automated browser and controller checks
+
+See [the offline testing results](PLAYGROUND_TESTING.md) and
+[reproducible commands](../experiments/README.md#offline-playground-checks).
