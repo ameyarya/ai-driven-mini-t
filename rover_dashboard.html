@@ -48,6 +48,7 @@ header{flex-wrap:wrap;gap:10px}
 .camera-tools[hidden],#result{display:none}
 
 /* Live feed and the exact analyzed frame share the screen without page scroll. */
+.camera-views{display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:12px;width:100%;height:100%;min-height:0}
 .exact-input{width:100%;height:100%;min-height:0}
 .camera-pane{position:relative;min-height:0;overflow:hidden;border:1px solid #2c3748;border-radius:12px;background:#080b10}
 .camera-pane .video{width:100%;height:100%;border:0;border-radius:0}
@@ -65,8 +66,8 @@ header{flex-wrap:wrap;gap:10px}
 @media(max-height:650px){.telemetry{gap:6px;margin-top:8px;padding-top:8px}#decision{max-height:3em}.hint{font-size:10px}}
 </style></head><body>
 <header><h1>Rook</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools" hidden><span id="vision-status" hidden></span></div></header>
-<main><section><div class="camera-pane exact-input"><span class="pane-label" id="input-stage">Qwen input · waiting</span><canvas id="model-canvas" width="640" height="360" aria-label="Exact labeled camera image submitted to Qwen"></canvas><div id="model-empty">Start a goal to capture Qwen's first frame</div><span id="frame-age">No frame yet</span><div class="camera-note"><span id="camera-status" role="status">Camera source · checking…</span></div></div></section>
-<aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary" disabled>Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">This is Qwen’s exact input, not live video.<br>New frame after each move. Press Stop to cancel.</div>
+<main><section><div class="camera-views"><div class="camera-pane"><span class="pane-label">Live camera · about 1 second delay</span><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&amp;muted=true&amp;controls=false" title="Live DJI camera video" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera source · checking…</span></div></div><div class="camera-pane exact-input"><span class="pane-label" id="input-stage">Qwen input · waiting</span><canvas id="model-canvas" width="640" height="360" aria-label="Exact labeled camera image submitted to Qwen"></canvas><div id="model-empty">Start a goal to capture Qwen's first frame</div><span id="frame-age">No frame yet</span></div></div></section>
+<aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary" disabled>Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Top: live camera. Bottom: exact Qwen input.<br>Labeled snapshot updates after each move. Press Stop to cancel.</div>
 <div class="telemetry" aria-live="polite">
 <div><span>Target direction</span><strong id="target-direction">—</strong></div>
 <div><span>Center offset</span><strong id="target-offset">—</strong></div>

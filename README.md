@@ -13,7 +13,7 @@ snapshots. Autonomous control accepts a user-defined goal and runs a short move/
 ## What works today
 
 - Hold-to-drive keyboard control over a USB transmitter and ESP-NOW.
-- Wireless DJI capture and one exact Qwen-input view in a localhost dashboard.
+- Wireless DJI capture and live video plus an exact Qwen-input view in a localhost dashboard.
 - Target-box overlay, crosshair, image grid, offset/size measurements, snapshot age, and target-position trail.
 - Local **Qwen3-VL 4B Instruct** image analysis through Ollama.
 - Visual questions such as: *“Find the Coca-Cola can. Is it left, centre, or right?”*
@@ -37,6 +37,7 @@ flowchart LR
     F --> L[YOLO-World measurements and labeled JPEG]
     L --> Q[Local Qwen via Ollama]
     L --> D[Exact same JPEG on dashboard]
+    V --> LIVE[Separate live video pane]
     Q --> A[Answer and advice on dashboard]
 ```
 
@@ -132,7 +133,8 @@ Open **http://localhost:8000**.
 
 ### 5. Start a navigation goal
 
-The single camera pane displays the exact labeled JPEG sent to Qwen, verified
+The top camera pane shows live video (about one second of delay). The bottom
+pane displays the exact labeled JPEG sent to Qwen, verified
 by SHA-256 in the browser. It updates on each observation and remains frozen
 while the model thinks. Frame age and inference status are explicit; this is
 not live video. The browser draws no additional overlays. Qwen receives the

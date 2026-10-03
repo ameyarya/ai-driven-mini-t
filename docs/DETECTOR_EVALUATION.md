@@ -87,3 +87,6 @@ improvement remains unverified. Controller and labeled-input tests: 22 passed.
 
 
 Centering stop diagnosis: Qwen mislabeled unfinished centering as uncertainty. Exact progress-only statements are filtered for centering; genuine warnings remain blocking and raw model output remains preserved. Stop messages now include the actual warning. Regression suite: 23 passed. Logged LEFT moved target from 42.35% to 29.25%; direction mismatch guard retained pending physical verification.
+
+
+Dashboard now has two explicitly separate views: live camera on top and the hash-verified labeled Qwen input underneath. Both fit alongside the control column within the viewport. The labeled view remains frozen during inference, with frame age and status.
