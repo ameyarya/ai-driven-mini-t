@@ -35,6 +35,64 @@ class FastNavigationTests(unittest.TestCase):
                 self.assertEqual(result['input_sha256'],hashlib.sha256(labeled.read_bytes()).hexdigest())
                 self.assertEqual(fast.vision.input_snapshot()['state'],'controller')
 
+    def test_find_rotates_without_advancing_when_target_absent(self):
+        plan=dict(PLAN,mode='find',height_percent=0,search_direction='right',full_turn_ms=None)
+        fast.validate_plan(plan,'Find the red can by doing 360 turn in place')
+        a=fast.control_decision(plan,measurement(visible=False),[])
+        self.assertEqual(a['suggested_action'],'right')
+        self.assertEqual(a['duration_ms'],500)
+        self.assertFalse(a.get('needs_replan',False))
+        self.assertFalse(a['heading_calibrated'])
+
+    def test_find_requires_two_stationary_detections_then_stops(self):
+        plan=dict(PLAN,mode='find',height_percent=0)
+        first=fast.control_decision(plan,measurement(x=25),[])
+        self.assertTrue(first['observe_again'])
+        h=[{'action':'stop','duration_ms':0,'phase':'find_confirmation','target_x_before':25}]
+        confirmed=fast.control_decision(plan,measurement(x=26),h)
+        self.assertTrue(confirmed['goal_achieved'])
+        self.assertEqual(confirmed['suggested_action'],'stop')
+        lost=fast.control_decision(plan,measurement(visible=False),h)
+        self.assertEqual(lost['suggested_action'],'right')
+
+    def test_find_ambiguous_target_stops(self):
+        plan=dict(PLAN,mode='find',height_percent=0)
+        a=fast.control_decision(plan,dict(measurement(visible=False),candidate_count=2),[])
+        self.assertEqual(a['suggested_action'],'stop')
+        self.assertTrue(a['uncertainties'])
+
+    def test_find_timed_limit_uses_full_history_and_stops_without_success(self):
+        plan=dict(PLAN,mode='find',height_percent=0,full_turn_ms=4000)
+        h=[{'action':'right','phase':'search','duration_ms':500}]*8
+        a=fast.control_decision(plan,measurement(visible=False),h)
+        self.assertEqual(a['suggested_action'],'stop')
+        self.assertFalse(a['goal_achieved'])
+        a=fast.control_decision(dict(plan,full_turn_ms=4100),measurement(visible=False),h)
+        self.assertEqual(a['duration_ms'],100)
+
+    def test_uncalibrated_search_exhausts_without_claiming_360_or_success(self):
+        plan=dict(PLAN,mode='find',height_percent=0)
+        h=[{'action':'right','phase':'search','duration_ms':500}]*39
+        a=fast.control_decision(plan,measurement(visible=False),h)
+        self.assertEqual(a['suggested_action'],'stop')
+        self.assertFalse(a['goal_achieved'])
+        self.assertIn('360 not calibrated',a['reason'])
+
+    def test_find_controller_confirms_candidate_without_extra_turn(self):
+        plan=dict(PLAN,mode='find',height_percent=0)
+        frames=iter([measurement(visible=False),measurement(x=25),measurement(x=26)])
+        moves=[]
+        def observe(goal,plan,history):return {'captured_at':time.time(),'assessment':fast.control_decision(plan,next(frames),history)}
+        c=NavigationController(None,moves.append,planner=lambda *a,**k:plan,fast_observe=observe)
+        c.state['goal']='Find red can by rotating in place'
+        with patch.object(c.cancelled,'wait',return_value=False):c.run(c.cancelled)
+        self.assertEqual(moves,['D','X','X','X'])
+        self.assertEqual(c.snapshot()['state'],'complete')
+
+    def test_find_mission_cannot_silently_drop_approach(self):
+        with self.assertRaises(ValueError):fast.validate_plan(dict(PLAN,mode='find'),'Find red can, then approach it')
+        with self.assertRaises(ValueError):fast.validate_plan(PLAN,'Find red can by rotating 360')
+
     def test_alignment_before_approach_and_complete(self):
         for x,h,action,complete in [(30,30,'left',False),(70,30,'right',False),(50,30,'forward',False),(50,50.1,'stop',True),(30,51,'left',False)]:
             a=fast.control_decision(PLAN,measurement(x,h),[])

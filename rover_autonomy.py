@@ -66,7 +66,7 @@ class NavigationController:
                     if not self.valid(token):
                         break
                     self.state.update(state='observing', step=step, message='Measuring target' if plan else 'Analyzing the goal', plan=plan)
-                result = (self.fast_observe(goal, plan, history[-6:]) if plan
+                result = (self.fast_observe(goal, plan, history) if plan
                           else self.observe(goal, autonomous=True, history=history[-6:]))
                 if plan and result['assessment'].get('needs_replan'):
                     with self.lock:
@@ -98,6 +98,14 @@ class NavigationController:
                     if action not in ACTIONS or assessment.get('uncertainties'):
                         self.state.update(state='stopped', message=('Uncertain observation: ' + '; '.join(map(str, assessment['uncertainties'])) if assessment.get('uncertainties') else 'Invalid action: ' + str(action)) + '; stopped')
                         break
+                    if assessment.get('observe_again'):
+                        self.drive('X')
+                        history.append({'action':'stop','duration_ms':0,
+                                        'phase':assessment.get('phase'),
+                                        'target_x_before':assessment.get('target_x'),
+                                        'target_height_before':assessment.get('target_height')})
+                        self.state.update(state='settling',message=assessment.get('reason','Confirming target'))
+                        continue
                     if action == 'stop':
                         self.state.update(state='stopped', message=('Controller chose stop: ' if plan else 'Qwen chose stop: ') + assessment.get('reason', ''))
                         break
@@ -119,7 +127,8 @@ class NavigationController:
                     history.append({'step': step, 'action': action, 'duration_ms': duration_ms,
                                     'target_x_before': assessment.get('target_x'),
                                     'target_height_before': assessment.get('target_height'),
-                                    'reason': assessment.get('reason', '')})
+                                    'reason': assessment.get('reason', ''),
+                                    'phase': assessment.get('phase')})
                 # Bounded adaptive pulse, followed by explicit stop. Firmware watchdog
                 # remains a separate 500 ms fallback if the host fails.
                 remaining = duration

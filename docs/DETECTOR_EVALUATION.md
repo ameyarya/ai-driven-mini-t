@@ -108,3 +108,16 @@ benchmark was blocked by an offline camera stream. 34 unit tests pass; actual
 driving performance remains unverified.
 
 After livestream restoration, one live capture + labeling + controller decision took 2.55 s (detector 212.9 ms), with no Qwen call and no motor command. Settling wait and movement duration are additional per-cycle costs.
+
+
+### Find target by rotating in place
+Added Qwen find-mode planning, followed by detector-only right-turn search
+(500 ms pulses, stop and fresh observation between pulses). A candidate stops
+rotation immediately and needs a second stationary detection before success.
+Target absence is expected during search; ambiguous detections stop. No forward
+travel, automatic centering, or firing is added to this goal. Exact 360 requires
+measured motor-time calibration via ROOK_FULL_TURN_MS at current speed/surface.
+Default is explicitly labeled uncalibrated, bounded at 19.5 seconds motor-on
+rotation / 40 observations; it never claims a measured full turn. Saved absent-
+target Qwen planning succeeded without movement. 41 tests pass; physical search
+performance awaits user testing.

@@ -68,6 +68,7 @@ header{flex-wrap:wrap;gap:10px}
 <header><h1>Rook</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools" hidden><span id="vision-status" hidden></span></div></header>
 <main><section><div class="camera-views"><div class="camera-pane"><span class="pane-label">Live camera · about 1 second delay</span><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&amp;muted=true&amp;controls=false" title="Live DJI camera video" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera source · checking…</span></div></div><div class="camera-pane exact-input"><span class="pane-label" id="input-stage">Planner / controller input · waiting</span><canvas id="model-canvas" width="640" height="360" aria-label="Exact labeled planner or controller input image"></canvas><div id="model-empty">Start a goal to capture Qwen's first frame</div><span id="frame-age">No frame yet</span></div></div></section>
 <aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary" disabled>Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Top: live camera. Bottom: labeled controller input.<br>Qwen plans; Python adjusts using fresh measurements. Press Stop to cancel.</div>
+<p id="search-note" class="hint" hidden></p>
 <div class="telemetry" aria-live="polite">
 <div><span>Target direction</span><strong id="target-direction">—</strong></div>
 <div><span>Center offset</span><strong id="target-offset">—</strong></div>
@@ -282,6 +283,9 @@ async function pollAuto(){
   if(['stopped','error'].includes(state.state))line+=' — '+(state.message||'');
   document.querySelector('#auto-status').textContent=line+(state.step?' · step '+state.step+'/40':'');
   if(autoActive)document.querySelector('#vision-status').textContent='Autonomous goal running · '+state.state;
+  const searchNote=document.querySelector('#search-note');
+  searchNote.hidden=state.plan?.mode!=='find';
+  if(!searchNote.hidden)searchNote.textContent='Search in place · '+(state.plan.search_direction||'right')+' · '+(state.plan.full_turn_ms?'timed 360° estimate':'360° not calibrated; bounded search');
   if(state.result)showAutoResult(state.result);
   if(autoActive)await fetch('/autonomy/heartbeat',{method:'POST',signal:AbortSignal.timeout(3000)});
  }catch(error){document.querySelector('#auto-status').textContent=error.message;}
