@@ -27,6 +27,11 @@ Project notes: [current status](docs/STATUS.md) · [prompts](docs/PROMPTS.md) ·
 
 ## Shooting prototype and local simulation
 
+Expanded tests cover 100 simulator missions and four real-Qwen shooting plans.
+Find/approach/fire produces contact in 20/20 scripted synthetic scenes;
+direct-fire misses twice in ten fired cases. These are simulation results.
+[Detailed test results](docs/SHOOTING_SIMULATION.md).
+
 One-shot missions now align, stop, issue a bounded fire/reset command and
 record evidence. Physical impact verification remains **unconfirmed**; the
 current trained adapter still refuses firing. No autonomous physical firing
@@ -37,6 +42,12 @@ reports actual simulated contact. Four scripted mission paths and 100
 deterministic hit/miss cases pass. It uses ideal segmentation and uncalibrated
 physics; these results do not establish physical-tank reliability.
 [Setup, prompts, tests and limitations](docs/SHOOTING_SIMULATION.md).
+
+The full original-versus-adapter comparison has finished all 8,232 calls:
+**38.2% → 88.6%** contract passes across all saved observations, with **31
+paired regressions**. The approach class regressed. These results use the
+old shooting-refusal contract and include training-session observations.
+[Full comparison and limitations](docs/FULL_PLANNER_COMPARISON.md).
 
 ## What works today
 

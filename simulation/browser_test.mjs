@@ -11,6 +11,7 @@ async function cdp(method,params={}){const seq=++id;const result=new Promise((re
 async function evaluate(expression){const r=await cdp('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value}
 async function until(expression){for(let n=0;n<300;n++){if(await evaluate(expression))return;await sleep(100)}throw Error('UI wait timed out: '+expression)}
 const checks=[];function check(name,passed){checks.push({name,passed});if(!passed)throw Error(name)}
+const backend=process.env.ROOK_SIM_BACKEND||'scripted';
 try{
 let port;for(let n=0;n<100;n++){try{port=(await readFile(path.join(profile,'DevToolsActivePort'),'utf8')).split('\n')[0];break}catch{await sleep(100)}}
 const tabs=await(await fetch(`http://127.0.0.1:${port}/json/list`)).json();ws=new WebSocket(tabs.find(t=>t.type==='page').webSocketDebuggerUrl);await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject});
@@ -21,12 +22,13 @@ check('Both camera views load',true);
 check('Page fits laptop height',await evaluate('document.documentElement.scrollHeight<=innerHeight'));
 await writeFile(path.join(out,'page.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
 await evaluate("document.querySelector('#reset').click()");await sleep(200);
+if(backend==='ollama')await evaluate("document.querySelector('#backend').value='ollama'");
 await evaluate("document.querySelector('#goal').value='Center the red can, then shoot once.';document.querySelector('#start').click()");
 await until("document.querySelector('#shots').textContent.includes('contact HIT')");check('UI mission fires and reports simulated contact',true);
 await evaluate("document.querySelector('#stop').click()");await until("document.querySelector('#status').textContent.includes('Stopped by user')");check('Stop button works',true);
 await evaluate("document.querySelector('#reset').click()");await until("document.querySelector('#shots').textContent==='No shots'");check('Reset reloads simulated launcher',true);
 check('No uncaught browser exceptions',errors.length===0);
 }finally{
-await writeFile(path.join(out,'browser-checks.json'),JSON.stringify({checks,errors},null,2));ws?.close();chrome.kill();
+await writeFile(path.join(out,backend==='ollama'?'qwen-browser-checks.json':'browser-checks.json'),JSON.stringify({backend,checks,errors},null,2));ws?.close();chrome.kill();
 }
 console.log(JSON.stringify(checks));

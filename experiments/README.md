@@ -97,4 +97,5 @@ existing agent-authored contracts and unverified detector labels. Training,
 validation, selected test and other frames are reported separately; other
 frames can share training sessions and are not an independent held-out set.
 Timing excludes loading the model. This tests planning, not physical movement.
-The October 3 full run has started; aggregate results are pending.
+The October 3 full run completed all 8,232 calls. See
+[results and limitations](../docs/FULL_PLANNER_COMPARISON.md).

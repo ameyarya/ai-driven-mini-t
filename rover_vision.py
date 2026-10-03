@@ -64,7 +64,7 @@ def capture_frame(autonomous=True):
 def is_centering_goal(goal):
     text = goal.lower()
     return bool(re.search(r'\b(cent(?:er|re)(?:ed|ing)?|middle)\b', text)) and not re.search(
-        r'\b(approach|advance|shoot|fire|forward|backward|search|scan|360|'
+        r'\b(approach|advance|shoot|fire|forward|backward|find|search|scan|360|'
         r'closer|nearer|away|distance|farther|further|height|width|size|'
         r'occup(?:y|ies)|fill(?:s)?|percent)\b|%', text)
 

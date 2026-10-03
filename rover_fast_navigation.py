@@ -48,6 +48,10 @@ def planner_request(goal, image, measurement, history=None, shooting_enabled=Tru
         'uncertainties':{'type':'array','items':{'type':'string'},'maxItems':3}},
         'required':['mode','target','height_percent','reason','uncertainties'],
         'additionalProperties':False}
+    if shooting_enabled and shooting_goal(goal):
+        # Shooting POC has one supported target; annotation text must not become
+        # an actuator target. Goal validation still rejects unnamed/other targets.
+        schema['properties']['target']['enum']=['red soda can']
     return {
             'model':'qwen3-vl:4b-instruct','stream':False,'format':schema,
             'messages':[{'role':'user','images':[base64.b64encode(image).decode()],

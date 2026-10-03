@@ -79,7 +79,7 @@ Example one-shot mission:
 
 ## Verification
 
-- 78 host unit tests pass, including cancellation, durable six-attempt limits,
+- 79 host unit tests pass, including cancellation, durable six-attempt limits,
   lost acknowledgments, one-shot execution and rejection of omitted missions.
 - Four physics tests pass, including a 100-case aligned/misaligned projectile
   contact sweep. These are deterministic synthetic cases, not a reliability
@@ -102,6 +102,52 @@ made the tank advance too far near the can. Forward timing now estimates gain
 in inverse apparent height, consistent with pinhole perspective. Turn timing
 and pulse bounds are unchanged. This correction is verified in simulation and
 unit tests; fresh physical navigation validation remains outstanding.
+
+## Expanded localhost:8002 checks
+
+The HTTP matrix now covers **100 missions** across 20 placements, including
+initial headings facing away from the can. All 100 scenarios passed the
+checked invariants: termination, step bound, at most one shot, no unrequested
+fire and stopping on an absent target for goals without search. Eight HTTP
+checks cover invalid actions/durations, unsupported goals, seventh-shot
+rejection and Stop cancellation.
+
+| Mission | Cases | Navigation completions | Shots / contact hits | Stops |
+| --- | ---: | ---: | ---: | ---: |
+| Center | 20 | 10 | 0 / 0 | 10 |
+| Find then center | 20 | 20 | 0 / 0 | 0 |
+| Approach to 50% height | 20 | 10 | 0 / 0 | 10 |
+| Center then fire | 20 | — | 10 / 8 | 10 |
+| Find, approach, fire | 20 | — | 20 / 20 | 0 |
+
+The 30 stops occur when the target is behind the tank and the mission does not
+request search. The two direct-fire misses expose uncalibrated range/aim; a
+successful controller command is not automatically a successful shot.
+
+**Real original-Qwen planning**, through the same HTTP service, also completes
+all four firing mission types in the initial off-center scene, each issuing one
+shot and producing simulator contact. These four cases are not diverse-scene
+model validation. Qwen plans the mission; physics supplies the contact result.
+The initial first request took 21.52 seconds including model startup; following
+requests took 5.40–5.75 seconds. After the target-schema correction, the repeated
+four mission requests took 3.84–4.33 seconds with the model already loaded.
+These request times are not a controlled speed benchmark.
+
+The broader tests found and fixed two bugs: find-and-center goals were treated
+as center-only without the words search/360, and Qwen sometimes named the
+"SIM ORACLE" overlay as the firing target. The latter was rejected before
+firing. Shooting now constrains the target field to the supported red soda can;
+unsupported/unnamed goals still fail validation. Both the scripted and real-Qwen
+browser paths pass all six checks after correction.
+
+```sh
+python3 simulation/http_matrix.py
+python3 simulation/http_matrix.py --qwen-smoke
+ROOK_SIM_BACKEND=ollama node simulation/browser_test.mjs
+```
+
+Run sequentially: the matrix resets and mutates the shared simulator scene.
+[Aggregate simulator results](simulation-results.json) omit captured images.
 
 ## Fine-tuning boundary
 

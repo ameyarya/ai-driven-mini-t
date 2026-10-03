@@ -111,6 +111,8 @@ class FastNavigationTests(unittest.TestCase):
         self.assertEqual(c.snapshot()['state'],'complete')
 
     def test_find_mission_cannot_silently_drop_approach(self):
+        fast.validate_plan(dict(PLAN,mode='find',height_percent=0),
+                           'Find the red can by turning in place, center it, then stop.')
         with self.assertRaises(ValueError):fast.validate_plan(dict(PLAN,mode='find'),'Find red can, then approach it')
         with self.assertRaises(ValueError):fast.validate_plan(PLAN,'Find red can by rotating 360')
 

@@ -2,6 +2,17 @@
 
 Updated 2026-10-03.
 
+Expanded simulator checks: 100 HTTP mission scenarios satisfy the tested
+invariants and eight rejection/Stop checks pass. Find/approach/fire hits in
+20/20 synthetic scenes; direct-fire hits in 8/10 fired cases, with two misses.
+Thirty non-search missions stop on an absent target. Four real original-Qwen
+shooting missions also pass the initial scene. No new fine-tuning occurred.
+
+The full saved-frame comparison is complete: adapter-v1 scores 3,648/4,116
+versus base 1,571/4,116, using the frozen pre-shooting contract. There are
+31 paired regressions, including an approach-class aggregate regression.
+See [full results and limitations](FULL_PLANNER_COMPARISON.md).
+
 ## Added: one-shot controller and MuJoCo
 
 One-shot center/fire, find/fire, approach/fire and find/approach/fire missions
@@ -15,7 +26,7 @@ MuJoCo runs locally at localhost:8002 with rendered camera views, an explicitly
 labeled segmentation oracle and projectile-contact ground truth. The default
 controller preview does not call Qwen; optional original-Qwen planning waits
 until the benchmark ends. All four scripted shooting missions pass the initial
-scene; 100 deterministic projectile cases, 78 host tests and six Chrome checks
+scene; 100 deterministic projectile cases, 79 host tests and six Chrome checks
 pass. Inverse-image-height approach timing fixes simulated nonlinear overshoot;
 fresh physical validation remains pending. See [details](SHOOTING_SIMULATION.md).
 
