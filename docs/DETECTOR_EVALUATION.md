@@ -135,3 +135,6 @@ power stalling; physical confirmation that both tracks move is still needed.
 Search pulses shortened to 250 ms at this higher power; uncalibrated search
 budget is 9.75 s motor-on / 40 observations. Existing timed calibration must
 be remeasured at 100% turn power. Approach speed remains 40%. 43 tests pass.
+
+
+Physical validation update (2026-10-02): user confirmed the corrected turn-in-place find-and-center use case works. Full-power pivots and fully visible, centered target completion are now user-tested. Exact 360-degree coverage remains uncalibrated; no heading-accuracy claim is made.

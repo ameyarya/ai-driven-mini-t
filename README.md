@@ -25,6 +25,7 @@ tolerance in the new controller, not a controlled benchmark.
 ## What works today
 
 - Hold-to-drive keyboard control over a USB transmitter and ESP-NOW.
+- Turn-in-place search that finds the red can, centers it, and confirms full visibility; physically tested successfully.
 - Wireless DJI capture and live video plus an exact Qwen-input view in a localhost dashboard.
 - Target-box overlay, crosshair, image grid, offset/size measurements, snapshot age, and target-position trail.
 - Local **Qwen3-VL 4B Instruct** image analysis through Ollama.
@@ -192,6 +193,10 @@ python3 rover_vision.py --goal "Find a clear path ahead."
 ```
 
 ## Find a target by rotating in place
+
+**Status:** successfully tested on the physical tank after the full-power pivot
+and find-and-center corrections (October 2, 2026). Exact 360° coverage remains
+uncalibrated; this confirms the search-and-center behavior, not heading accuracy.
 
 Enter **“Find the red can by doing 360 turn in place”** and press Start.
 Qwen selects the target and search mode once. Python turns right in 250 ms
