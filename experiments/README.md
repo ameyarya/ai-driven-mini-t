@@ -77,3 +77,24 @@ To repeat the browser matrix with the trained model server running:
 ```sh
 ROOK_PLAYGROUND_BACKEND=mlx node experiments/playground_browser_test.mjs
 ```
+# Full saved-frame comparison
+
+`experiments/full_planner_comparison.py` runs all 21 goal templates against
+every verified saved observation using both the unchanged MLX model and the
+trained adapter, sequentially. It uses identical images, production prompts,
+JSON schemas and decoding. Stop the MLX planner service and unload Ollama
+before starting to avoid GPU memory contention.
+
+```sh
+HF_HOME="$PWD/tools/hf-training-cache" .training-venv/bin/python -u \
+  experiments/full_planner_comparison.py
+```
+
+Private results are flushed after every call to
+`playground-data/full-comparison/results.jsonl`; `summary.json` records progress.
+Restarting resumes completed calls and rejects changed inputs. Scores use the
+existing agent-authored contracts and unverified detector labels. Training,
+validation, selected test and other frames are reported separately; other
+frames can share training sessions and are not an independent held-out set.
+Timing excludes loading the model. This tests planning, not physical movement.
+The October 3 full run has started; aggregate results are pending.
