@@ -46,10 +46,39 @@ header{flex-wrap:wrap;gap:10px}
 @media(max-width:800px){.camera-tools #vision-status{display:none}}
 
 .camera-tools[hidden],#result{display:none}
+
+/* Live feed and the exact analyzed frame share the screen without page scroll. */
+.camera-stack{display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:10px;height:100%;min-height:0}
+.camera-pane{position:relative;min-height:0;overflow:hidden;border:1px solid #2c3748;border-radius:12px;background:#080b10}
+.camera-pane .video{width:100%;height:100%;border:0;border-radius:0}
+.pane-label{position:absolute;top:8px;left:10px;z-index:1;font-size:11px;padding:4px 7px;border-radius:5px;background:#10151de6;pointer-events:none}
+#model-canvas{display:block;width:100%;height:100%;object-fit:contain}
+#model-empty{position:absolute;inset:0;display:grid;place-items:center;color:#8295af;font-size:13px}
+#model-empty[hidden]{display:none}
+#frame-age{position:absolute;right:10px;bottom:8px;font-size:11px;background:#10151de6;padding:4px 7px;border-radius:5px}
+.telemetry{display:grid;grid-template-columns:1fr 1fr;gap:10px 8px;border-top:1px solid #354154;padding-top:12px;margin-top:12px;font-size:12px}
+.telemetry span{display:block;color:#8295af;font-size:10px;margin-bottom:3px}
+.telemetry strong{font-weight:500;color:#c4d2e4}
+#perception-json{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.4}
+#trail-note{margin:10px 0;color:#8295af;font-size:10px}
+.panel{overflow:auto}
+@media(max-height:650px){.telemetry{gap:6px;margin-top:8px;padding-top:8px}#decision{max-height:3em}.hint{font-size:10px}}
 </style></head><body>
 <header><h1>Rook</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools" hidden><span id="vision-status" hidden></span></div></header>
-<main><section><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera · checking…</span> · about 1 second delay</div></section>
+<main><section><div class="camera-stack">
+<div class="camera-pane"><span class="pane-label">Live camera</span><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&muted=true&controls=false" title="DJI live camera" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera · checking…</span> · ~1s delay</div></div>
+<div class="camera-pane"><span class="pane-label">Qwen input · analyzed snapshot</span><canvas id="model-canvas" width="640" height="360" aria-label="Analyzed camera frame with target bounds, grid, crosshair and target position trail"></canvas><div id="model-empty">Waiting for an analyzed frame</div><span id="frame-age">No frame yet</span></div>
+</div></section>
 <aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary" disabled>Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Short moves, then stop and look again.<br>Continues when you leave this tab. Press Stop to cancel.</div>
+<div class="telemetry" aria-live="polite">
+<div><span>Target direction</span><strong id="target-direction">—</strong></div>
+<div><span>Center offset</span><strong id="target-offset">—</strong></div>
+<div><span>Image height</span><strong id="target-height">—</strong></div>
+<div><span>Distance / angle</span><strong>Not calibrated</strong></div>
+<div><span>Next movement</span><strong id="target-move">—</strong></div>
+<div><span>Inference</span><strong id="model-latency">—</strong></div>
+</div><p id="trail-note">Grid: image coordinates. Trail: target position over recent frames, not the rover's physical path.</p>
+<details><summary>Model perception data</summary><pre id="perception-json">No result yet.</pre></details>
 <div class="manual" hidden><h2>Manual control</h2><div class="g"><span></span><button data-key="W" aria-label="Forward">↑</button><span></span><button data-key="A" aria-label="Left">←</button><span></span><button data-key="D" aria-label="Right">→</button><span></span><button data-key="S" aria-label="Backward">↓</button><span></span></div><div class="hint">Hold arrow keys to drive. Release to stop.</div><div id="status" role="status">Stopped</div></div>
 
 
@@ -123,6 +152,7 @@ async function pollVision(){
   if(state.state==='error'){label.textContent='Analysis failed: '+state.error;return;}
   if(state.state!=='done')return;
   const r=state.result,a=r.assessment;
+  showModelFrame(r);
   if(r.captured_at<latestCapture)return;
   latestCapture=r.captured_at;
   document.querySelector('#decision').textContent=String(a.answer||a.reason||'No answer');
@@ -144,6 +174,7 @@ function stopAuto(){
  fetch('/autonomy/stop',{method:'POST',keepalive:true}).catch(()=>{});
 }
 function showAutoResult(r){
+ showModelFrame(r);
  if(r.captured_at<latestCapture)return;
  latestCapture=r.captured_at;
  const a=r.assessment;
@@ -159,6 +190,62 @@ function showAutoResult(r){
  }
  document.querySelector('#timing').textContent='Snapshot '+Math.max(0,Math.floor(Date.now()/1000-r.captured_at))+'s ago';
 }
+
+let modelImage=null,modelResult=null,modelLoading='',trail=[],trailGoal='';
+function validBox(box){return Array.isArray(box)&&box.length===4&&box.every(v=>Number.isFinite(v)&&v>=0&&v<=1000)&&box[0]<box[2]&&box[1]<box[3];}
+function showModelFrame(r){
+ if(!r.frame||r.captured_at<(modelResult?.captured_at||0))return;
+ if(modelResult?.frame===r.frame||modelLoading===r.frame)return;
+ modelLoading=r.frame;
+ const img=new Image();
+ img.onload=()=>{
+  if(modelLoading!==r.frame)return;
+  modelLoading='';modelImage=img;modelResult=r;
+  if(trailGoal!==r.goal){trail=[];trailGoal=r.goal;}
+  const a=r.assessment,b=a.target_bbox;
+  const x=validBox(b)?(b[0]+b[2])/20:a.target_x;
+  const y=validBox(b)?(b[1]+b[3])/20:50;
+  if(Number.isFinite(x))trail.push({x,y});
+  trail=trail.slice(-20);
+  const height=validBox(b)?(b[3]-b[1])/10:a.target_height;
+  document.querySelector('#model-empty').hidden=true;
+  document.querySelector('#target-direction').textContent=Number.isFinite(x)?(x<45?'Left':x>55?'Right':'Centered'):'Not located';
+  document.querySelector('#target-offset').textContent=Number.isFinite(x)?Math.abs(x-50).toFixed(1)+'% '+(x<50?'left':x>50?'right':''):'—';
+  document.querySelector('#target-height').textContent=Number.isFinite(height)?height.toFixed(1)+'%'+(a.target_clipped?' · clipped':''):'Not measured';
+  document.querySelector('#target-move').textContent=String(a.suggested_action||'—').toUpperCase()+(a.suggested_action!=='stop'&&Number.isFinite(a.duration_ms)?' · '+a.duration_ms+' ms':'');
+  document.querySelector('#model-latency').textContent=r.inference_seconds+'s';
+  document.querySelector('#perception-json').textContent=JSON.stringify({assessment:a,prompt_eval_ms:r.prompt_eval_ms,eval_ms:r.eval_ms},null,2);
+  drawModelFrame();updateFrameAge();
+ };
+ img.onerror=()=>{if(modelLoading===r.frame){modelLoading='';document.querySelector('#frame-age').textContent='Analyzed image unavailable';}};
+ const file=r.frame.split('/').at(-1);
+ img.src='/vision/frame?file='+encodeURIComponent(file);
+}
+function drawModelFrame(){
+ if(!modelImage||!modelResult)return;
+ const c=document.querySelector('#model-canvas'),ctx=c.getContext('2d');
+ c.width=modelImage.naturalWidth;c.height=modelImage.naturalHeight;
+ const w=c.width,h=c.height,a=modelResult.assessment,b=a.target_bbox;
+ ctx.drawImage(modelImage,0,0,w,h);
+ ctx.strokeStyle='#ffffff25';ctx.lineWidth=1;
+ for(let i=1;i<10;i++){ctx.beginPath();ctx.moveTo(w*i/10,0);ctx.lineTo(w*i/10,h);ctx.moveTo(0,h*i/10);ctx.lineTo(w,h*i/10);ctx.stroke();}
+ ctx.fillStyle='#91dfb712';ctx.fillRect(w*.45,0,w*.1,h);
+ ctx.strokeStyle='#ffffffa0';ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(w/2,0);ctx.lineTo(w/2,h);ctx.moveTo(w/2-12,h/2);ctx.lineTo(w/2+12,h/2);ctx.stroke();ctx.setLineDash([]);
+ ctx.strokeStyle='#f2c875';ctx.lineWidth=2;ctx.beginPath();trail.forEach((p,i)=>i?ctx.lineTo(p.x*w/100,p.y*h/100):ctx.moveTo(p.x*w/100,p.y*h/100));ctx.stroke();
+ if(validBox(b)){
+  const x=b[0]*w/1000,y=b[1]*h/1000;
+  ctx.strokeStyle='#91dfb7';ctx.lineWidth=2;ctx.strokeRect(x,y,(b[2]-b[0])*w/1000,(b[3]-b[1])*h/1000);
+  ctx.font='12px system-ui';const label='Target · '+((b[3]-b[1])/10).toFixed(1)+'% height';
+  const ly=Math.min(h-18,Math.max(0,y-20));ctx.fillStyle='#10151de6';ctx.fillRect(x,ly,ctx.measureText(label).width+12,19);ctx.fillStyle='#91dfb7';ctx.fillText(label,x+6,ly+14);
+ }
+ const x=validBox(b)?(b[0]+b[2])*w/2000:Number.isFinite(a.target_x)?a.target_x*w/100:null;
+ const y=validBox(b)?(b[1]+b[3])*h/2000:h/2;
+ if(x!==null){ctx.strokeStyle='#91dfb7';ctx.beginPath();ctx.moveTo(w/2,y);ctx.lineTo(x,y);ctx.stroke();ctx.fillStyle='#91dfb7';ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}
+}
+function updateFrameAge(){
+ if(modelResult)document.querySelector('#frame-age').textContent=Math.max(0,Math.floor(Date.now()/1000-modelResult.captured_at))+'s old · '+modelImage.naturalWidth+'×'+modelImage.naturalHeight;
+}
+setInterval(updateFrameAge,1000);
 async function pollAuto(){
  try{
   const response=await fetch('/autonomy/status',{cache:'no-store',signal:AbortSignal.timeout(3000)});

@@ -295,10 +295,22 @@ class Handler(BaseHTTPRequestHandler):
             self.text_result(200, body)
             return
         if url.path == '/vision/frame':
+            params = parse_qs(url.query)
             with vision_lock:
                 filename = vision_state.get('result', {}).get('frame')
-            if parse_qs(url.query).get('source') == ['autonomy']:
+            if params.get('source') == ['autonomy']:
                 filename = autonomy.snapshot().get('result', {}).get('frame')
+            # Pin overlays to the analyzed image, even when the next result arrives.
+            requested = params.get('file', [None])[0]
+            if requested is not None:
+                if not requested.startswith('frame-') or Path(requested).name != requested or not requested.endswith('.jpg'):
+                    self.send_error(400)
+                    return
+                selected = Path(__file__).resolve().parent / 'vision-output' / requested
+                if not selected.is_file():
+                    self.send_error(404)
+                    return
+                filename = str(selected)
             if not filename:
                 self.send_error(404)
                 return

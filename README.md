@@ -13,7 +13,8 @@ snapshots. Autonomous control accepts a user-defined goal and runs a short move/
 ## What works today
 
 - Hold-to-drive keyboard control over a USB transmitter and ESP-NOW.
-- Wireless DJI video beside the controls in a localhost dashboard.
+- Wireless DJI video and the exact analyzed snapshot in a localhost dashboard.
+- Target-box overlay, crosshair, image grid, offset/size measurements, snapshot age, and target-position trail.
 - Local **Qwen3-VL 4B Instruct** image analysis through Ollama.
 - Visual questions such as: *“Find the Coca-Cola can. Is it left, centre, or right?”*
 - Analyzed snapshot, direct answer, movement suggestion, reasoning, and uncertainty.

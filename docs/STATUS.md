@@ -278,3 +278,23 @@ Saved close-up frame 165028 now measures 92.4% height and stops, rather than
 forward. A second saved frame measured 64.7% and stopped. Both requested
 150 ms themselves; this is model output, not a controller default. No hardware
 movement issued by these tests. Live behavior still needs testing.
+
+## Visible model input and perception overlay (2026-10-02)
+
+Dashboard now fits live video and the analyzed snapshot in two stacked panes
+beside the goal column. The snapshot includes image-coordinate grid, centre
+crosshair/band, model target box, target offset marker, and the last 20 target
+positions (image-space trail, not physical rover trajectory). Sidebar shows
+left/centre/right, image-width offset, image-height percentage, model-selected
+movement/duration, inference time, and expandable complete perception JSON.
+Snapshot age is explicit; overlays are never drawn on the delayed live video.
+Distance in centimetres and angle in degrees are marked uncalibrated, because
+there is no camera calibration or physical ranging measurement yet.
+
+Centering and general distance inference now also request target bounds; the
+existing percentage-height path already supplies them. The frame endpoint pins
+the exact saved filename, avoiding image/result races. Validation: 20 controller
+tests pass, Python/JavaScript syntax checks pass, saved-image Qwen checks return
+bounds for centering and approach, pinned JPEG matches the requested file, and
+path traversal is rejected. Chrome screenshot with a mock result verified the
+overlay and no page scrolling at 1200×800. No tank movement issued by tests.

@@ -195,6 +195,8 @@ def analyze_image(goal, frame, autonomous=False, history=None):
         prompt += (
             '\nAlso locate the requested target in THIS image: target_visible=false '
             'when absent or uncertain; never infer visibility from previous actions. '
+            'Also report target_bbox [left,top,right,bottom] as integers normalized '
+            '0 to 1000 separately for image width and height; null if missing. '
             'target_x is its horizontal centre as an INTEGER normalized to image '
             'width: left edge=0, centre=500, right edge=1000. Use null when absent. '
             'Align before advancing: if off-centre, turn toward it. If target is '
@@ -202,12 +204,15 @@ def analyze_image(goal, frame, autonomous=False, history=None):
         )
         schema['properties'].update(target_visible={'type': 'boolean'},
                                     target_x={'type': ['integer', 'null'], 'minimum': 0, 'maximum': 1000})
-        schema['required'].extend(['target_visible', 'target_x'])
+        schema['properties']['target_bbox'] = {'type': ['array', 'null'], 'items': {'type': 'integer', 'minimum': 0, 'maximum': 1000}, 'minItems': 4, 'maxItems': 4}
+        schema['required'].extend(['target_visible', 'target_x', 'target_bbox'])
     if centering:
         prompt = (
             'Locate the target requested by this goal in the image: ' + goal +
             '\nReport its horizontal centre as target_x, an INTEGER from 0 to 1000. '
             'Coordinates are normalized to IMAGE WIDTH: left edge=0, midpoint=500, right edge=1000. '
+            'Also report target_bbox [left,top,right,bottom], integers normalized '
+            '0 to 1000 separately for image WIDTH and HEIGHT; null if absent. '
             'Estimate using the object centre, not its edge. If target is absent '
             'or cannot be identified, use target_visible=false and target_x=null. '
             'If identification or localization is uncertain, use target_visible=false. '
@@ -225,7 +230,8 @@ def analyze_image(goal, frame, autonomous=False, history=None):
             'target_visible': {'type': 'boolean'},
             'target_x': {'type': ['integer', 'null'], 'minimum': 0, 'maximum': 1000},
             'duration_ms': {'type': 'integer', 'minimum': 1, 'maximum': 1000},
-        }, 'required': ['target_visible', 'target_x', 'duration_ms'], 'additionalProperties': False}
+            'target_bbox': {'type': ['array', 'null'], 'items': {'type': 'integer', 'minimum': 0, 'maximum': 1000}, 'minItems': 4, 'maxItems': 4},
+        }, 'required': ['target_visible', 'target_x', 'target_bbox', 'duration_ms'], 'additionalProperties': False}
     size_goal = autonomous and requested_height(goal) is not None and bool(re.search(r'\b(closer|approach)\b', goal.lower()))
     if size_goal:
         prompt = (
@@ -261,9 +267,9 @@ def analyze_image(goal, frame, autonomous=False, history=None):
     elif centering:
         raw_x = assessment.get('target_x')
         assessment['target_x'] = raw_x / 10 if type(raw_x) is int and 0 <= raw_x <= 1000 else None
-        duration_ms = assessment.get('duration_ms')
+        localization = {key: assessment.get(key) for key in ('duration_ms', 'target_visible', 'target_bbox')}
         assessment = centering_decision(assessment)
-        assessment['duration_ms'] = duration_ms
+        assessment.update(localization)
     elif distance:
         assessment = distance_alignment_guard(assessment)
     if assessment.get('suggested_action') not in ('forward', 'backward', 'left', 'right', 'stop'):
