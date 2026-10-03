@@ -51,3 +51,29 @@ Only its own Chrome process is closed at the end.
 The replay checks bounded actions, forward-motion prerequisites, uncertainty
 stops and completion conditions on all recorded scenes across four controller
 modes. It is an invariant check, not a physics simulation or accuracy benchmark.
+
+## Apple Silicon planner fine-tuning
+
+See [the local QLoRA experiment](../docs/FINE_TUNING.md). Install
+`experiments/training-requirements.txt` into a separate `.training-venv`, then
+prepare the local split and run base evaluation → training → adapter evaluation
+**sequentially**. Concurrent training and inference exhausted Metal memory on
+the 16 GB development Mac. Neither the detector environment nor Ollama weights
+are modified by this workflow.
+
+```sh
+python3 experiments/prepare_planner_training.py
+.training-venv/bin/python experiments/train_planner_mlx.py base-eval
+.training-venv/bin/python experiments/train_planner_mlx.py train --iters 80
+.training-venv/bin/python experiments/train_planner_mlx.py adapter-eval
+```
+
+The scripts consume existing private saved scenes. They do not create a physics
+simulator, issue motor commands, or upload a dataset. The dataset and adapter
+are excluded from Git. Test the semantic label rules with `test_rover_training`.
+
+To repeat the browser matrix with the trained model server running:
+
+```sh
+ROOK_PLAYGROUND_BACKEND=mlx node experiments/playground_browser_test.mjs
+```

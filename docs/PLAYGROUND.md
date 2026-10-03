@@ -8,7 +8,9 @@ cd /Users/am3yarya/Code/rook-the-rover
 python3 rover_playground.py
 ```
 
-Keep Ollama running with `qwen3-vl:4b-instruct` installed. No camera stream,
+For the original model, keep Ollama running with `qwen3-vl:4b-instruct` installed.
+For the trained model, run `.training-venv/bin/python rover_mlx_planner_server.py`
+and select **Fine-tuned Qwen · MLX adapter** in the playground. No camera stream,
 serial port or detector worker is required. The UI uses existing saved labeled
 JPEGs and their recorded detector measurements. It verifies saved image hashes
 and resolves older log paths after the workspace move.
@@ -17,7 +19,8 @@ and resolves older log paths after the workspace move.
 
 1. Select a saved scene. The displayed labeled JPEG is the image sent to Qwen.
 2. Enter a goal and test local Qwen. This uses the production planner prompt,
-   structured schema and semantic validation; it never issues movement commands.
+   structured schema and semantic validation with either selected local backend;
+   it never issues movement commands.
 3. Inspect the plan and correct its JSON. Approve only examples you have checked.
    Rejected/truncated/unsupported model outputs are retained for diagnosis.
 4. Export approved examples. Local `playground-data/dataset/train.json` and
@@ -53,7 +56,8 @@ The upstream entry point defaults to FlashAttention 2 and uses a CUDA-oriented
 training stack. Its listed dependencies include DeepSpeed, FlashAttention,
 Triton, Transformers and PEFT. That stock recipe is **not configured for this
 16 GB MacBook Air**. We have downloaded the source and prepared data tooling,
-not installed CUDA dependencies or started training on the Mac.
+not installed CUDA dependencies. A separate Apple Silicon MLX training route
+is now implemented; see [the local fine-tuning experiment](FINE_TUNING.md).
 
 When ready, use a separate Linux NVIDIA/CUDA machine with a compatible isolated
 training environment installed according to the pinned upstream README. Transfer

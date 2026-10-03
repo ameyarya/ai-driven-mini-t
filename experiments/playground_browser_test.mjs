@@ -26,12 +26,22 @@ try{
  const tab=tabs.find(x=>x.type==='page'&&x.url==='about:blank')||tabs.find(x=>x.type==='page');if(!tab)throw Error('No Chrome page target');ws=new WebSocket(tab.webSocketDebuggerUrl);
  await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject});
  ws.onmessage=event=>{const m=JSON.parse(event.data);if(m.id){const p=pending.get(m.id);pending.delete(m.id);m.error?p.reject(Error(JSON.stringify(m.error))):p.resolve(m.result)}else events.push(m)};
+ if(process.env.ROOK_PLAYGROUND_BACKEND==='mlx'){
+  const deadline=Date.now()+60000;let ready=false;
+  while(Date.now()<deadline){try{ready=(await(await fetch(results.url+'/api/models')).json()).mlx_ready;if(ready)break}catch{}await sleep(200)}
+  if(!ready)throw Error('Trained model server did not become ready');
+ }
  await cdp('Runtime.enable');await cdp('Page.enable');
  await cdp('Page.navigate',{url:results.url});
  await until("document.querySelector('#frames')?.options.length>0 && document.querySelector('#image')?.naturalWidth>0");
  const initial=await evaluate("({count:document.querySelector('#frames').options.length,reviewDisabled:document.querySelector('#review').disabled,image:document.querySelector('#image').naturalWidth,status:document.querySelector('#status').textContent})");
  check('Catalog and saved JPEG load',initial.count>0&&initial.image>0,initial);
  check('Unreviewed frame cannot be approved',initial.reviewDisabled);
+ const backend=process.env.ROOK_PLAYGROUND_BACKEND||'ollama';
+ if(await evaluate("Boolean(document.querySelector('#backend'))")){
+  await evaluate(`document.querySelector('#backend').value=${JSON.stringify(backend)}`);
+ }else if(backend!=='ollama'){throw Error('Model selector missing')}
+ results.backend=backend;
  await writeFile(path.join(out,'initial.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
  check('Missing frame returns 404',(await fetch(results.url+'/image/unknown')).status===404);
  const post=async(body,extra={})=>fetch(results.url+'/api/infer',{method:'POST',headers:{'Content-Type':'application/json',...extra},body:JSON.stringify(body)});
@@ -53,8 +63,8 @@ try{
  ];
  for(const [scene,item] of scenes){if(!item){results.cases.push({scene,skipped:'No matching recorded scene'});continue}
   for(const [name,goal,visibleExpectedMode] of goals){
-   // Approaching an absent target should be explicitly refused, not guessed.
-   const expectedMode=scene==='missing'&&name==='approach'?'unsupported':visibleExpectedMode;
+   // Non-search goals on an absent target should be refused, not guessed.
+   const expectedMode=scene==='missing'&&['center','approach'].includes(name)?'unsupported':visibleExpectedMode;
    await evaluate(`document.querySelector('#frames').value=${JSON.stringify(item.id)};document.querySelector('#frames').dispatchEvent(new Event('change'));document.querySelector('#goal').value=${JSON.stringify(goal)};document.querySelector('#infer').click();`);
    await until("document.querySelector('#infer').disabled");
    check('Frame selection locked during '+scene+'/'+name,await evaluate("document.querySelector('#frames').disabled"));

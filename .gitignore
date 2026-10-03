@@ -31,3 +31,6 @@ weights/
 
 # Private offline review examples, datasets, and training checkpoints
 playground-data/
+
+# Isolated Apple Silicon training environment
+.training-venv/

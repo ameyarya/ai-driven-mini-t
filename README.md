@@ -67,7 +67,11 @@ No rover required: `python3 rover_playground.py`, then open
 [localhost:8001](http://localhost:8001). Test the production Qwen planner on
 saved labeled frames, correct its plans, and export reviewed training examples.
 This does not open serial ports, train a model, or simulate physical motion.
-See [the playground and fine-tuning guide](docs/PLAYGROUND.md).
+A first local QLoRA adapter improved held-out planner contracts from **12/28
+to 25/28** on four recorded scenes. The trained model is selectable in the
+playground; three missing-target failures remain. The tank runtime still uses
+the original Ollama model. See [the playground guide](docs/PLAYGROUND.md) and
+[the local QLoRA experiment and limits](docs/FINE_TUNING.md).
 
 ## Hardware
 

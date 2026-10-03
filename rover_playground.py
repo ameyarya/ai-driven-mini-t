@@ -44,8 +44,10 @@ def public_item(item):
     return {k: item[k] for k in ('id', 'measurement', 'sha256', 'goal')}
 
 
-def infer(item, goal):
+def infer(item, goal, backend="ollama"):
     """Reuse the production planner, but supply an immutable saved observation."""
+    if backend not in ('ollama','mlx'):
+        raise ValueError('Unknown local model backend')
     if not isinstance(goal, str) or not goal.strip() or len(goal) > 2000:
         raise ValueError('Enter a goal (maximum 2000 characters)')
     run = DATA / 'runs' / uuid.uuid4().hex
@@ -56,7 +58,7 @@ def infer(item, goal):
     captured_request = {}
     start = time.monotonic()
     result = dict(id=run.name, source=item['id'], goal=goal,
-                  image_sha256=item['sha256'], motor_commands_sent=False)
+                  image_sha256=item['sha256'], backend=backend, motor_commands_sent=False)
     # One server process, serialized calls. Never touch the live dashboard state
     # or original logs. No capture, camera, detector or serial connection needed.
     with LOCK:
@@ -66,6 +68,8 @@ def infer(item, goal):
 
         def request(url, body=None, timeout=5):
             captured_request.update(body or {})
+            if backend=='mlx' and url=='http://127.0.0.1:11434/api/chat':
+                url='http://127.0.0.1:8767/api/chat'
             return original_request(url, body, timeout)
 
         return _infer_locked(item, goal, run, frame, prepared, captured_request, request, result, start)
@@ -78,6 +82,7 @@ def _infer_locked(item, goal, run, frame, prepared, captured_request, request, r
             patch.object(navigation.vision, 'read_json', side_effect=request):
         try:
             result['plan'] = navigation.plan_goal(goal)
+            result['model'] = json.loads(frame.with_suffix('.plan.json').read_text()).get('model')
         except Exception as error:
             result['error'] = str(error)
             saved = frame.with_suffix('.plan.json')
@@ -166,6 +171,15 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
             self.reply(200, (ROOT / 'rover_playground.html').read_bytes(), 'text/html; charset=utf-8')
+        elif self.path == '/api/models':
+            import urllib.request
+            ready = False
+            try:
+                with urllib.request.urlopen('http://127.0.0.1:8767/health', timeout=1) as response:
+                    ready = json.load(response).get('ready') is True
+            except (OSError, ValueError):
+                pass
+            self.reply(200, dict(mlx_ready=ready))
         elif self.path == '/api/frames':
             self.reply(200, [public_item(item) for item in self.items.values()])
         elif self.path.startswith('/image/'):
@@ -188,7 +202,7 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError('Invalid request size')
             body = json.loads(self.rfile.read(size))
             if self.path == '/api/infer':
-                result = infer(self.items[body['frame']], body['goal'])
+                result = infer(self.items[body['frame']], body['goal'], body.get('backend','ollama'))
             elif self.path == '/api/review':
                 with LOCK:
                     result = review(body['run'], body['expected'])

@@ -48,3 +48,14 @@ strings; resolve those filenames within the new `vision-output/` folder.
 The private `migration-manifest.json` records original/destination paths,
 file sizes and SHA-256 hashes, and symlink targets. Legacy hardware scripts are
 archived as historical experiments rather than included in automatic test discovery.
+
+## Local fine-tuning files
+
+- `.training-venv/`: ignored isolated MLX training/inference environment.
+- `tools/qwen3-vl-4b-mlx/`: ignored 4-bit base model and tokenizer.
+- `playground-data/planner-training/`: ignored data splits, manifests, adapter
+  checkpoints, training logs and held-out evaluation outputs.
+- `rover_mlx_planner_server.py`: tracked local adapter inference service, port 8767.
+- `docs/FINE_TUNING.md`: published experiment setup, results and limits.
+
+Run training and model evaluation sequentially on the 16 GB Mac.

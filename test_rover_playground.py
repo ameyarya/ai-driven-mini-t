@@ -139,6 +139,21 @@ class PlaygroundTests(unittest.TestCase):
             with self.subTest(goal=goal), self.assertRaises(ValueError):
                 p.navigation.validate_plan(plan, goal)
 
+    def test_mlx_backend_routes_locally_with_same_image(self):
+        item = next(iter(p.catalog(self.frames).values()))
+        response = dict(model='fine-tuned',message=dict(content=json.dumps(dict(
+            mode='center',target='red can',height_percent=0,reason='Center',uncertainties=[]))))
+        with patch.object(p.navigation.vision,'read_json',return_value=response) as request:
+            result=p.infer(item,'Center the red can',backend='mlx')
+        self.assertEqual(request.call_args.args[0],'http://127.0.0.1:8767/api/chat')
+        self.assertEqual(result['backend'],'mlx')
+        self.assertFalse(result['motor_commands_sent'])
+
+    def test_unknown_model_backend_is_rejected(self):
+        item = next(iter(p.catalog(self.frames).values()))
+        with self.assertRaisesRegex(ValueError,'Unknown local'):
+            p.infer(item,'Center can',backend='remote')
+
     def test_bad_review_cannot_discard_requested_search(self):
         with self.assertRaises(ValueError):
             p.validate_label(dict(mode='center',target='can',height_percent=0,reason='OK',uncertainties=[]), 'Find the red can by doing a 360 turn')

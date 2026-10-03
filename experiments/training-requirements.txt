@@ -1,0 +1,7 @@
+# Verified isolated Apple Silicon experiment; install into .training-venv.
+mlx-vlm[train]==0.7.4
+mlx==0.32.3
+transformers==5.18.0
+datasets==5.0.1
+llguidance==1.9.1
+safetensors==0.8.0

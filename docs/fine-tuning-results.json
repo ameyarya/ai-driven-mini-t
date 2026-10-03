@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-03",
+  "model": "Qwen3-VL-4B-Instruct, MLX 4-bit + QLoRA",
+  "base_revision": "2fd8dacbdb8f1e54b8c005f081ec5bf79c56376b",
+  "backend": "MLX greedy JSON-schema decoding; production schema, fixed 160-token budget",
+  "dataset": {
+    "train_examples": 504,
+    "validation_examples": 126,
+    "heldout_examples": 28,
+    "train_frames": 24,
+    "validation_frames": 6,
+    "heldout_frames": 4,
+    "split": "By recording sessions separated by >120 seconds; identical raw frames do not cross splits",
+    "labels": "Agent-authored goal/capability contracts with unverified detector visibility"
+  },
+  "training": {
+    "steps": 80,
+    "rank": 8,
+    "alpha": 16,
+    "learning_rate": 5e-05,
+    "completion_only": true,
+    "training_seconds": 819.63,
+    "peak_memory_gb": 6.723,
+    "changed_adapter_tensors": 504,
+    "trainable_parameters": 16515072,
+    "validation_losses": [
+      {
+        "step": 1,
+        "loss": 3.687
+      },
+      {
+        "step": 40,
+        "loss": 0.051
+      },
+      {
+        "step": 80,
+        "loss": 0.067
+      }
+    ],
+    "versions": {
+      "mlx": "0.32.3",
+      "mlx-vlm": "0.7.4",
+      "transformers": "5.18.0",
+      "datasets": "5.0.1"
+    }
+  },
+  "comparison": {
+    "base_passed": 12,
+    "adapter_passed": 25,
+    "total": 28
+  },
+  "by_goal": {
+    "approach_size": {
+      "base": 3,
+      "adapter": 3,
+      "total": 4
+    },
+    "away": {
+      "base": 0,
+      "adapter": 4,
+      "total": 4
+    },
+    "center": {
+      "base": 2,
+      "adapter": 3,
+      "total": 4
+    },
+    "find": {
+      "base": 4,
+      "adapter": 4,
+      "total": 4
+    },
+    "find_approach_size": {
+      "base": 3,
+      "adapter": 4,
+      "total": 4
+    },
+    "physical_distance": {
+      "base": 0,
+      "adapter": 4,
+      "total": 4
+    },
+    "shoot": {
+      "base": 0,
+      "adapter": 3,
+      "total": 4
+    }
+  },
+  "remaining_failures": [
+    {
+      "kind": "center",
+      "scene": "target missing",
+      "failures": [
+        "Wrong mission mode",
+        "Incorrect uncertainty contract"
+      ]
+    },
+    {
+      "kind": "approach_size",
+      "scene": "target missing",
+      "failures": [
+        "Wrong mission mode",
+        "Incorrect uncertainty contract"
+      ]
+    },
+    {
+      "kind": "shoot",
+      "scene": "target missing",
+      "failures": [
+        "Wrong mission mode"
+      ]
+    }
+  ],
+  "limits": [
+    "Four held-out frames, seven goal templates; not novel-language or broad room generalization",
+    "No physical movement, detector-grounding accuracy or collision tests",
+    "Ollama remains the tank runtime; trained adapter selectable only in offline playground",
+    "First concurrent run exhausted GPU memory; completed run was sequential"
+  ],
+  "verification": {
+    "python_tests_passed": 69,
+    "python_tests_total": 69,
+    "browser_checks_passed": 37,
+    "browser_checks_total": 37,
+    "browser_trained_planner_passed": 25,
+    "browser_trained_planner_total": 28,
+    "controller_invariant_checks_passed": 784,
+    "controller_invariant_checks_total": 784
+  }
+}

@@ -1,6 +1,6 @@
 # Project status
 
-Updated 2026-10-02.
+Updated 2026-10-03.
 
 ## Current platform
 
@@ -35,8 +35,11 @@ can (12.7% image height). It is not yet reliably completing this mission.
 Saved-frame Qwen planning tests now run independently at localhost:8001, without
 the rover, camera, detector worker, or motor server. Human-reviewed corrections
 export to Qwen’s image/conversation dataset format. Official upstream training
-source is downloaded locally; a CUDA LoRA launcher is prepared. No weights have
-been trained. Headless Chrome goal-matrix testing exposes planner interpretation
+source is downloaded locally; a CUDA LoRA launcher is prepared. A local MLX
+QLoRA adapter has now completed 80 steps on the M4 Mac. Held-out planning
+contracts improved from 12/28 to 25/28, with three missing-target failures
+remaining. The trained model is selectable in the offline playground; the tank
+runtime still uses the original Ollama model. See [fine-tuning results](FINE_TUNING.md). Headless Chrome goal-matrix testing exposes planner interpretation
 errors; the validator now blocks centering-to-search substitutions and physical
 distance requests. Concurrent playground requests also remain isolated. This is recorded-scene testing, not a physics simulator.
 See [setup and limitations](PLAYGROUND.md).
@@ -49,7 +52,7 @@ See [setup and limitations](PLAYGROUND.md).
   wrong-way turn checks, and 40-step limit remain active.
 - Live capture plus controller observation was around two seconds in recorded
   tests; the 1.5-second settling wait and movement time are additional.
-- 60 navigation/vision/playground tests pass. Hardware behavior still needs physical
+- 69 navigation/vision/playground/training tests pass. Hardware behavior still needs physical
   checks; unit tests are not a substitute for successful tank runs.
 
 ## Workspace

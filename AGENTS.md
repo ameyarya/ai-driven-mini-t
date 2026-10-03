@@ -13,6 +13,10 @@
 - Thonny must be closed while the server owns the serial port. Do not run
   archived hardware diagnostics as part of normal tests.
 - Verify navigation changes with:
-  `python3 -m unittest test_rover_autonomy test_rover_vision_labeled test_rover_fast_navigation`
+  `python3 -m unittest test_rover_autonomy test_rover_vision_labeled test_rover_fast_navigation test_rover_playground test_rover_training`
 - Do not start physical autonomous tests without the user starting the goal
   or explicitly requesting that hardware test.
+
+- Keep saved-frame training sessions separate from validation/test sessions.
+  Private datasets and adapters stay in ignored `playground-data/`. Run GPU
+  training and inference sequentially on the 16 GB development Mac.
