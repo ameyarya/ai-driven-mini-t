@@ -150,3 +150,19 @@ only; allowed-schema constraints address that omission. Failed planner output
 is now retained in local plan logs for diagnosis. Missing/clipped target cannot
 advance. Global stop, step, search, watchdog, and direction bounds remain.
 46 tests pass; physical combined-goal test pending.
+
+
+### Coarse-to-fine approach and mission-preserving reacquisition
+Physical combined run failed at step 11 after a small (10% image-height) can
+was missed following a 50 ms centering correction. Qwen replan returned
+unsupported because the target was invisible; the previous error misleadingly
+said search was omitted. Unsupported planner errors now show the actual reason.
+Approach alignment now allows up to ±15% offset far away, tightens with apparent
+size, and remains ±5% at completion. Combined search uses this coarse tolerance
+before approach; standalone find/center remains strict. Dashboard shows the
+current tolerance rather than an uncalibrated distance/angle placeholder.
+Combined approach stops and retries two missed detections while stationary;
+continued loss triggers bounded reacquisition with the accepted mission intact.
+Full search history preserves budgets and the approach stage can be re-entered
+after confirmation. Ambiguous detections stop. 51 tests pass; physical retest
+pending.

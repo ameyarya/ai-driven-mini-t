@@ -73,7 +73,7 @@ header{flex-wrap:wrap;gap:10px}
 <div><span>Target direction</span><strong id="target-direction">—</strong></div>
 <div><span>Center offset</span><strong id="target-offset">—</strong></div>
 <div><span>Image height</span><strong id="target-height">—</strong></div>
-<div><span>Distance / angle</span><strong>Not calibrated</strong></div>
+<div><span>Alignment tolerance</span><strong id="target-tolerance">—</strong></div>
 <div><span>Next movement</span><strong id="target-move">—</strong></div>
 <div><span>Inference</span><strong id="model-latency">—</strong></div>
 </div><p id="trail-note">Grid: image coordinates. Trail: target position over recent frames, not the rover's physical path.</p>
@@ -240,6 +240,7 @@ function updateModelMetrics(r){
  const height=validBox(b)?(b[3]-b[1])/10:a.target_height;
   document.querySelector('#target-direction').textContent=Number.isFinite(x)?(x<45?'Left':x>55?'Right':'Centered'):'Not located';
   document.querySelector('#target-offset').textContent=Number.isFinite(x)?Math.abs(x-50).toFixed(1)+'% '+(x<50?'left':x>50?'right':''):'—';
+  document.querySelector('#target-tolerance').textContent=Number.isFinite(a.alignment_tolerance_percent)?'±'+a.alignment_tolerance_percent.toFixed(1)+'%':'—';
   document.querySelector('#target-height').textContent=Number.isFinite(height)?height.toFixed(1)+'%'+(a.target_clipped?' · clipped':''):'Not measured';
   document.querySelector('#target-move').textContent=String(a.suggested_action||'Analyzing').toUpperCase()+(a.suggested_action!=='stop'&&Number.isFinite(a.duration_ms)?' · '+a.duration_ms+' ms':'');
   document.querySelector('#model-latency').textContent=r.input_role==='controller'?'No Qwen call · '+r.observation_seconds+'s observation':Number.isFinite(r.inference_seconds)?r.inference_seconds+'s':'Analyzing';

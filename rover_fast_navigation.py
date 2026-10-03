@@ -95,6 +95,8 @@ def plan_goal(goal, history=None):
 
 
 def validate_plan(plan, goal=None):
+    if plan.get('mode')=='unsupported':
+        raise ValueError('Planner could not proceed: '+str(plan.get('reason','unsupported goal'))+'; '+str(plan.get('uncertainties',[])))
     if goal and re.search(r'\b(shoot|fire|launcher|backward|away|farther|further)\b',goal,re.I):
         raise ValueError('This fast controller supports finding, centering, and image-size approach only')
     if goal and search_goal(goal) and plan.get('mode') not in ('find','find_approach_size'):
@@ -150,17 +152,51 @@ def movement_duration(action, error, measurement, history):
     return round(max(MIN_DURATION_MS,min(MAX_DURATION_MS,duration)))
 
 
+
+def alignment_tolerance(plan, measurement):
+    """Coarse alignment far away; keep final completion tolerance unchanged."""
+    height=measurement.get('target_height')
+    desired=plan.get('height_percent')
+    if plan.get('mode') in ('approach_size','find_approach_size') and type(height) in (int,float) and type(desired) in (int,float) and desired>0:
+        if height>=desired-HEIGHT_TOLERANCE:
+            return CENTER_TOLERANCE
+        return max(CENTER_TOLERANCE,15-10*min(height/desired,1))
+    return CENTER_TOLERANCE
+
+
 def control_decision(plan, measurement, history):
     assessment=dict(measurement, suggested_action='stop', duration_ms=MIN_DURATION_MS,
                     goal_achieved=False, uncertainties=[], controller='visual_feedback')
     if plan['mode']=='find_approach_size':
-        if any(h.get('phase')=='approach_ready' for h in history):
+        transitions=[h.get('phase') for h in history if h.get('phase') in ('approach_ready','search_again')]
+        approaching=bool(transitions and transitions[-1]=='approach_ready')
+        if approaching:
+            if measurement.get('candidate_count',0)>1:
+                return dict(assessment,reason='Ambiguous target during approach; stopped',uncertainties=['Multiple target candidates'],phase='approach')
+            if measurement.get('target_visible') is not True and measurement.get('candidate_count',0)==0:
+                misses=0
+                for move in reversed(history):
+                    if move.get('phase')!='approach_retry':
+                        break
+                    misses+=1
+                if misses<2:
+                    return dict(assessment,reason='Target missed; stopped for another observation',
+                                observe_again=True,phase='approach_retry')
+                last_x=next((h.get('target_x_before') for h in reversed(history)
+                             if type(h.get('target_x_before')) in (int,float)),None)
+                direction='left' if last_x is not None and last_x<50 else 'right'
+                decision=search_decision(dict(plan,search_direction=direction),measurement,history,assessment)
+                if decision.get('suggested_action') in ('left','right'):
+                    return dict(decision,phase='search_again',reason='Target still missing; bounded reacquisition')
+                return decision
             decision=control_decision(dict(plan,mode='approach_size'),measurement,history)
             return dict(decision,phase='approach')
-        decision=search_decision(plan,measurement,history,assessment)
+        resumed=next((h.get('action') for h in reversed(history) if h.get('phase')=='search_again'),None)
+        search_plan=dict(plan,search_direction=resumed) if resumed in ('left','right') else plan
+        decision=search_decision(search_plan,measurement,history,assessment)
         if decision.get('goal_achieved'):
             return dict(decision,goal_achieved=False,observe_again=True,phase='approach_ready',
-                        reason='Search and centering confirmed; observe before approach')
+                        reason='Target roughly aligned and confirmed; observe before approach')
         return decision
     if plan['mode']=='find':
         return search_decision(plan,measurement,history,assessment)
@@ -170,7 +206,9 @@ def control_decision(plan, measurement, history):
     if plan['mode']=='approach_size' and (measurement.get('target_clipped') is not False or type(height) not in (int,float) or not 0<height<=100):
         return dict(assessment,reason='Target size unavailable; stopped',uncertainties=['Target clipped or size invalid'])
     offset=x-50
-    if abs(offset)>CENTER_TOLERANCE:
+    tolerance=alignment_tolerance(plan,measurement)
+    assessment['alignment_tolerance_percent']=round(tolerance,2)
+    if abs(offset)>tolerance:
         action='left' if offset<0 else 'right'
         error=abs(offset)
         reason='Align target before approaching' if plan['mode']=='approach_size' else 'Center target'
@@ -199,7 +237,9 @@ def search_decision(plan, measurement, history, assessment):
     if measurement.get('candidate_count',0)>1:
         return dict(assessment,reason='Multiple target candidates; stopped',uncertainties=['Ambiguous search target'])
     if candidate:
-        if abs(x-50)>CENTER_TOLERANCE:
+        tolerance=alignment_tolerance(plan,measurement)
+        assessment['alignment_tolerance_percent']=round(tolerance,2)
+        if abs(x-50)>tolerance:
             action='left' if x<50 else 'right'
             return dict(assessment,suggested_action=action,
                         duration_ms=movement_duration(action,abs(x-50),measurement,history),
@@ -210,11 +250,11 @@ def search_decision(plan, measurement, history, assessment):
         previous=history[-1] if history else {}
         old_x=previous.get('target_x_before')
         confirmed=(previous.get('phase')=='find_confirmation' and type(old_x) in (int,float)
-                   and abs(old_x-50)<=CENTER_TOLERANCE and abs(x-old_x)<=10)
+                   and abs(old_x-50)<=alignment_tolerance(plan,{'target_height':previous.get('target_height_before')}) and abs(x-old_x)<=10)
         if confirmed:
-            return dict(assessment,goal_achieved=True,reason='Target fully visible and centered; confirmed twice',phase='found')
-        return dict(assessment,reason='Target centered; stopped to confirm full visibility',observe_again=True,phase='find_confirmation')
-    spent=sum(h.get('duration_ms',0) for h in history if h.get('phase')=='search')
+            return dict(assessment,goal_achieved=True,reason='Target fully visible and aligned; confirmed twice',phase='found')
+        return dict(assessment,reason='Target aligned; stopped to confirm full visibility',observe_again=True,phase='find_confirmation')
+    spent=sum(h.get('duration_ms',0) for h in history if h.get('phase') in ('search','search_again'))
     calibrated_limit=plan.get('full_turn_ms')
     limit=calibrated_limit if calibrated_limit is not None else DEFAULT_SEARCH_BUDGET_MS
     if spent>=limit:

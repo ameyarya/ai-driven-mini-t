@@ -172,7 +172,8 @@ centered. Python then measures each fresh frame, aligns before advancing, and
 estimates movement duration from actual changes after previous movements.
 Initial cautious pulses (150 ms turning, 250 ms forward) establish movement gain;
 subsequent pulses adapt within 50–1000 ms. Reversing a turn after overshooting
-halves the previous pulse. Completion uses a 5% centering tolerance and a 1%
+halves the previous pulse. Approach alignment starts loose (up to ±15% image-width offset when far
+away), tightens with apparent size, and uses ±5% at completion with a 1%
 image-height tolerance; oversize centered targets stop rather than reversing.
 
 Target loss or three stalled adjustments stops movement and requests Qwen review,
@@ -227,11 +228,18 @@ Use:
 > occupies roughly 50% of the image height. Keep it centered, then stop.
 
 Qwen creates one `find_approach_size` plan with the requested height. The
-controller searches in place, centers a fully visible candidate, confirms it
-in two stationary frames, then takes a fresh observation before approaching.
+controller searches in place, roughly aligns a fully visible distant candidate,
+confirms it in two stationary frames, then takes a fresh observation before
+approaching. It tightens alignment as apparent target size increases, retaining
+the ±5% final centering requirement. The current alignment tolerance is shown
+on the dashboard.
 Search confirmation does not complete this mission: completion requires the
 requested apparent size and centering tolerance. Target loss, clipping,
 Stop, search budgets, watchdogs, and the global 40-step limit still apply.
+One missed detector frame during combined approach stops movement and retries
+while stationary. After two missed retries, bounded reacquisition resumes using
+the accepted target and setpoint. It does not reinterpret the mission through
+Qwen for this expected recovery; ambiguous targets still stop.
 The allowed planner schema preserves explicit search and percentage-height
 requirements; it cannot silently return a find-only plan for this prompt.
 Unsupported firing or reverse goals continue to fail explicitly.

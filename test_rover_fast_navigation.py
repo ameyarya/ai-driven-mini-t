@@ -146,7 +146,8 @@ class FastNavigationTests(unittest.TestCase):
         h.append({'action':'stop','duration_ms':0,'phase':'approach_ready','target_x_before':50})
         a=fast.control_decision(plan,measurement(visible=False),h)
         self.assertEqual(a['suggested_action'],'stop')
-        self.assertTrue(a['needs_replan'])
+        self.assertTrue(a['observe_again'])
+        self.assertFalse(a.get('needs_replan',False))
         a=fast.control_decision(plan,measurement(x=50,clipped=True),h)
         self.assertEqual(a['suggested_action'],'stop')
         self.assertFalse(a['goal_achieved'])
@@ -154,6 +155,61 @@ class FastNavigationTests(unittest.TestCase):
     def test_combined_mission_requires_exact_requested_height(self):
         for height in (0,40):
             with self.assertRaises(ValueError):fast.validate_plan(dict(PLAN,mode='find_approach_size',height_percent=height),'Find red can, then approach to 50% of image height')
+
+    def test_far_target_can_advance_without_precise_centering(self):
+        a=fast.control_decision(PLAN,measurement(x=40,height=10),[])
+        self.assertEqual(a['suggested_action'],'forward')
+        self.assertEqual(a['alignment_tolerance_percent'],13)
+        a=fast.control_decision(PLAN,measurement(x=44.1,height=10.4),[])
+        self.assertEqual(a['suggested_action'],'forward')
+        a=fast.control_decision(PLAN,measurement(x=40,height=49),[])
+        self.assertEqual(a['suggested_action'],'left')
+        self.assertFalse(a['goal_achieved'])
+        self.assertEqual(a['alignment_tolerance_percent'],5)
+
+    def test_combined_retries_missed_frame_and_reacquires_with_original_goal(self):
+        plan=dict(PLAN,mode='find_approach_size')
+        h=[{'phase':'approach_ready','action':'stop','duration_ms':0,'target_x_before':40}]
+        for _ in range(2):
+            a=fast.control_decision(plan,measurement(visible=False),h)
+            self.assertTrue(a['observe_again'])
+            self.assertFalse(a.get('needs_replan',False))
+            h.append({'phase':a['phase'],'action':'stop','duration_ms':0})
+        a=fast.control_decision(plan,measurement(visible=False),h)
+        self.assertEqual(a['suggested_action'],'left')
+        self.assertEqual(a['phase'],'search_again')
+        h.append({'phase':a['phase'],'action':'left','duration_ms':250})
+        a=fast.control_decision(plan,measurement(visible=False),h)
+        self.assertEqual(a['suggested_action'],'left')
+        a=fast.control_decision(plan,measurement(x=40,height=10),h)
+        self.assertTrue(a['observe_again'])
+        self.assertEqual(a['phase'],'find_confirmation')
+
+    def test_combined_transient_miss_does_not_call_planner_again(self):
+        plan=dict(PLAN,mode='find_approach_size')
+        frames=iter([measurement(x=40,height=10),measurement(x=40,height=10),
+                     measurement(visible=False),measurement(x=40,height=11),measurement(x=50,height=49.5)])
+        moves=[];calls=[]
+        def planner(*a,**k):calls.append(plan);return plan
+        def observe(goal,plan,history):return {'captured_at':time.time(),'assessment':fast.control_decision(plan,next(frames),history)}
+        c=NavigationController(None,moves.append,planner=planner,fast_observe=observe)
+        c.state['goal']='Find can, then approach to 50% of image height'
+        with patch.object(c.cancelled,'wait',return_value=False):c.run(c.cancelled)
+        self.assertEqual(len(calls),1)
+        self.assertEqual(c.snapshot()['state'],'complete')
+        self.assertEqual(moves.count('W'),1)
+        self.assertFalse(any(m in ('A','D') for m in moves))
+
+    def test_combined_ambiguity_does_not_resume_movement(self):
+        h=[{'phase':'approach_ready'}]
+        a=fast.control_decision(dict(PLAN,mode='find_approach_size'),dict(measurement(visible=False),candidate_count=2),h)
+        self.assertEqual(a['suggested_action'],'stop')
+        self.assertTrue(a['uncertainties'])
+        self.assertFalse(a.get('observe_again',False))
+
+    def test_unsupported_replan_reports_actual_reason(self):
+        with self.assertRaisesRegex(ValueError,'Target not visible'):
+            fast.validate_plan({'mode':'unsupported','reason':'Target not visible','uncertainties':[]},'Find can then approach to 50% of image height')
 
     def test_alignment_before_approach_and_complete(self):
         for x,h,action,complete in [(30,30,'left',False),(70,30,'right',False),(50,30,'forward',False),(50,50.1,'stop',True),(30,51,'left',False)]:
