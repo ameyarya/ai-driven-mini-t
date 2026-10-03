@@ -4,8 +4,8 @@
 
 Rook is a rover proof of concept built around a 3D-printed CyberBrick Mini-T
 tank, a DJI camera, and a local vision-language model running on a Mac.
-Keyboard control and live video work today. Qwen answers questions about camera
-snapshots. Autonomous control accepts a user-defined goal and runs a short move/observe loop.
+Keyboard control and live video work today. Qwen interprets navigation goals; a detector and Python controller run the
+short move/observe loop without a model call for each adjustment.
 
 > Current mode: **manual driving + local vision + optional navigation goal**.
 > Click Start goal to enable bounded automatic turns; Stop cancels the run.
@@ -19,7 +19,7 @@ snapshots. Autonomous control accepts a user-defined goal and runs a short move/
 - Visual questions such as: *“Find the Coca-Cola can. Is it left, centre, or right?”*
 - Analyzed snapshot, direct answer, movement suggestion, reasoning, and uncertainty.
 - Optional navigation goal: short movement steps followed by stop and observation.
-- Model-selected movement duration with image/action history and bounded execution.
+- Qwen goal planning with detector-driven feedback control and bounded adaptive movements.
 - Coordinate-based centering and bounding-box size checks for percentage-height approach goals.
 - Manual launcher elevation and firing.
 - Signed receiver application updates with verification and rollback.
@@ -133,13 +133,11 @@ Open **http://localhost:8000**.
 
 ### 5. Start a navigation goal
 
-The top camera pane shows live video (about one second of delay). The bottom
-pane displays the exact labeled JPEG sent to Qwen, verified
-by SHA-256 in the browser. It updates on each observation and remains frozen
-while the model thinks. Frame age and inference status are explicit; this is
-not live video. The browser draws no additional overlays. Qwen receives the
-independent detector's measurements and measured changes after previous moves.
-Detector scores are not calibrated probabilities; arbitrary targets are unvalidated.
+The top pane shows live video (about one second of delay). The bottom pane
+shows the exact labeled planner or controller input, verified by SHA-256.
+It explicitly identifies whether Qwen is analyzing that frame or the Python
+controller is using it without a Qwen call. The browser adds no annotations.
+Detector scores are not calibrated probabilities; arbitrary targets remain unvalidated.
 
 Install the detector in a separate Python 3.12 environment beside the server:
 
@@ -155,16 +153,25 @@ Weights and camera images are excluded from Git.
 
 Enter a goal in the empty **Navigation goal** box, then click **Start**.
 For example: “Turn until the red can is centred in the image, then stop.”
-Qwen chooses forward, backward, left, right, or stop, sees a fresh image after
-each short move, and reports whether the goal is achieved. Recent executed
-actions are supplied for context. **Stop** cancels the run. Leaving, hiding, or closing the page does not cancel
-it. Arrow keys and manual commands are ignored during autonomy.
+Qwen interprets the goal once into a target and visual setpoint. Supported goals
+are centering, or approaching to an explicit percentage of image height while
+centered. Python then measures each fresh frame, aligns before advancing, and
+estimates movement duration from actual changes after previous movements.
+Initial cautious pulses (150 ms turning, 250 ms forward) establish movement gain;
+subsequent pulses adapt within 50–1000 ms. Reversing a turn after overshooting
+halves the previous pulse. Completion uses a 5% centering tolerance and a 1%
+image-height tolerance; oversize centered targets stop rather than reversing.
 
-Qwen selects movement duration between 1 and 1000 ms, followed by stop and
-a 1.5 second video settling wait. Manual speed remains 100%. The loop stops on
-reported completion, uncertainty, explicit STOP, lost video, errors, old
-assessments, or a 40-observation limit. All five navigation actions are available;
-launcher control remains manual. General navigation accuracy is still unverified.
+Target loss or three stalled adjustments stops movement and requests Qwen review,
+with at most two reviews per goal. Missing video, clipping during approach,
+wrong-way turns, old observations, errors, Stop, and the 40-step limit remain
+stop conditions. Firing, scanning, reverse travel, and physical distance goals
+are not supported by this fast controller. No obstacle avoidance is implemented.
+
+Moves retain the receiver watchdog and 1.5 second video settling wait. This
+avoids waiting for Qwen after every correction, but camera capture and stream
+delay still limit reaction speed. **Stop** cancels the run; leaving the page
+and arrow keys do not interrupt autonomy. Real-world performance needs testing.
 
 A terminal-only assessment is also available:
 

@@ -9,6 +9,7 @@ import time
 import json
 from pathlib import Path
 import rover_vision
+import rover_fast_navigation
 import rover_autonomy
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -181,7 +182,8 @@ def autonomous_refresh(key):
         send('wire(%r)' % key)
 
 
-autonomy = rover_autonomy.NavigationController(rover_vision.assess, autonomous_drive, autonomous_refresh)
+autonomy = rover_autonomy.NavigationController(rover_vision.assess, autonomous_drive, autonomous_refresh,
+    planner=rover_fast_navigation.plan_goal, fast_observe=rover_fast_navigation.observe_goal)
 
 
 def analyze_frame(goal):

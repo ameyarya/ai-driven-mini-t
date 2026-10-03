@@ -28,19 +28,7 @@ def read_json(url, body=None, timeout=5):
 
 
 def assess(goal, autonomous=False, history=None):
-    paths = read_json('http://127.0.0.1:9997/v3/paths/list')['items']
-    if not any(p['name'] == 'live/tank' and p['ready'] for p in paths):
-        raise RuntimeError('DJI stream is offline. Start the Mimo livestream first.')
-    if autonomous:
-        ensure_detector()
-    output = Path(__file__).resolve().parent / 'vision-output'
-    output.mkdir(exist_ok=True)
-    frame = output / ('frame-' + time.strftime('%Y%m%d-%H%M%S') + '.jpg')
-    subprocess.run([
-        'ffmpeg', '-hide_banner', '-loglevel', 'error', '-rw_timeout', '15000000',
-        '-i', 'rtmp://192.168.1.192:1935/live/tank', '-an', '-frames:v', '1',
-        '-vf', 'scale=%d:-2' % FRAME_WIDTH, '-q:v', '3', '-y', str(frame),
-    ], check=True, timeout=25)
+    frame = capture_frame(autonomous)
     captured_at = frame.stat().st_mtime
     assessment, inference_seconds, model, timings = analyze_image(goal, frame, autonomous, history)
     result = {'model': model, 'frame': str(frame),
@@ -54,6 +42,23 @@ def assess(goal, autonomous=False, history=None):
             result[key] = timings[key]
     frame.with_suffix('.json').write_text(json.dumps(result, indent=2) + '\n')
     return result
+
+
+def capture_frame(autonomous=True):
+    paths = read_json('http://127.0.0.1:9997/v3/paths/list')['items']
+    if not any(p['name'] == 'live/tank' and p['ready'] for p in paths):
+        raise RuntimeError('DJI stream is offline. Start the Mimo livestream first.')
+    if autonomous:
+        ensure_detector()
+    output = Path(__file__).resolve().parent / 'vision-output'
+    output.mkdir(exist_ok=True)
+    frame = output / ('frame-' + time.strftime('%Y%m%d-%H%M%S') + '-' + str(time.time_ns()%1000000000) + '.jpg')
+    subprocess.run([
+        'ffmpeg', '-hide_banner', '-loglevel', 'error', '-rw_timeout', '15000000',
+        '-i', 'rtmp://192.168.1.192:1935/live/tank', '-an', '-frames:v', '1',
+        '-vf', 'scale=%d:-2' % FRAME_WIDTH, '-q:v', '3', '-y', str(frame),
+    ], check=True, timeout=25)
+    return frame
 
 
 def is_centering_goal(goal):

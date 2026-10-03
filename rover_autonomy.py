@@ -8,9 +8,10 @@ MAX_STEPS = 40
 
 
 class NavigationController:
-    def __init__(self, observe, drive, refresh=None):
+    def __init__(self, observe, drive, refresh=None, planner=None, fast_observe=None):
         self.observe, self.drive = observe, drive
         self.refresh = refresh
+        self.planner, self.fast_observe = planner, fast_observe
         self.lock = threading.RLock()
         self.state = {'state': 'idle', 'goal': ''}
         self.cancelled = threading.Event()
@@ -58,12 +59,28 @@ class NavigationController:
             history = []
             previous_x = None
             previous_action = None
+            plan = self.planner(goal, history=[]) if self.planner else None
+            replans = 0
             for step in range(1, MAX_STEPS + 1):
                 with self.lock:
                     if not self.valid(token):
                         break
-                    self.state.update(state='observing', step=step, message='Analyzing the goal')
-                result = self.observe(goal, autonomous=True, history=history[-6:])
+                    self.state.update(state='observing', step=step, message='Measuring target' if plan else 'Analyzing the goal', plan=plan)
+                result = (self.fast_observe(goal, plan, history[-6:]) if plan
+                          else self.observe(goal, autonomous=True, history=history[-6:]))
+                if plan and result['assessment'].get('needs_replan'):
+                    with self.lock:
+                        if not self.valid(token):
+                            break
+                        self.state.update(result=result, message='Stopped; Qwen reviewing lost target or stalled progress')
+                        self.drive('X')
+                    if replans >= 2:
+                        raise ValueError('Planner review limit reached; target lost or progress stalled')
+                    plan = self.planner(goal, history=history[-6:])
+                    replans += 1
+                    history=[]
+                    previous_x=previous_action=None
+                    continue
                 with self.lock:
                     if not self.valid(token):
                         break
@@ -76,13 +93,13 @@ class NavigationController:
                     if not isinstance(assessment.get('goal_achieved'), bool):
                         raise ValueError('Model did not report goal completion')
                     if assessment.get('goal_achieved') and not assessment.get('uncertainties'):
-                        self.state.update(state='complete', message='Qwen reports goal achieved — stopped')
+                        self.state.update(state='complete', message='Measured goal achieved — stopped' if plan else 'Qwen reports goal achieved — stopped')
                         break
                     if action not in ACTIONS or assessment.get('uncertainties'):
                         self.state.update(state='stopped', message=('Uncertain observation: ' + '; '.join(map(str, assessment['uncertainties'])) if assessment.get('uncertainties') else 'Invalid action: ' + str(action)) + '; stopped')
                         break
                     if action == 'stop':
-                        self.state.update(state='stopped', message='Qwen chose stop: ' + assessment.get('reason', ''))
+                        self.state.update(state='stopped', message=('Controller chose stop: ' if plan else 'Qwen chose stop: ') + assessment.get('reason', ''))
                         break
                     x = assessment.get('target_x')
                     if isinstance(x, (int, float)) and previous_x is not None:

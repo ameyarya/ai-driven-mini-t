@@ -90,3 +90,21 @@ Centering stop diagnosis: Qwen mislabeled unfinished centering as uncertainty. E
 
 
 Dashboard now has two explicitly separate views: live camera on top and the hash-verified labeled Qwen input underneath. Both fit alongside the control column within the viewport. The labeled view remains frozen during inference, with frame age and status.
+
+
+### Qwen planner + fast visual feedback controller
+Qwen translates a centering or explicit image-height approach goal once. Python
+uses detector measurements after each stopped movement, learns response per ms,
+and adapts pulse duration (50–1000 ms). Initial gain probes: 150 ms turn / 250 ms
+forward. Center tolerance: 5 percentage points; height tolerance: 1 point.
+Target loss or three stalled corrections asks Qwen to review while stationary,
+with at most two reviews. Unsupported missions fail explicitly. No obstacle
+avoidance or autonomous firing is added. Watchdog, direction guard, fresh-frame
+checks, Stop, settling wait, and 40-step bound remain.
+Bottom pane identifies Qwen planner input vs controller-only input truthfully,
+with byte-hash verification in both cases. Saved-frame planner call: 9.76 s;
+four warm detector/controller observations: 32–34 ms excluding capture. Live
+benchmark was blocked by an offline camera stream. 34 unit tests pass; actual
+driving performance remains unverified.
+
+After livestream restoration, one live capture + labeling + controller decision took 2.55 s (detector 212.9 ms), with no Qwen call and no motor command. Settling wait and movement duration are additional per-cycle costs.
