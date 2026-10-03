@@ -284,8 +284,8 @@ async function pollAuto(){
   document.querySelector('#auto-status').textContent=line+(state.step?' · step '+state.step+'/40':'');
   if(autoActive)document.querySelector('#vision-status').textContent='Autonomous goal running · '+state.state;
   const searchNote=document.querySelector('#search-note');
-  searchNote.hidden=state.plan?.mode!=='find';
-  if(!searchNote.hidden)searchNote.textContent='Search in place · '+(state.plan.search_direction||'right')+' · '+(state.plan.full_turn_ms?'timed 360° estimate':'360° not calibrated; bounded search');
+  searchNote.hidden=!['find','find_approach_size'].includes(state.plan?.mode);
+  if(!searchNote.hidden)searchNote.textContent=(state.plan.mode==='find_approach_size'?'Search → center → approach '+state.plan.height_percent+'% · ':'Search in place · ')+(state.plan.search_direction||'right')+' · '+(state.plan.full_turn_ms?'timed 360° estimate':'360° not calibrated; bounded search');
   if(state.result)showAutoResult(state.result);
   if(autoActive)await fetch('/autonomy/heartbeat',{method:'POST',signal:AbortSignal.timeout(3000)});
  }catch(error){document.querySelector('#auto-status').textContent=error.message;}

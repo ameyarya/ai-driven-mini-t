@@ -138,3 +138,15 @@ be remeasured at 100% turn power. Approach speed remains 40%. 43 tests pass.
 
 
 Physical validation update (2026-10-02): user confirmed the corrected turn-in-place find-and-center use case works. Full-power pivots and fully visible, centered target completion are now user-tested. Exact 360-degree coverage remains uncalibrated; no heading-accuracy claim is made.
+
+
+### Combined search → center → approach goal
+Added find_approach_size planning and stage transitions. Search confirms a fully
+visible centered target twice, then transitions while stopped; a fresh frame
+precedes approach. The search stage no longer prematurely completes a combined
+mission. Explicit search and image-height requests constrain planner output
+to the correct mission mode and setpoint. Real Qwen initially returned find
+only; allowed-schema constraints address that omission. Failed planner output
+is now retained in local plan logs for diagnosis. Missing/clipped target cannot
+advance. Global stop, step, search, watchdog, and direction bounds remain.
+46 tests pass; physical combined-goal test pending.

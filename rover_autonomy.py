@@ -115,7 +115,7 @@ class NavigationController:
                     if action == 'stop':
                         self.state.update(state='stopped', message=('Controller chose stop: ' if plan else 'Qwen chose stop: ') + assessment.get('reason', ''))
                         break
-                    x = assessment.get('target_x')
+                    x = assessment.get('target_x') if assessment.get('target_visible') is not False else None
                     if isinstance(x, (int, float)) and previous_x is not None:
                         shift = x - previous_x
                         if (previous_action == 'left' and shift < -3) or (previous_action == 'right' and shift > 3):

@@ -178,7 +178,7 @@ image-height tolerance; oversize centered targets stop rather than reversing.
 Target loss or three stalled adjustments stops movement and requests Qwen review,
 with at most two reviews per goal. Missing video, clipping during approach,
 wrong-way turns, old observations, errors, Stop, and the 40-step limit remain
-stop conditions. Firing, combined search-and-approach missions, reverse travel, and physical distance goals
+stop conditions. Firing, reverse travel, and physical distance goals
 are not supported by this fast controller. No obstacle avoidance is implemented.
 
 Moves retain the receiver watchdog and 1.5 second video settling wait. This
@@ -218,6 +218,28 @@ feedback; traction and battery changes can affect it. Search turns use 100% powe
 than the previous 40% setting; approach remains at 40%. Calibration must be
 measured at this turn power. The scan stops early when the target is found
 and then centers it. No calibration is assumed or invented.
+
+## Search, center, and approach in one goal
+
+Use:
+
+> Find the red can by turning in place. Center it, then move closer until it
+> occupies roughly 50% of the image height. Keep it centered, then stop.
+
+Qwen creates one `find_approach_size` plan with the requested height. The
+controller searches in place, centers a fully visible candidate, confirms it
+in two stationary frames, then takes a fresh observation before approaching.
+Search confirmation does not complete this mission: completion requires the
+requested apparent size and centering tolerance. Target loss, clipping,
+Stop, search budgets, watchdogs, and the global 40-step limit still apply.
+The allowed planner schema preserves explicit search and percentage-height
+requirements; it cannot silently return a find-only plan for this prompt.
+Unsupported firing or reverse goals continue to fail explicitly.
+
+The combined sequence has unit coverage and a successful real local Qwen
+planning check with a saved absent-target frame. Physical combined-goal
+validation is pending; its component search and approach flows were tested
+separately on the tank.
 
 ## Controls
 
