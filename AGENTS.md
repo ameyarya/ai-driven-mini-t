@@ -14,6 +14,11 @@
   archived hardware diagnostics as part of normal tests.
 - Verify navigation changes with:
   `python3 -m unittest test_rover_autonomy test_rover_vision_labeled test_rover_fast_navigation test_rover_playground test_rover_training`
+- Shooting changes also require `test_rover_shooting`; simulation checks run in
+  `.sim-venv` with `cd simulation && ../.sim-venv/bin/python -m unittest test_sim`.
+- Simulator preview is not Qwen inference or physical validation. Keep oracle
+  measurements and contact ground truth explicitly labeled; never claim a real
+  hit from an acknowledged fire command. Existing adapter-v1 rejects firing.
 - Do not start physical autonomous tests without the user starting the goal
   or explicitly requesting that hardware test.
 

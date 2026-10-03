@@ -5,6 +5,7 @@ Run:    python3 server_tank.py   then open http://localhost:8000
 Notes:  close Thonny first (it holds the serial port), battery connected.
 """
 import threading
+import os
 import time
 import json
 from pathlib import Path
@@ -163,6 +164,46 @@ vision_lock = threading.Lock()
 vision_state = {'state': 'idle'}
 
 
+def autonomous_fire_state(firing, token):
+    with lock:
+        if firing and token.is_set():
+            raise ValueError('Shot cancelled')
+        send("wire('X')")
+        response = wireless_update.exchange(ser, b'L', wireless_update.secrets.token_bytes(4),
+            bytes((int(firing), 1, 100))).decode()
+        expected = '150' if firing else '86'
+        if response.split('|')[0] != expected:
+            raise ValueError('Launcher state acknowledgment mismatch')
+
+
+def record_shot(ident, token):
+    import subprocess
+    directory = Path(__file__).resolve().parent/'playground-data/shots'
+    directory.mkdir(parents=True, exist_ok=True)
+    clip = directory/(ident+'.mp4')
+    log = directory/(ident+'.log')
+    with log.open('wb') as output:
+        process = subprocess.Popen(['ffmpeg','-hide_banner','-loglevel','error',
+            '-rw_timeout','5000000','-i','rtmp://192.168.1.192:1935/live/tank',
+            '-t','6','-an','-vf','scale=640:-2','-c:v','libx264','-preset','ultrafast',
+            '-y',str(clip)],stdout=output,stderr=output)
+    def finish():
+        try:
+            process.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            process.kill(); process.wait()
+    threading.Thread(target=finish,daemon=True).start()
+    if token.wait(1.5) or process.poll() is not None:
+        process.terminate()
+        raise ValueError('Shot recording cancelled or camera unavailable')
+    return {'clip':str(clip),'log':str(log),'status':'recording; inspect clip after completion'}
+
+
+from rover_shooting import ShotController
+shots = ShotController(autonomous_fire_state, Path(__file__).resolve().parent/'playground-data/shots',
+    record=record_shot, pulse_ms=int(os.environ.get('ROOK_FIRE_PULSE_MS','350')))
+
+
 def autonomous_drive(key):
     if key != 'X':
         paths = rover_vision.read_json('http://127.0.0.1:9997/v3/paths/list')['items']
@@ -183,7 +224,8 @@ def autonomous_refresh(key):
 
 
 autonomy = rover_autonomy.NavigationController(rover_vision.assess, autonomous_drive, autonomous_refresh,
-    planner=rover_fast_navigation.plan_goal, fast_observe=rover_fast_navigation.observe_goal)
+    planner=rover_fast_navigation.plan_goal, fast_observe=rover_fast_navigation.observe_goal,
+    fire=shots.fire_once)
 
 
 def analyze_frame(goal):
@@ -211,6 +253,19 @@ class Handler(BaseHTTPRequestHandler):
         global vision_state
         if self.headers.get('Origin') not in (None,'http://localhost:8000','http://127.0.0.1:8000'):
             self.send_error(403)
+            return
+        if urlparse(self.path).path == '/shots/reloaded':
+            try:
+                if autonomy.active():
+                    raise ValueError('Stop the mission before acknowledging a reload')
+                length=int(self.headers.get('Content-Length','0'))
+                if self.headers.get('Content-Type')!='application/json' or not 0<length<=100:
+                    raise ValueError('Explicit JSON reload acknowledgment required')
+                if json.loads(self.rfile.read(length))!={'reloaded':True}:
+                    raise ValueError('Acknowledge physically reloading the launcher')
+                shots.acknowledge_reload()
+                self.text_result(200,'Six automatic attempts available; actual ammunition is not sensed')
+            except Exception as error:self.text_result(400,str(error))
             return
         if urlparse(self.path).path in ('/autonomy/start', '/autonomy/stop', '/autonomy/heartbeat'):
             try:

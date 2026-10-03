@@ -25,6 +25,19 @@ tolerance in the new controller, not a controlled benchmark.
 Project notes: [current status](docs/STATUS.md) · [prompts](docs/PROMPTS.md) ·
 [ideas](docs/IDEAS.md) · [workspace layout](docs/WORKSPACE.md).
 
+## Shooting prototype and local simulation
+
+One-shot missions now align, stop, issue a bounded fire/reset command and
+record evidence. Physical impact verification remains **unconfirmed**; the
+current trained adapter still refuses firing. No autonomous physical firing
+test has been performed.
+
+The **MuJoCo playground at localhost:8002** runs toy projectile physics and
+reports actual simulated contact. Four scripted mission paths and 100
+deterministic hit/miss cases pass. It uses ideal segmentation and uncalibrated
+physics; these results do not establish physical-tank reliability.
+[Setup, prompts, tests and limitations](docs/SHOOTING_SIMULATION.md).
+
 ## What works today
 
 - Hold-to-drive keyboard control over a USB transmitter and ESP-NOW.
@@ -312,10 +325,11 @@ paused while we focus on the working tank POC. See [project status](docs/STATUS.
 
 **Scan 360° quickly → identify the Coca-Cola can → approach → centre and aim → shoot.**
 
-The intended shooting sequence has **six turns**; the exact meaning is still to
-be clarified. This is the target mission, not current implemented behavior.
-Automatic firing, calibrated scan rotation, approach distance, launcher alignment,
-and hit verification remain future work. See [project status](docs/STATUS.md).
+The current shooting stage supports **one attempt per mission**, with up to
+six automatic attempts before reload acknowledgment. It is implemented and
+tested in simulation; physical validation remains pending. Calibrated scan
+rotation, physical approach distance, launcher elevation/range and automatic
+hit verification remain future work. See [project status](docs/STATUS.md).
 
 ## Code map
 
@@ -327,6 +341,8 @@ and hit verification remain future work. See [project status](docs/STATUS.md).
 | `rover_autonomy.py` | Bounded navigation loop with cancellation and browser lease |
 | `test_rover_autonomy.py` | Tests for stop, cancellation, stale observations, and step limits |
 | `tank_app.py` | Receiver application: track calibration and launcher control |
+| `rover_shooting.py` | Bounded fire/reset and persistent automatic-attempt accounting |
+| `simulation/` | MuJoCo camera playground, projectile physics and tests |
 | `tank_wireless_service.py` | ESP-NOW receiver, watchdog, signed updates, and rollback |
 | `wireless_update.py` | Host-side signed application uploader |
 | `install_wireless_updates.py` | Existing receiver-specific USB provisioning script |

@@ -7,6 +7,11 @@ No paid GPU service or private-image upload is used.
 
 ## What is trained
 
+This page describes **adapter-v1 and its pre-shooting contract**. The host now
+has one-shot mission support, but this adapter has not been retrained for it.
+The ongoing full-frame benchmark uses a frozen copy of the pre-shooting
+planner prompt. [Shooting and simulation status](SHOOTING_SIMULATION.md).
+
 The model maps a user goal and a labeled camera observation to the existing
 planner JSON contract: mission mode, target, requested image-height setpoint,
 short reason and uncertainty. The base is a local 4-bit MLX conversion of
@@ -100,7 +105,7 @@ run is retained privately and is not counted as a completed training run.
 
 The remaining failures are all on the missing-target scene: centering and
 approach are proposed despite absence, and a search-and-shoot request drops
-the unsupported shooting part. The existing firing validator and missing-target
+the then-unsupported shooting part. Mission-omission validation and missing-target
 controller checks remain necessary. The 40-step validation loss was 0.051;
 this experiment reports the final 80-step checkpoint and does not pick a
 checkpoint using held-out test results.

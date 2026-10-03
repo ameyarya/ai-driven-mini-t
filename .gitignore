@@ -34,3 +34,4 @@ playground-data/
 
 # Isolated Apple Silicon training environment
 .training-venv/
+.sim-venv/

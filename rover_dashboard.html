@@ -274,10 +274,10 @@ async function pollAuto(){
   const response=await fetch('/autonomy/status',{cache:'no-store',signal:AbortSignal.timeout(3000)});
   if(!response.ok)throw Error('Autonomy server unavailable');
   const state=await response.json();
-  autoActive=['observing','moving','settling'].includes(state.state);
+  autoActive=['observing','moving','settling','firing'].includes(state.state);
   document.querySelector('#auto-start').disabled=autoActive||!cameraLive;
 
-  const progress={idle:'Ready',observing:state.step>1?'Analyzing again':'Analyzing',moving:'Moving',settling:'Stopped · waiting for fresh video',complete:'Goal achieved',stopped:'Stopped',error:'Run failed'};
+  const progress={idle:'Ready',observing:state.step>1?'Analyzing again':'Analyzing',moving:'Moving',firing:'One shot · recording evidence',settling:'Stopped · waiting for fresh video',complete:'Goal achieved',stopped:'Stopped',error:'Run failed'};
   let line=progress[state.state]||state.state;
   if(state.state==='moving')line+=' '+(state.last_action||'')+(state.turn_ms?' · '+state.turn_ms+' ms':'');
   if(state.state==='observing'&&state.last_action)line+=' · last move '+state.last_action;

@@ -86,7 +86,9 @@ def main():
             for kind,goals in GOALS.items():
                 for goal in goals[:variants]:
                     answer=expected_plan(kind,goal,item['measurement'])
-                    request=planner_request(goal,image.read_bytes(),item['measurement'])
+                    # v1 intentionally teaches firing refusal. New shooting
+                    # training data must be versioned separately, not relabeled here.
+                    request=planner_request(goal,image.read_bytes(),item['measurement'],shooting_enabled=False)
                     prompt=request['messages'][0]['content']
                     examples.append(dict(images=[str(image)],messages=[
                         dict(role='user',content=[dict(type='image',image=str(image)),dict(type='text',text=prompt)]),

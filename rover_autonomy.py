@@ -14,10 +14,11 @@ def autonomous_speed(key):
 
 
 class NavigationController:
-    def __init__(self, observe, drive, refresh=None, planner=None, fast_observe=None):
+    def __init__(self, observe, drive, refresh=None, planner=None, fast_observe=None, fire=None):
         self.observe, self.drive = observe, drive
         self.refresh = refresh
         self.planner, self.fast_observe = planner, fast_observe
+        self.fire = fire
         self.lock = threading.RLock()
         self.state = {'state': 'idle', 'goal': ''}
         self.cancelled = threading.Event()
@@ -28,7 +29,7 @@ class NavigationController:
             return dict(self.state)
 
     def active(self):
-        return self.snapshot()['state'] in ('observing', 'moving', 'settling')
+        return self.snapshot()['state'] in ('observing', 'moving', 'settling', 'firing')
 
     def heartbeat(self):
         with self.lock:
@@ -101,8 +102,24 @@ class NavigationController:
                     if assessment.get('goal_achieved') and not assessment.get('uncertainties'):
                         self.state.update(state='complete', message='Measured goal achieved — stopped' if plan else 'Qwen reports goal achieved — stopped')
                         break
-                    if action not in ACTIONS or assessment.get('uncertainties'):
+                    if action == 'fire' and not assessment.get('uncertainties'):
+                        if not plan or plan.get('mode') not in ('shoot','find_shoot','approach_shoot','find_approach_shoot') or self.fire is None:
+                            raise ValueError('Shooting mission or launcher callback unavailable')
+                        self.drive('X')
+                        self.state.update(state='firing', message='One fire/reset command; recording evidence')
+                    elif action not in ACTIONS or assessment.get('uncertainties'):
                         self.state.update(state='stopped', message=('Uncertain observation: ' + '; '.join(map(str, assessment['uncertainties'])) if assessment.get('uncertainties') else 'Invalid action: ' + str(action)) + '; stopped')
+                        break
+                if action == 'fire':
+                    # Callback runs outside the controller lock so Stop can cancel it.
+                    outcome = self.fire(token)
+                    with self.lock:
+                        if self.valid(token):
+                            self.state.update(state='stopped', shot=outcome, last_action='fire',
+                                message='Fire command finished; hit unconfirmed')
+                    break
+                with self.lock:
+                    if not self.valid(token):
                         break
                     if assessment.get('observe_again'):
                         self.drive('X')

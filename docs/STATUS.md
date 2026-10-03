@@ -2,6 +2,23 @@
 
 Updated 2026-10-03.
 
+## Added: one-shot controller and MuJoCo
+
+One-shot center/fire, find/fire, approach/fire and find/approach/fire missions
+are implemented on the host, reusing the existing receiver launcher API.
+Tracks stop and the can is confirmed stationary before a bounded fire/reset
+command. Persistent accounting limits automatic attempts to six. Evidence is
+recorded, but physical shot release and impact remain **unconfirmed**.
+No physical firing test was performed. Current adapter-v1 still refuses firing.
+
+MuJoCo runs locally at localhost:8002 with rendered camera views, an explicitly
+labeled segmentation oracle and projectile-contact ground truth. The default
+controller preview does not call Qwen; optional original-Qwen planning waits
+until the benchmark ends. All four scripted shooting missions pass the initial
+scene; 100 deterministic projectile cases, 78 host tests and six Chrome checks
+pass. Inverse-image-height approach timing fixes simulated nonlinear overshoot;
+fresh physical validation remains pending. See [details](SHOOTING_SIMULATION.md).
+
 ## Current platform
 
 CyberBrick Mini-T tank, Mac USB transmitter → ESP-NOW receiver, DJI Action 5 Pro

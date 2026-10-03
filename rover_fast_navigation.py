@@ -15,6 +15,12 @@ CENTER_TOLERANCE = 5.0
 HEIGHT_TOLERANCE = 1.0
 SEARCH_PULSE_MS = 250
 DEFAULT_SEARCH_BUDGET_MS = 9750
+SHOOT_MODES = {'shoot':'center', 'find_shoot':'find',
+               'approach_shoot':'approach_size', 'find_approach_shoot':'find_approach_size'}
+
+
+def shooting_goal(goal):
+    return bool(re.search(r'\b(shoot|fire)\b', goal, re.I))
 
 
 def search_goal(goal):
@@ -22,10 +28,13 @@ def search_goal(goal):
 
 
 
-def planner_request(goal, image, measurement, history=None):
+def planner_request(goal, image, measurement, history=None, shooting_enabled=True):
     """Shared production/training prompt and response schema."""
     requested=vision.requested_height(goal)
-    if search_goal(goal):
+    if shooting_enabled and shooting_goal(goal):
+        mode = ('find_approach_shoot' if search_goal(goal) else 'approach_shoot') if requested is not None else ('find_shoot' if search_goal(goal) else 'shoot')
+        allowed_modes=[mode,'unsupported']
+    elif search_goal(goal):
         allowed_modes=['find_approach_size' if requested is not None else 'find','unsupported']
     elif requested is not None:
         allowed_modes=['approach_size','unsupported']
@@ -47,8 +56,13 @@ def planner_request(goal, image, measurement, history=None):
                 'of IMAGE HEIGHT while centered, or FIND an object by rotating in place. '
                 'For search only return find; finish centered and fully visible. For search THEN approach to a requested image-height percentage, return find_approach_size with that percentage. Execute search, center, confirm, approach while centered, then stop. '
                 'Target absence is expected during search, NOT an uncertainty. '
-                'height_percent is 0 for find. find_approach_size adds approach after discovery and confirmation; firing remains unsupported. '
-                'Return unsupported for firing, '
+                'height_percent is 0 for find. find_approach_size adds approach after discovery and confirmation. '+
+                ('Explicit shooting goals support ONE fire/reset command after full visibility and stationary alignment: '
+                'shoot (center then fire), find_shoot (search then center then fire), approach_shoot '
+                '(approach to explicit image-height setpoint then fire), find_approach_shoot (search, approach, fire). '
+                'Do not claim impact or repeat shots. Never fire for a goal that does not request it. '
+                if shooting_enabled else 'Firing is unsupported in this archived v1 training contract. ')+
+                'Return unsupported for '+('' if shooting_enabled else 'firing, ')+
                 'moving away, physical distances, or other missions. Never silently omit '
                 'parts of a mission. target is an object name, not an action. height_percent '
                 'is 0 for center; approach_size requires an explicit size in the goal. '
@@ -80,7 +94,7 @@ def plan_goal(goal, history=None):
         plan = json.loads(response['message']['content'])
         result['planner_decision']=dict(plan)
         validate_plan(plan, goal)
-        if plan['mode'] in ('find','find_approach_size'):
+        if plan['mode'] in ('find','find_approach_size','find_shoot','find_approach_shoot'):
             plan['search_direction']='left' if re.search(r'\bleft\b',goal,re.I) else 'right'
             calibrated=os.environ.get('ROOK_FULL_TURN_MS')
             plan['full_turn_ms']=int(calibrated) if calibrated else None
@@ -103,8 +117,22 @@ def plan_goal(goal, history=None):
 def validate_plan(plan, goal=None):
     if plan.get('mode')=='unsupported':
         raise ValueError('Planner could not proceed: '+str(plan.get('reason','unsupported goal'))+'; '+str(plan.get('uncertainties',[])))
-    if goal and re.search(r'\b(shoot|fire|launcher|backward|away|farther|further)\b',goal,re.I):
-        raise ValueError('This fast controller supports finding, centering, and image-size approach only')
+    if goal and re.search(r'\b(backward|away|farther|further)\b',goal,re.I):
+        raise ValueError('Moving away remains unsupported')
+    shooting = plan.get('mode') in SHOOT_MODES
+    if shooting != bool(goal and shooting_goal(goal)):
+        raise ValueError('Planner omitted requested shooting or added unrequested firing')
+    if shooting:
+        if not re.search(r'\bcan\b',goal,re.I):
+            raise ValueError('Name the can target explicitly in a shooting goal')
+        if re.search(r'\b(?:six|multiple|repeat|retry|again)\b|\b[2-6]\s+(?:shots?|times)|until.*\b(?:hit|falls?|knock)',goal,re.I):
+            raise ValueError('Only one-shot missions are supported; automatic retries require hit verification')
+        if not re.search(r'\bcan\b', str(plan.get('target','')), re.I):
+            raise ValueError('Shooting POC supports the toy can target only')
+        # Reuse every navigation validation; firing cannot hide omitted search/approach.
+        base_goal = re.sub(r'\b(shoot|fire)\b', '', goal, flags=re.I)
+        validate_plan(dict(plan, mode=SHOOT_MODES[plan['mode']]), base_goal)
+        return
     if goal and re.search(r'\b(?:centimeters?|centimetres?|cm|meters?|metres?|feet|foot|inches?|inch)\b',goal,re.I):
         raise ValueError('Physical distance goals require calibration and are unsupported')
     if goal and vision.is_centering_goal(goal) and plan.get('mode') != 'center':
@@ -148,9 +176,14 @@ def movement_duration(action, error, measurement, history):
         delta = after-before
         expected_delta = delta if action in ('left','forward') else -delta
         if expected_delta > .2:
-            samples.append(expected_delta/duration)
+            # Apparent height is inverse distance. A linear pixel-height gain
+            # extrapolates dangerously when approaching a nearby object.
+            samples.append((1/before-1/after)/duration if action=='forward' and before>0 and after>0
+                           else expected_delta/duration)
     if samples:
-        duration = .65*error/statistics.median(samples[-4:])
+        current=measurement.get('target_height')
+        adjusted_error=(1/current-1/(current+error)) if action=='forward' and type(current) in (int,float) and current>0 else error
+        duration = .65*adjusted_error/statistics.median(samples[-4:])
     else:
         duration = 250 if action=='forward' else 150
         recent = [h for h in (history or [])[-2:] if h.get('action')==action]
@@ -177,6 +210,31 @@ def alignment_tolerance(plan, measurement):
 def control_decision(plan, measurement, history):
     assessment=dict(measurement, suggested_action='stop', duration_ms=MIN_DURATION_MS,
                     goal_achieved=False, uncertainties=[], controller='visual_feedback')
+    if plan['mode'] in SHOOT_MODES:
+        if any(h.get('action')=='fire' for h in history):
+            return dict(assessment, reason='Fire command already attempted; no automatic retry',
+                        uncertainties=['Shot outcome unconfirmed'])
+        base = dict(plan, mode=SHOOT_MODES[plan['mode']])
+        base_history = history
+        if base['mode']=='find' and history and history[-1].get('phase')=='fire_confirmation':
+            base_history = history[:-1]+[dict(history[-1],phase='find_confirmation')]
+        decision = control_decision(base, measurement, base_history)
+        if not decision.get('goal_achieved'):
+            return decision
+        if (measurement.get('target_clipped') is not False or
+                measurement.get('candidate_count', 1) != 1 or
+                abs(measurement.get('target_x', 0)-50)>CENTER_TOLERANCE):
+            return dict(assessment, reason='Firing requires one fully visible centered target',
+                        uncertainties=['Firing alignment not confirmed'])
+        previous = history[-1] if history else {}
+        if previous.get('phase') != 'fire_confirmation':
+            return dict(assessment, observe_again=True, phase='fire_confirmation',
+                        reason='Stopped; confirm alignment before one shot')
+        if abs(previous.get('target_x_before', -100)-measurement['target_x'])>2:
+            return dict(assessment, observe_again=True, phase='fire_confirmation',
+                        reason='Target shifted; confirm stationary alignment again')
+        return dict(assessment, suggested_action='fire', phase='fire_ready',
+                    reason='Target confirmed; issue one bounded fire/reset command')
     if plan['mode']=='find_approach_size':
         transitions=[h.get('phase') for h in history if h.get('phase') in ('approach_ready','search_again')]
         approaching=bool(transitions and transitions[-1]=='approach_ready')

@@ -1,6 +1,7 @@
 """Resumable all-saved-frame/all-template comparison; no hardware access."""
 import gc
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -11,7 +12,6 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from rover_playground import catalog
-from rover_fast_navigation import planner_request
 from experiments.prepare_planner_training import GOALS, expected_plan
 from experiments.train_planner_mlx import MODEL, ADAPTER, score
 
@@ -40,6 +40,14 @@ def main():
     from mlx_vlm.prompt_utils import apply_chat_template
     from mlx_vlm.structured import build_json_schema_logits_processor
     OUT.mkdir(parents=True, exist_ok=True)
+    contract = OUT/'planner-contract.py'
+    if not contract.exists():
+        if (OUT/'results.jsonl').exists():
+            raise ValueError('Existing results require their original frozen planner contract')
+        contract.write_bytes((ROOT/'rover_fast_navigation.py').read_bytes())
+    spec = importlib.util.spec_from_file_location('frozen_planner_contract',contract)
+    module = importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    planner_request = module.planner_request
     items = list(catalog().values())
     manifest = json.loads((ROOT / 'playground-data/planner-training/manifest.json').read_text())
     splits = {r['raw_sha256']: r['split'] for r in manifest['manifest']}

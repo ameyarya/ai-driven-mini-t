@@ -8,6 +8,8 @@ files are no longer duplicated in its parent `Code` folder.
 | Root Python files and dashboard | Current runtime and tests | Yes |
 | `docs/` | Status, prompts, ideas, performance results | Yes |
 | `experiments/` | Reproducible detector evaluation tools | Yes |
+| `simulation/` | MuJoCo scene, localhost:8002 playground and simulation tests | Yes |
+| `.sim-venv/`, `playground-data/simulation/`, `playground-data/shots/` | Local simulator environment, recordings, attempt ledgers and private test output | No |
 | `.tank_update.key`, `tank_camera.yml` | Existing signing key and machine-specific camera configuration | No |
 | `.detector-venv/`, `tools/`, `weights/` | Local detector environment, binaries, model weights | No |
 | `vision-output/`, `detector-output/`, `images/`, `*.log` | Private captures, experiments, photos, and logs | No |
