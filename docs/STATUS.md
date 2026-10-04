@@ -102,3 +102,8 @@ remain internal implementation identifiers.
 
 Canonical checkout moved to `/Users/am3yarya/Documents/Github/rook`.
 Local datasets, models, environments and archives moved with the repository.
+
+## Simulation recording — 2026-10-04
+
+A fresh scripted combined-mission recording is embedded in the README with
+an MP4 and result JSON. No new Qwen or physical hardware test is implied.

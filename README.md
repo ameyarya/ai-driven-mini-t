@@ -27,6 +27,14 @@ Project notes: [current status](docs/STATUS.md) · [prompts](docs/PROMPTS.md) ·
 
 ## Shooting prototype and local simulation
 
+![Rook simulation: search, align, approach, and one shot](docs/assets/rook-simulation.gif)
+
+[Watch/download the MP4](docs/assets/rook-simulation.mp4) ·
+[Recording results](docs/assets/rook-simulation.json). This is a fresh scripted
+controller demonstration with ideal segmentation and uncalibrated physics.
+It does not call Qwen or demonstrate a physical tank hit. Motion is shown at
+simulation speed, with added pauses to read each controller decision.
+
 Expanded tests cover 100 simulator missions and four real-Qwen shooting plans.
 Find/approach/fire produces contact in 20/20 scripted synthetic scenes;
 direct-fire misses twice in ten fired cases. These are simulation results.

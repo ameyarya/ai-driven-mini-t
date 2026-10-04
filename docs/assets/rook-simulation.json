@@ -1,0 +1,30 @@
+{
+  "backend": "scripted; no Qwen inference",
+  "fresh_recording": true,
+  "initial_scene": {
+    "distance": 0.8,
+    "lateral": 0.15,
+    "heading": 3
+  },
+  "goal": "Find the red can, approach until 50% of image height, then shoot once.",
+  "status": "Simulated contact HIT",
+  "shots": [
+    {
+      "command_sent": true,
+      "shot_fired": true,
+      "contact_hit": true,
+      "speed": 6.0,
+      "elevation": 0.0,
+      "simulation_only": true,
+      "can_displacement_m": 0.14117921673851194
+    }
+  ],
+  "steps": 19,
+  "frames": 159,
+  "fps": 10,
+  "limitations": [
+    "Segmentation oracle",
+    "Uncalibrated kinematic tracks and launcher",
+    "Not a recording of historical benchmark runs"
+  ]
+}

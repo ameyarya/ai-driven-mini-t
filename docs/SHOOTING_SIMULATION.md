@@ -161,3 +161,18 @@ visual hit/miss/uncertain judgments independently, then build a separately
 versioned shooting dataset. Keep held-out scenes and launch parameters outside
 training. Simulation does not automatically fine-tune Qwen or replace physical
 launcher and camera validation.
+
+## Recorded demonstration — 2026-10-04
+
+The README embeds a GIF and links to an MP4 of a fresh combined mission.
+Tank-camera/oracle and external views show search, alignment, approach and
+one projectile/contact result. This uses the scripted controller, not Qwen;
+it is separate from the historical test suite. Recorded motion follows
+simulation time, with added decision-reading pauses. Reproduce with:
+
+```sh
+.sim-venv/bin/python simulation/record_demo.py
+```
+
+Requires FFmpeg and macOS graphics access for MuJoCo. The generated JSON
+records the initial pose, decisions count and simulated shot result.
