@@ -74,7 +74,7 @@ not from making Qwen itself faster. Capture and camera delay remain bottlenecks.
   supervised POC without obstacle avoidance or autonomous firing.
 
 Aggregate measurements are available in [optimization-results.json](optimization-results.json).
-Source revisions: [before](https://github.com/ameyarya/rook-the-rover/commit/3a81291)
-and [after](https://github.com/ameyarya/rook-the-rover/commit/7038b30).
+Source revisions: [before](https://github.com/ameyarya/rook/commit/3a81291)
+and [after](https://github.com/ameyarya/rook/commit/7038b30).
 The underlying local JSON logs were checked against the completed dashboard
 status. Camera images and raw private logs remain local.

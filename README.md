@@ -1,9 +1,9 @@
-# Rook the Rover
+# Rook
 
-**A small tank learning to see, then navigate.**
+**An AI brain for a mini toy tank.**
 
-Rook is a rover proof of concept built around a 3D-printed CyberBrick Mini-T
-tank, a DJI camera, and a local vision-language model running on a Mac.
+Rook gives vision and autonomous control to a 3D-printed CyberBrick Mini-T
+tank using a DJI camera and a local vision-language model running on a Mac.
 Keyboard control and live video work today. Qwen interprets navigation goals; a detector and Python controller run the
 short move/observe loop without a model call for each adjustment.
 
@@ -87,7 +87,7 @@ No cloud model or paid API key is needed for the current POC.
 
 ## Offline testing and training preparation
 
-No rover required: `python3 rover_playground.py`, then open
+No tank required: `python3 rover_playground.py`, then open
 [localhost:8001](http://localhost:8001). Test the production Qwen planner on
 saved labeled frames, correct its plans, and export reviewed training examples.
 This does not open serial ports, train a model, or simulate physical motion.
@@ -101,7 +101,7 @@ the original Ollama model. See [the playground guide](docs/PLAYGROUND.md) and
 
 | Component | Role |
 | --- | --- |
-| CyberBrick Mini-T tank | Working rover platform with two tracks and launcher |
+| CyberBrick Mini-T tank | Mini toy tank with two tracks and launcher |
 | CyberBrick transmitter | USB connection to the Mac; ESP-NOW radio link |
 | CyberBrick receiver | Battery-powered motor and servo control |
 | DJI Osmo Action 5 Pro | Live camera |
@@ -321,7 +321,7 @@ a fallback with the custom receiver application.
 
 | Phase | Goal | Status |
 | --- | --- | --- |
-| 1 | Keyboard rover control | Working |
+| 1 | Keyboard tank control | Working |
 | 2 | Camera feed and driving dashboard | Working POC; mounting/range validation continues |
 | 3 | Obstacle avoidance | Pending |
 | 4 | LLM-directed autonomous tasks | Visual questions verified; navigation controller ready for physical testing |

@@ -4,7 +4,7 @@ The rover can stay powered off. The playground runs at **localhost:8001**,
 independently of the hardware dashboard at port 8000.
 
 ```sh
-cd /Users/am3yarya/Code/rook-the-rover
+cd /Users/am3yarya/Code/rook
 python3 rover_playground.py
 ```
 

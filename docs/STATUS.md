@@ -91,3 +91,9 @@ See [workspace layout](WORKSPACE.md), [prompts](PROMPTS.md), and [ideas](IDEAS.m
 
 Truck steering, the drone camera transplant, and phone-free DJI streaming remain
 paused investigations; their scripts and backups were preserved in the local archive.
+
+## Project name — 2026-10-04
+
+The project is named **Rook**: an AI brain for a mini toy tank. The repository
+and canonical workspace are `rook`. Existing `rover_*` Python module names
+remain internal implementation identifiers.
