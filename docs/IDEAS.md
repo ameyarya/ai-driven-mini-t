@@ -13,8 +13,11 @@ These are project ideas, not claims about implemented capabilities.
   This is a proposed integration, not implemented or tested. The supported
   setup requires the Muse phone app and an SDK token; it is not a standalone
   local-Qwen framework. The ESP32 SDK requires replacement ESP-IDF firmware
-  and must not be flashed onto the locked CyberBrick boards. Start with Mac-side
-  reminder behavior before adding another device or service dependency.
+  and must not be flashed onto the locked CyberBrick boards. The user's updated
+  target is an untethered camera-and-screen Muse companion mounted on the tank;
+  the Mac should not be required at runtime. See the
+  [standalone companion plan](DESK_COMPANION.md). Hardware inventory and the
+  camera/movement integration are still to be established.
 - **Dog monitor:** find my dog, log activities and water/walk breaks, and send
   reports to me.
 
