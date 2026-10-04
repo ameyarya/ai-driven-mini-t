@@ -56,6 +56,15 @@ built-in speaker; its C suffix does not mean camera. Camera capture and the
 CyberBrick movement transport still require custom work. This is a screen/voice
 candidate, not a complete camera rover selected for purchase.
 
+For all three functions in a Waveshare package, evaluate
+**ESP32-S3-Touch-LCD-3.5-C**: 3.5-inch 320×480 touch display, audio with
+microphone/speaker, case and included OV5640 camera. The standard 3.5 version
+has a camera connector but does not include the camera. This 3.5 model is not
+listed in Muse's supported-device table, so a board port and camera integration
+would be required. An alternative is ESP32-S3-CAM-OV5640, whose package includes
+camera and speaker but requires an external compatible display. Neither is
+selected for purchase; assess tank payload and integration effort first.
+
 ## First milestones
 
 1. Stationary companion: pair with Muse, show replies on screen, take a camera
@@ -77,3 +86,5 @@ Sources checked on 2026-10-03:
 - [ESP32 interaction and text/TTS replies](https://github.com/facebookincubator/muse-gadget-sdk/tree/main/esp32)
 - [Waveshare 1.75 hardware](https://docs.waveshare.com/ESP32-S3-Touch-AMOLED-1.75)
 - [Waveshare 1.75C hardware](https://docs.waveshare.com/ESP32-S3-Touch-AMOLED-1.75C)
+- [Waveshare 3.5 camera bundle](https://www.waveshare.com/product/esp32-s3-touch-lcd-3.5.htm)
+- [Waveshare camera/audio board package](https://www.waveshare.com/product/arduino/boards-kits/esp32-s3-cam-ov5640.htm)
