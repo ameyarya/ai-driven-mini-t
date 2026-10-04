@@ -44,6 +44,18 @@ boards must retain their locked firmware. Do not flash Muse firmware onto them.
 Hardware selection must account for the Mini-T's mounting space, payload,
 power and runtime. Check the user's existing devices before buying components.
 
+**Waveshare ESP32-S3-Touch-AMOLED-1.75 / 1.75C head:** both are explicitly
+supported by the Muse SDK and are candidates for a compact screen/voice
+companion. The standard board has a 466×466 touch display, dual microphones,
+8 MB PSRAM and a speaker connector. Check the exact bundle for speaker and
+battery inclusion; the user's approximately $25 price has not been verified.
+Neither variant has an onboard camera. The standard board exposes only three
+GPIOs and one UART, so adding a camera is a separate integration task, not an
+assumed plug-in upgrade. The 1.75C is a distinct enclosed variant with a
+built-in speaker; its C suffix does not mean camera. Camera capture and the
+CyberBrick movement transport still require custom work. This is a screen/voice
+candidate, not a complete camera rover selected for purchase.
+
 ## First milestones
 
 1. Stationary companion: pair with Muse, show replies on screen, take a camera
@@ -63,3 +75,5 @@ Sources checked on 2026-10-03:
 - [Linux SDK and extension commands](https://github.com/facebookincubator/muse-gadget-sdk/tree/main/linux)
 - [Supported ESP32 devices and Watcher camera](https://github.com/facebookincubator/muse-gadget-sdk/blob/main/esp32/devices/README.md#watcher-camera)
 - [ESP32 interaction and text/TTS replies](https://github.com/facebookincubator/muse-gadget-sdk/tree/main/esp32)
+- [Waveshare 1.75 hardware](https://docs.waveshare.com/ESP32-S3-Touch-AMOLED-1.75)
+- [Waveshare 1.75C hardware](https://docs.waveshare.com/ESP32-S3-Touch-AMOLED-1.75C)
