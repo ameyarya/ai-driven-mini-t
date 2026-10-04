@@ -35,6 +35,16 @@ controller demonstration with ideal segmentation and uncalibrated physics.
 It does not call Qwen or demonstrate a physical tank hit. Motion is shown at
 simulation speed, with added pauses to read each controller decision.
 
+**Launcher elevation:** buttons or keys **1 / 2** raise/lower the simulated
+barrel; shots use its current angle.
+
+![Launcher up/down and simulated shot outcomes](docs/assets/rook-launcher-simulation.gif)
+
+[Launcher demo MP4](docs/assets/rook-launcher-simulation.mp4). This shows a
+raised-shot miss and a level-shot hit in one synthetic scene. Elevation limits
+(−10° to 45°) and servo speed are illustrative, not tank calibration; automatic
+Qwen elevation selection is not implemented.
+
 Expanded tests cover 100 simulator missions and four real-Qwen shooting plans.
 Find/approach/fire produces contact in 20/20 scripted synthetic scenes;
 direct-fire misses twice in ten fired cases. These are simulation results.

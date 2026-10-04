@@ -1,0 +1,178 @@
+{
+  "date": "2026-10-04",
+  "backend": "scripted controller; no new Qwen inference",
+  "physics_tests": 10,
+  "deterministic_shot_scenarios": 200,
+  "host_tests": 79,
+  "browser": {
+    "backend": "scripted",
+    "checks": [
+      {
+        "name": "Both camera views load",
+        "passed": true
+      },
+      {
+        "name": "Page fits laptop height",
+        "passed": true
+      },
+      {
+        "name": "Controls fit sidebar height",
+        "passed": true
+      },
+      {
+        "name": "Launcher up button changes elevation",
+        "passed": true
+      },
+      {
+        "name": "Launcher down button reverses elevation",
+        "passed": true
+      },
+      {
+        "name": "Keyboard 1 raises launcher",
+        "passed": true
+      },
+      {
+        "name": "Keyboard 2 lowers launcher",
+        "passed": true
+      },
+      {
+        "name": "Raised launcher changes simulated shot outcome",
+        "passed": true
+      },
+      {
+        "name": "Reset restores level launcher",
+        "passed": true
+      },
+      {
+        "name": "UI mission fires and reports simulated contact",
+        "passed": true
+      },
+      {
+        "name": "Stop button works",
+        "passed": true
+      },
+      {
+        "name": "Reset reloads simulated launcher",
+        "passed": true
+      },
+      {
+        "name": "No uncaught browser exceptions",
+        "passed": true
+      }
+    ],
+    "errors": []
+  },
+  "launcher_http": {
+    "checks": [
+      {
+        "name": "Up changes reported elevation",
+        "passed": true
+      },
+      {
+        "name": "Down reverses elevation",
+        "passed": true
+      },
+      {
+        "name": "Upper limit enforced",
+        "passed": true
+      },
+      {
+        "name": "Launcher stop preserves angle",
+        "passed": true
+      },
+      {
+        "name": "Lower limit enforced",
+        "passed": true
+      },
+      {
+        "name": "Unknown launcher action rejected",
+        "passed": true
+      },
+      {
+        "name": "Unbounded launcher duration rejected",
+        "passed": true
+      },
+      {
+        "name": "Negative launcher duration rejected",
+        "passed": true
+      },
+      {
+        "name": "Reset returns launcher to zero",
+        "passed": true
+      },
+      {
+        "name": "Manual launcher input cancels goal",
+        "passed": true
+      },
+      {
+        "name": "Fire uses raised angle and misses",
+        "passed": true
+      },
+      {
+        "name": "Lowering recovers level contact hit",
+        "passed": true
+      }
+    ]
+  },
+  "mission_regression": {
+    "cases": 100,
+    "invariants_passed": 100,
+    "checks_passed": 8,
+    "checks_total": 8,
+    "by_kind": {
+      "center": {
+        "total": 20,
+        "goals_completed": 10,
+        "fired": 0,
+        "contact_hits": 0,
+        "stops": 10
+      },
+      "find": {
+        "total": 20,
+        "goals_completed": 20,
+        "fired": 0,
+        "contact_hits": 0,
+        "stops": 0
+      },
+      "approach": {
+        "total": 20,
+        "goals_completed": 10,
+        "fired": 0,
+        "contact_hits": 0,
+        "stops": 10
+      },
+      "shoot": {
+        "total": 20,
+        "goals_completed": 0,
+        "fired": 10,
+        "contact_hits": 8,
+        "stops": 10
+      },
+      "combined_shoot": {
+        "total": 20,
+        "goals_completed": 0,
+        "fired": 20,
+        "contact_hits": 20,
+        "stops": 0
+      }
+    }
+  },
+  "launcher": {
+    "limits_degrees": [
+      -10,
+      45
+    ],
+    "illustrative_rate_degrees_per_second": 30,
+    "keyboard": {
+      "1": "up",
+      "2": "down"
+    },
+    "automatic_elevation_selection": false
+  },
+  "limitations": [
+    "Ideal segmentation",
+    "Uncalibrated elevation, servo rate and ballistics",
+    "No physical hardware test",
+    "No Qwen aiming test"
+  ]
+}

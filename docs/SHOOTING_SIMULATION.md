@@ -176,3 +176,36 @@ simulation time, with added decision-reading pauses. Reproduce with:
 
 Requires FFmpeg and macOS graphics access for MuJoCo. The generated JSON
 records the initial pose, decisions count and simulated shot result.
+
+## Launcher up/down — 2026-10-04
+
+The simulation now has an articulated launcher. `/launcher` accepts `up`,
+`down` or `stop` with bounded 0–1000 ms duration. Buttons and keys 1/2 apply
+250 ms steps. Elevation is shown in degrees; reset returns it to zero.
+The illustrative rate is 30°/second with limits −10° to 45°. Camera direction
+is fixed to the tank, while barrel orientation and projectile launch direction
+share the selected elevation. Manual adjustment cancels the current mission.
+Automatic shooting uses the current angle; Qwen does not choose elevation yet.
+
+Ten physics tests pass, including the original 100 level-shot scenarios and
+100 additional raised/level scenarios. Checks cover angle limits, invalid
+commands, stop/reset, stationary tank pose, shared barrel/projectile direction,
+and recovering a simulated hit by lowering the launcher. Thirteen scripted
+browser checks cover buttons, keyboard controls, shot outcomes and screen fit.
+No new Qwen inference or physical hardware test was performed.
+
+The separate launcher recording is reproducible with:
+
+```sh
+.sim-venv/bin/python simulation/record_launcher_demo.py
+```
+
+[MP4](assets/rook-launcher-simulation.mp4) ·
+[Recording metadata](assets/rook-launcher-simulation.json) ·
+[Launcher test results](launcher-simulation-results.json).
+
+Regression rerun: all 100 mission invariant cases and eight existing API guards
+pass, with the same 20/20 combined hits and 8/10 direct-fire hits as before.
+Twelve launcher HTTP checks pass, including invalid durations, limits,
+manual-input cancellation and raised-miss/lowered-hit outcomes. Run them with
+`.sim-venv/bin/python simulation/launcher_http_test.py` against localhost:8002.

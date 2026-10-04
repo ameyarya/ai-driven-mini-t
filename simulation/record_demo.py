@@ -15,6 +15,7 @@ class RecordedSim(RoverSim):
         super().__init__()
         self.output = output
         self.action = 'Ready'
+        self.title = 'Rook | Find, align, approach, shoot'
         self.frames = 0
         self.next_frame = 0
         self.encoder = subprocess.Popen([
@@ -38,7 +39,7 @@ class RecordedSim(RoverSim):
         frame.paste(labeled, (0, 65))
         frame.paste(external, (640, 65))
         draw = ImageDraw.Draw(frame)
-        draw.text((16, 8), 'Rook | Find, align, approach, shoot', font=self.font, fill='white')
+        draw.text((16, 8), self.title, font=self.font, fill='white')
         draw.text((16, 36), 'Tank camera + segmentation oracle', font=self.font, fill='#a8dbba')
         draw.text((656, 36), 'External simulation view', font=self.font, fill='#a8dbba')
         draw.text((16, 432), self.action[:105], font=self.font, fill='white')

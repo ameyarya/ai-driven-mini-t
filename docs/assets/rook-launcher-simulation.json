@@ -1,0 +1,31 @@
+{
+  "backend": "scripted manual launcher demo; no Qwen",
+  "shots": [
+    {
+      "command_sent": true,
+      "shot_fired": true,
+      "contact_hit": false,
+      "speed": 6.0,
+      "elevation": 29.999999999999744,
+      "simulation_only": true,
+      "can_displacement_m": 9.166279091100644e-15
+    },
+    {
+      "command_sent": true,
+      "shot_fired": true,
+      "contact_hit": true,
+      "speed": 6.0,
+      "elevation": 0.0,
+      "simulation_only": true,
+      "can_displacement_m": 0.11886405867876544
+    }
+  ],
+  "fps": 10,
+  "frames": 117,
+  "simulation_only": true,
+  "limits_degrees": [
+    -10.0,
+    45.0
+  ],
+  "illustrative_rate_degrees_per_second": 30.0
+}

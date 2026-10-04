@@ -34,7 +34,8 @@ def serve(port=8002):
             elif path=='/status':
                 _,_,measurement=sim.observation()
                 self.reply(200,dict(status=sim.status,running=sim.plan is not None,shots=sim.shots,
-                    measurement=measurement,benchmark_busy=benchmark_busy(),steps=len(sim.history)))
+                    measurement=measurement,benchmark_busy=benchmark_busy(),steps=len(sim.history),
+                    launcher_elevation=sim.elevation,launcher_limits=[sim.MIN_ELEVATION,sim.MAX_ELEVATION]))
             else:self.reply(404,{'error':'Unknown endpoint'})
 
         def do_POST(self):
@@ -48,6 +49,9 @@ def serve(port=8002):
                 if self.path=='/reset':sim.reset(float(body.get('distance',.65)),float(body.get('lateral',0)))
                 elif self.path=='/move':
                     sim.plan=None;sim.move(body['action'],body.get('duration_ms',250))
+                elif self.path=='/launcher':
+                    sim.plan=None;sim.launcher(body['action'],body.get('duration_ms',250))
+                    sim.status=f'Launcher {sim.elevation:.1f} degrees (simulated)'
                 elif self.path=='/fire':
                     sim.plan=None;shot=sim.fire();sim.status='Contact HIT' if shot['contact_hit'] else 'MISS'
                 elif self.path=='/stop':sim.plan=None;sim.status='Stopped by user'

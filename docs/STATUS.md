@@ -107,3 +107,11 @@ Local datasets, models, environments and archives moved with the repository.
 
 A fresh scripted combined-mission recording is embedded in the README with
 an MP4 and result JSON. No new Qwen or physical hardware test is implied.
+
+## Simulated launcher elevation — 2026-10-04
+
+Up/down buttons and keys 1/2 now articulate the launcher and change shot
+trajectory. Ten physics tests (200 shot scenarios), 79 host tests and
+13 scripted browser checks pass. A separate GIF/MP4 demonstrates raised miss
+and lowered hit. Limits/rate are uncalibrated; automatic elevation planning
+and physical validation remain pending.

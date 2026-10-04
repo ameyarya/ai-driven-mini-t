@@ -13,6 +13,10 @@ import rover_fast_navigation as navigation
 
 
 class RoverSim:
+    MIN_ELEVATION = -10.
+    MAX_ELEVATION = 45.
+    ELEVATION_RATE = 30.  # Illustrative degrees/sec, not calibrated servo motion.
+
     def __init__(self, render=True):
         self.model=mujoco.MjModel.from_xml_path(str(Path(__file__).with_name('tank.xml')))
         self.data=mujoco.MjData(self.model)
@@ -30,14 +34,27 @@ class RoverSim:
             raise ValueError('Distance must be .25..3 m; lateral -2..2 m')
         mujoco.mj_resetData(self.model,self.data)
         self.data.qpos[self.can_joint:self.can_joint+3]=[distance,lateral,.061]
-        self.x=self.y=0.;self.heading=float(heading)
+        self.x=self.y=0.;self.heading=float(heading);self.elevation=0.
         self.shots=[];self.history=[];self.plan=None;self.goal='';self.status='Ready';self.projectile_active=False
         self._pose();self.advance(.1)
 
     def _pose(self):
         self.data.mocap_pos[0]=[self.x,self.y,.045]
         self.data.mocap_quat[0]=[math.cos(self.heading/2),0,0,math.sin(self.heading/2)]
+        angle=math.radians(self.elevation)
+        self.model.body_quat[self.model.body('launcher').id]=[math.cos(angle/2),0,-math.sin(angle/2),0]
         mujoco.mj_forward(self.model,self.data)
+
+    def launcher(self, action, duration_ms=250):
+        if action not in ('up','down','stop') or type(duration_ms) is not int or not 0<=duration_ms<=1000:
+            raise ValueError('Invalid simulated launcher movement')
+        if action=='stop':return self.elevation
+        change=(1 if action=='up' else -1)*self.ELEVATION_RATE*self.model.opt.timestep
+        for _ in range(round(duration_ms/1000/self.model.opt.timestep)):
+            self.elevation=max(self.MIN_ELEVATION,min(self.MAX_ELEVATION,self.elevation+change))
+            if abs(self.elevation)<1e-10:self.elevation=0.
+            self._pose();self.advance(self.model.opt.timestep)
+        return self.elevation
 
     def advance(self, seconds):
         for _ in range(round(seconds/self.model.opt.timestep)):
@@ -61,16 +78,18 @@ class RoverSim:
                 self.y+=math.sin(self.heading)*speed*dt
             self._pose();self.advance(dt)
 
-    def fire(self, speed=6., elevation=0.):
+    def fire(self, speed=6., elevation=None):
         if len(self.shots)>=6:
             raise ValueError('Six simulated shots used; reset scene to reload')
-        if not 1<=speed<=12 or not -10<=elevation<=45:
+        elevation=self.elevation if elevation is None else elevation
+        if not math.isfinite(speed) or not math.isfinite(elevation) or not 1<=speed<=12 or not self.MIN_ELEVATION<=elevation<=self.MAX_ELEVATION:
             raise ValueError('Invalid projectile launch parameters')
-        direction=np.array([math.cos(self.heading),math.sin(self.heading),0.])
+        self.elevation=float(elevation);self._pose()
+        angle=math.radians(elevation)
+        direction=np.array([math.cos(self.heading)*math.cos(angle),math.sin(self.heading)*math.cos(angle),math.sin(angle)])
         start=np.array([self.x,self.y,.10])+.145*direction
         self.data.qpos[self.ball_joint:self.ball_joint+7]=[*start,1,0,0,0]
-        angle=math.radians(elevation)
-        self.data.qvel[self.ball_velocity:self.ball_velocity+6]=[* (direction*speed*math.cos(angle)+np.array([0,0,speed*math.sin(angle)])),0,0,0]
+        self.data.qvel[self.ball_velocity:self.ball_velocity+6]=[*(direction*speed),0,0,0]
         before=self.data.body('can').xpos.copy()
         shot=dict(command_sent=True,shot_fired=True,contact_hit=False,
                   speed=speed,elevation=elevation,simulation_only=True)

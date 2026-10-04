@@ -39,3 +39,9 @@ still refuses firing; use the original planner for these new missions.
 See [shooting and simulation](SHOOTING_SIMULATION.md).
 
 The original unedited prompt list is preserved in the Git-ignored local archive.
+
+## Simulator launcher controls
+
+At localhost:8002, use Launcher ↑/↓ or keys 1/2 before firing. Navigation
+goals do not select elevation; shots use the current manual setting. Reset
+returns to 0°. This is uncalibrated simulation, not physical aiming.
