@@ -20,7 +20,7 @@ files are no longer duplicated in its parent `Code` folder.
 ## Start from the repo
 
 ```sh
-cd ~/Code/rook
+cd ~/Documents/Github/rook
 python3 server_tank.py
 ```
 
@@ -30,7 +30,7 @@ Python environment retains the installed dependencies and repaired entry points.
 For the local camera relay, when it is not already running:
 
 ```sh
-cd ~/Code/rook
+cd ~/Documents/Github/rook
 ./tools/mediamtx/mediamtx tank_camera.yml
 ```
 

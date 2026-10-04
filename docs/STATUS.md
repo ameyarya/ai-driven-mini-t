@@ -97,3 +97,8 @@ paused investigations; their scripts and backups were preserved in the local arc
 The project is named **Rook**: an AI brain for a mini toy tank. The repository
 and canonical workspace are `rook`. Existing `rover_*` Python module names
 remain internal implementation identifiers.
+
+## Workspace location — 2026-10-04
+
+Canonical checkout moved to `/Users/am3yarya/Documents/Github/rook`.
+Local datasets, models, environments and archives moved with the repository.
