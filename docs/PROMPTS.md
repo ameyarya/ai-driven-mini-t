@@ -45,3 +45,12 @@ The original unedited prompt list is preserved in the Git-ignored local archive.
 At localhost:8002, use Launcher ↑/↓ or keys 1/2 before firing. Navigation
 goals do not select elevation; shots use the current manual setting. Reset
 returns to 0°. This is uncalibrated simulation, not physical aiming.
+
+## Obstacle simulator
+
+At localhost:8002, select an obstacle scene and press **Avoid & approach · map
+oracle**. This dedicated button runs a fixed avoid/approach/stop task without
+Qwen; the goal text box does not configure this controller. Start still runs
+the existing mission planner and does not add obstacle route planning.
+Use Stop to cancel, or select Clear and Reset to resume the usual missions.
+See [obstacle avoidance](OBSTACLE_AVOIDANCE.md).

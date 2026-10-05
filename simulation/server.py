@@ -31,11 +31,13 @@ def serve(port=8002):
             if path=='/':self.reply(200,Path(__file__).with_name('index.html').read_bytes(),'text/html; charset=utf-8')
             elif path in ('/camera.jpg','/labeled.jpg'):
                 self.reply(200,sim.image(path=='/labeled.jpg'),'image/jpeg')
+            elif path=='/overview.jpg':self.reply(200,sim.overview(),'image/jpeg')
             elif path=='/status':
                 _,_,measurement=sim.observation()
                 self.reply(200,dict(status=sim.status,running=sim.plan is not None,shots=sim.shots,
                     measurement=measurement,benchmark_busy=benchmark_busy(),steps=len(sim.history),
-                    launcher_elevation=sim.elevation,launcher_limits=[sim.MIN_ELEVATION,sim.MAX_ELEVATION]))
+                    launcher_elevation=sim.elevation,launcher_limits=[sim.MIN_ELEVATION,sim.MAX_ELEVATION],
+                    obstacles=sim.obstacle_state()))
             else:self.reply(404,{'error':'Unknown endpoint'})
 
         def do_POST(self):
@@ -46,7 +48,9 @@ def serve(port=8002):
                 if self.headers.get('Content-Type')!='application/json' or not 0<length<=4096:
                     raise ValueError('JSON request required, at most 4096 bytes')
                 body=json.loads(self.rfile.read(length))
-                if self.path=='/reset':sim.reset(float(body.get('distance',.65)),float(body.get('lateral',0)))
+                if self.path=='/reset':sim.reset(float(body.get('distance',.65)),float(body.get('lateral',0)),
+                    obstacle_scene=body.get('obstacle_scene','clear'))
+                elif self.path=='/avoid':sim.start_avoidance()
                 elif self.path=='/move':
                     sim.plan=None;sim.move(body['action'],body.get('duration_ms',250))
                 elif self.path=='/launcher':

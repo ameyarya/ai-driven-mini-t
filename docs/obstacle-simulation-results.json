@@ -1,0 +1,1984 @@
+{
+  "date": "2026-10-04",
+  "backend": "Known-map A* and footprint guard; no Qwen",
+  "sensing": "Ideal rectangle map, pose and can-location oracle; displayed ideal laser fan",
+  "summary": {
+    "cases": 100,
+    "passed": 100,
+    "reached": 80,
+    "blocked_stops": 20,
+    "contacts": 0,
+    "guard_stops": 0
+  },
+  "cases": [
+    {
+      "scene": "block",
+      "distance": 1.2,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 24,
+      "minimum_clearance_m": 0.05,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.3,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 29,
+      "minimum_clearance_m": 0.055,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.4,
+      "lateral": -0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 25,
+      "minimum_clearance_m": 0.0548,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.5,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 29,
+      "minimum_clearance_m": 0.0521,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.2,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.3,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0549,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.4,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 29,
+      "minimum_clearance_m": 0.0547,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.5,
+      "lateral": 0.0,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 25,
+      "minimum_clearance_m": 0.055,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.2,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 33,
+      "minimum_clearance_m": 0.05,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.3,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.4,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 24,
+      "minimum_clearance_m": 0.06,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.5,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 22,
+      "minimum_clearance_m": 0.0546,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.2,
+      "lateral": 0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0502,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.3,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 32,
+      "minimum_clearance_m": 0.052,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.4,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.5,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 23,
+      "minimum_clearance_m": 0.0595,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.2,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 28,
+      "minimum_clearance_m": 0.0499,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.3,
+      "lateral": -0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 25,
+      "minimum_clearance_m": 0.0548,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.4,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0521,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.5,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.2,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 28,
+      "minimum_clearance_m": 0.05,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.3,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 28,
+      "minimum_clearance_m": 0.0548,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.4,
+      "lateral": 0.0,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 25,
+      "minimum_clearance_m": 0.0537,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.5,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 31,
+      "minimum_clearance_m": 0.052,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.2,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.3,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 23,
+      "minimum_clearance_m": 0.0546,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.4,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 24,
+      "minimum_clearance_m": 0.0546,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.5,
+      "lateral": 0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 26,
+      "minimum_clearance_m": 0.051,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.2,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 31,
+      "minimum_clearance_m": 0.0497,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.3,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.4,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 23,
+      "minimum_clearance_m": 0.0595,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.5,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 26,
+      "minimum_clearance_m": 0.0516,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.2,
+      "lateral": -0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0501,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.3,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 31,
+      "minimum_clearance_m": 0.0521,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.4,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.5,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0602,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.2,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 28,
+      "minimum_clearance_m": 0.05,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.3,
+      "lateral": 0.0,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.055,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.4,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 31,
+      "minimum_clearance_m": 0.0489,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.5,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.2,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 25,
+      "minimum_clearance_m": 0.0498,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.3,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 23,
+      "minimum_clearance_m": 0.0546,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.4,
+      "lateral": 0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.051,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.5,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 30,
+      "minimum_clearance_m": 0.052,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.2,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.3,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 22,
+      "minimum_clearance_m": 0.0542,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.4,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0516,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.5,
+      "lateral": -0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 24,
+      "minimum_clearance_m": 0.0548,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.2,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 29,
+      "minimum_clearance_m": 0.0492,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.3,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.4,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 26,
+      "minimum_clearance_m": 0.0602,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.5,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 26,
+      "minimum_clearance_m": 0.0548,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.2,
+      "lateral": 0.0,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0499,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.3,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 33,
+      "minimum_clearance_m": 0.052,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.4,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.5,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 24,
+      "minimum_clearance_m": 0.06,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.2,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 25,
+      "minimum_clearance_m": 0.0502,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.3,
+      "lateral": 0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 28,
+      "minimum_clearance_m": 0.0546,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.4,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 29,
+      "minimum_clearance_m": 0.052,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.5,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.2,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 24,
+      "minimum_clearance_m": 0.05,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.3,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 29,
+      "minimum_clearance_m": 0.055,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.4,
+      "lateral": -0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 25,
+      "minimum_clearance_m": 0.0548,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.5,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 29,
+      "minimum_clearance_m": 0.0521,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.2,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.3,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0549,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.4,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 29,
+      "minimum_clearance_m": 0.0547,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.5,
+      "lateral": 0.0,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 25,
+      "minimum_clearance_m": 0.055,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.2,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 33,
+      "minimum_clearance_m": 0.05,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.3,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.4,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 24,
+      "minimum_clearance_m": 0.06,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.5,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 22,
+      "minimum_clearance_m": 0.0546,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.2,
+      "lateral": 0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0502,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.3,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 32,
+      "minimum_clearance_m": 0.052,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.4,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.5,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 23,
+      "minimum_clearance_m": 0.0595,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.2,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 28,
+      "minimum_clearance_m": 0.0499,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.3,
+      "lateral": -0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 25,
+      "minimum_clearance_m": 0.0548,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.4,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0521,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.5,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.2,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 28,
+      "minimum_clearance_m": 0.05,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.3,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 28,
+      "minimum_clearance_m": 0.0548,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.4,
+      "lateral": 0.0,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 25,
+      "minimum_clearance_m": 0.0537,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.5,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 31,
+      "minimum_clearance_m": 0.052,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.2,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.3,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 23,
+      "minimum_clearance_m": 0.0546,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.4,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 24,
+      "minimum_clearance_m": 0.0546,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.5,
+      "lateral": 0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 26,
+      "minimum_clearance_m": 0.051,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.2,
+      "lateral": 0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 31,
+      "minimum_clearance_m": 0.0497,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.3,
+      "lateral": 0.1,
+      "initial_heading": 0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.4,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 23,
+      "minimum_clearance_m": 0.0595,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.5,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 26,
+      "minimum_clearance_m": 0.0516,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.2,
+      "lateral": -0.1,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0501,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.3,
+      "lateral": -0.1,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 31,
+      "minimum_clearance_m": 0.0521,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.4,
+      "lateral": -0.1,
+      "initial_heading": 0.0,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "block",
+      "distance": 1.5,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.0602,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "left_open",
+      "distance": 1.2,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 28,
+      "minimum_clearance_m": 0.05,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "right_open",
+      "distance": 1.3,
+      "lateral": 0.0,
+      "initial_heading": 0.0,
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "minimum_clearance_m": 0.055,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "wall",
+      "distance": 1.4,
+      "lateral": 0.0,
+      "initial_heading": 0.5,
+      "status": "Obstacle goal achieved",
+      "steps": 31,
+      "minimum_clearance_m": 0.0489,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    },
+    {
+      "scene": "blocked",
+      "distance": 1.5,
+      "lateral": 0.0,
+      "initial_heading": -0.5,
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "minimum_clearance_m": 0.065,
+      "guard_stops": 0,
+      "contacts": 0,
+      "checks": {
+        "expected_terminal_state": true,
+        "no_contacts": true,
+        "clearance_kept": true,
+        "no_firing": true,
+        "bounded": true
+      },
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Not sensor-only navigation",
+    "No learned obstacle detection or fine-tuning",
+    "Kinematic tracks, static rectangular obstacles, perfect localization",
+    "Fixed bounded workspace; no physical tank tests"
+  ],
+  "regressions": {
+    "simulator_unit_tests": {
+      "passed": 20,
+      "physics": 10,
+      "obstacle": 10
+    },
+    "host_unit_tests": {
+      "passed": 79
+    },
+    "browser_checks": {
+      "passed": 19,
+      "backend": "scripted; no Qwen"
+    },
+    "existing_mission_http": {
+      "cases": 100,
+      "invariants_passed": 100,
+      "checks_passed": 8,
+      "checks_total": 8,
+      "by_kind": {
+        "center": {
+          "total": 20,
+          "goals_completed": 10,
+          "fired": 0,
+          "contact_hits": 0,
+          "stops": 10
+        },
+        "find": {
+          "total": 20,
+          "goals_completed": 20,
+          "fired": 0,
+          "contact_hits": 0,
+          "stops": 0
+        },
+        "approach": {
+          "total": 20,
+          "goals_completed": 10,
+          "fired": 0,
+          "contact_hits": 0,
+          "stops": 10
+        },
+        "shoot": {
+          "total": 20,
+          "goals_completed": 0,
+          "fired": 10,
+          "contact_hits": 8,
+          "stops": 10
+        },
+        "combined_shoot": {
+          "total": 20,
+          "goals_completed": 0,
+          "fired": 20,
+          "contact_hits": 20,
+          "stops": 0
+        }
+      }
+    },
+    "launcher_http": {
+      "passed": 12,
+      "total": 12
+    }
+  },
+  "collision_monitor": "MuJoCo signed narrow-phase geometry distances; forced-overlap sensitivity test passed. Mocap/static automatic contacts excluded.",
+  "regressions_verified_date": "2026-10-05"
+}

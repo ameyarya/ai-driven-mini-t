@@ -25,6 +25,22 @@ tolerance in the new controller, not a controlled benchmark.
 Project notes: [feature checklist](FEATURES.md) · [current status](docs/STATUS.md) · [prompts](docs/PROMPTS.md) ·
 [ideas](docs/IDEAS.md) · [workspace layout](docs/WORKSPACE.md).
 
+## Obstacle avoidance in simulation
+
+![Known-map obstacle avoidance and blocked-route stop](docs/assets/obstacle-avoidance-simulation.gif)
+
+**100/100 scenarios passed:** 80 reached the target, 20 stopped when enclosed,
+with zero obstacle contacts. Select an obstacle scene at **localhost:8002**,
+then click **Avoid & approach · map oracle**.
+
+This controller uses a perfect simulated map, tank pose and target location:
+A* plans a route around blocks and a footprint guard checks every movement.
+It does not call Qwen, train a model, or detect obstacles from camera images.
+Real sensing and physical avoidance remain pending.
+[Setup and limits](docs/OBSTACLE_AVOIDANCE.md) ·
+[Results](docs/obstacle-simulation-results.json) ·
+[Demo MP4](docs/assets/obstacle-avoidance-simulation.mp4).
+
 ## Shooting prototype and local simulation
 
 ![AI-Driven Mini-T simulation: search, align, approach, and one shot](docs/assets/rook-simulation.gif)
@@ -237,7 +253,7 @@ Target loss or three stalled adjustments stops movement and requests Qwen review
 with at most two reviews per goal. Missing video, clipping during approach,
 wrong-way turns, old observations, errors, Stop, and the 40-step limit remain
 stop conditions. Firing, reverse travel, and physical distance goals
-are not supported by this fast controller. No obstacle avoidance is implemented.
+are not supported by this fast controller. Physical obstacle avoidance is not implemented; the simulator has a separate known-map avoidance controller.
 
 Moves retain the receiver watchdog and 1.5 second video settling wait. This
 avoids waiting for Qwen after every correction, but camera capture and stream
@@ -331,7 +347,7 @@ controls have their own timeout. Forward/reverse includes the tested approximate
 
 These are initial POC observations, not a navigation reliability benchmark.
 Wireless video has approximately **one second of delay**. Bounded navigation control is implemented; physical turn accuracy is pending
-user testing. Obstacle avoidance and camera-to-launcher aiming calibration
+user testing. Obstacle avoidance has simulation-only validation; real sensing and camera-to-launcher aiming calibration
 are not implemented yet. The original physical remote has not been verified as
 a fallback with the custom receiver application.
 
@@ -341,7 +357,7 @@ a fallback with the custom receiver application.
 | --- | --- | --- |
 | 1 | Keyboard tank control | Working |
 | 2 | Camera feed and driving dashboard | Working POC; mounting/range validation continues |
-| 3 | Obstacle avoidance | Pending |
+| 3 | Obstacle avoidance | Known-map simulation tested; physical sensing pending |
 | 4 | LLM-directed autonomous tasks | Visual questions verified; navigation controller ready for physical testing |
 
 Next: test the bounded navigation turns on the tank and verify that it stops

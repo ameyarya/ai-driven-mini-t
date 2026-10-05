@@ -76,7 +76,7 @@ See [setup and limitations](PLAYGROUND.md).
 ## Bounds and remaining work
 
 - Exact 360° coverage remains uncalibrated; search has explicit time/step bounds.
-- No obstacle avoidance or calibrated physical ranging. Automatic firing is
+- No physical obstacle avoidance or calibrated physical ranging. Automatic firing is
   implemented but not physically validated.
 - Receiver watchdog, Stop, stale-frame checks, clipping/ambiguity checks,
   wrong-way turn checks, and 40-step limit remain active.
@@ -123,3 +123,22 @@ and physical validation remain pending.
 Name locked to **AI-Driven Mini-T** (`ai-driven-mini-t`). Historical recordings
 retain their original Rook titles. Internal module names and asset filenames
 are preserved for compatibility.
+
+## Obstacle avoidance simulator — 2026-10-05
+
+Known-map A* routing and a conservative footprint guard now run in MuJoCo.
+Six selectable scenes include left/right detours and an enclosed tank. The
+lower view shows the known obstacle map; ideal simulated range readings are
+explicitly labeled. Avoidance stops near the can and never fires.
+
+100/100 varied scenarios pass: 80 reach, 20 correctly stop without a route,
+zero contacts. Ten obstacle tests and ten existing physics tests pass;
+79 host tests and 19 scripted browser checks pass. Existing launcher and
+mission HTTP regression results are recorded in the public obstacle report.
+A fresh GIF/MP4 shows a detour and an enclosed stop. Browser Stop now ignores
+stale step responses so cancellation status remains visible.
+
+This is controller setup/testing, not training or camera obstacle detection.
+The map, pose and target location are perfect simulator oracles. Real sensing,
+localization, moving obstacles, unknown-map navigation and physical validation
+remain pending. See [obstacle setup and results](OBSTACLE_AVOIDANCE.md).

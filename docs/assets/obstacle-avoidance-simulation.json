@@ -1,0 +1,25 @@
+{
+  "results": [
+    {
+      "scene": "left_open",
+      "status": "Obstacle goal achieved",
+      "steps": 27,
+      "contacts": 0
+    },
+    {
+      "scene": "blocked",
+      "status": "Stopped: no clear route",
+      "steps": 0,
+      "contacts": 0
+    }
+  ],
+  "frames": 212,
+  "fps": 10,
+  "simulation_only": true,
+  "backend": "Known-map controller; no Qwen",
+  "limitations": [
+    "Perfect map and pose",
+    "Static obstacles",
+    "Uncalibrated tracks"
+  ]
+}

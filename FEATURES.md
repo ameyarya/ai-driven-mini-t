@@ -40,7 +40,9 @@ from simulation or software tests. Unchecked items remain unfinished.
   Implemented and simulation-tested; physical runs have not yet completed reliably.
 - [x] Bounded target-loss recovery, stale-frame checks, Stop and step/search limits.
 - [ ] Calibrate search rotation and verify full 360° coverage.
-- [ ] Obstacle avoidance.
+- [x] Simulation-only obstacle avoidance using a known map, A* routes and a footprint guard.
+  100 scenarios: 80 reached, 20 blocked stops, zero obstacle contacts.
+- [ ] Real obstacle sensing and avoidance on the physical tank.
 
 ## Autonomous shooting
 
@@ -71,6 +73,8 @@ from simulation or software tests. Unchecked items remain unfinished.
 - [x] 79 host tests.
 - [x] GIF/MP4 simulation demonstrations and public result summaries in the README.
 - [ ] Simulator calibration against real track and launcher measurements.
+- [x] Obstacle scenarios, ideal range readings, blocked-route stops and browser controls.
+  Ten obstacle tests plus the existing ten physics tests pass; 19 browser checks pass.
 - [ ] Broader Qwen-driven simulation testing across varied scenes and target positions.
 
 ## Physical acceptance tests still pending
