@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="280" viewBox="0 0 900 280" role="img" aria-labelledby="title desc">
-<title id="title">Rook navigation optimization: 346 seconds to 69 seconds</title>
+<title id="title">AI-Driven Mini-T navigation optimization: 346 seconds to 69 seconds</title>
 <desc id="desc">One physical run per architecture: 21 observations and 21 Qwen calls before; 14 observations and one Qwen call after. Times span first capture to final saved decision, including planning.</desc>
 <rect width="900" height="280" rx="16" fill="#10151d"/>
 <g font-family="system-ui, sans-serif" fill="#edf2fa">

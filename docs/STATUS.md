@@ -96,13 +96,13 @@ paused investigations; their scripts and backups were preserved in the local arc
 
 ## Project name — 2026-10-04
 
-The project is named **Rook**: an AI brain for a mini toy tank. The repository
-and canonical workspace are `rook`. Existing `rover_*` Python module names
+The project is named **AI-Driven Mini-T**: an AI brain for a mini toy tank. The repository
+and canonical workspace are `ai-driven-mini-t`. Existing `rover_*` Python module names
 remain internal implementation identifiers.
 
 ## Workspace location — 2026-10-04
 
-Canonical checkout moved to `/Users/am3yarya/Documents/Github/rook`.
+Canonical checkout moved to `/Users/am3yarya/Documents/Github/ai-driven-mini-t`.
 Local datasets, models, environments and archives moved with the repository.
 
 ## Simulation recording — 2026-10-04
@@ -117,3 +117,9 @@ trajectory. Ten physics tests (200 shot scenarios), 79 host tests and
 13 scripted browser checks pass. A separate GIF/MP4 demonstrates raised miss
 and lowered hit. Limits/rate are uncalibrated; automatic elevation planning
 and physical validation remain pending.
+
+## Final project name — 2026-10-04
+
+Name locked to **AI-Driven Mini-T** (`ai-driven-mini-t`). Historical recordings
+retain their original Rook titles. Internal module names and asset filenames
+are preserved for compatibility.

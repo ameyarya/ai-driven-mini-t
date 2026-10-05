@@ -8,7 +8,7 @@ def main():
     output=ROOT/'docs/assets/rook-launcher-simulation.mp4'
     sim=RecordedSim(output)
     try:
-        sim.title='Rook | Launcher up/down and projectile trajectory'
+        sim.title='AI-Driven Mini-T | Launcher up/down and projectile trajectory'
         sim.reset()
         sim.next_frame=sim.data.time
         sim.action='Launcher level: 0 degrees'

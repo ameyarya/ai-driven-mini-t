@@ -1,4 +1,4 @@
-# Rover ideas
+# Project ideas
 
 These are project ideas, not claims about implemented capabilities.
 
@@ -9,7 +9,7 @@ These are project ideas, not claims about implemented capabilities.
   [Muse Gadget SDK](https://github.com/facebookincubator/muse-gadget-sdk)
   evaluated on 2026-10-03 as an optional companion interface. Its Linux SDK
   supports custom commands and proactive messages to Muse; a separate Linux
-  host with Bluetooth LE could bridge bounded commands to Rook's Mac HTTP API.
+  host with Bluetooth LE could bridge bounded commands to AI-Driven Mini-T's Mac HTTP API.
   This is a proposed integration, not implemented or tested. The supported
   setup requires the Muse phone app and an SDK token; it is not a standalone
   local-Qwen framework. The ESP32 SDK requires replacement ESP-IDF firmware

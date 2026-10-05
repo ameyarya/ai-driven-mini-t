@@ -1,6 +1,6 @@
 # Local planner fine-tuning experiment
 
-Rook now has an Apple Silicon QLoRA training path using
+AI-Driven Mini-T now has an Apple Silicon QLoRA training path using
 [MLX-VLM](https://github.com/Blaizzy/mlx-vlm/blob/main/mlx_vlm/LORA.MD).
 Qwen's official CUDA trainer remains available as a separate prepared option.
 No paid GPU service or private-image upload is used.

@@ -1,4 +1,4 @@
-<mujoco model="Rook toy shooting prototype">
+<mujoco model="AI-Driven Mini-T toy shooting prototype">
   <option timestep="0.002" gravity="0 0 -9.81"/>
   <visual><global offwidth="640" offheight="360"/><map znear="0.01"/></visual>
   <default><geom friction="0.6 0.01 0.001" condim="3"/></default>

@@ -1,6 +1,6 @@
 # Workspace layout
 
-`rook` is the single working directory for this project. Active source
+`ai-driven-mini-t` is the single working directory for this project. Active source
 files are no longer duplicated in its parent `Code` folder.
 
 | Location | Purpose | Published to GitHub? |
@@ -20,7 +20,7 @@ files are no longer duplicated in its parent `Code` folder.
 ## Start from the repo
 
 ```sh
-cd ~/Documents/Github/rook
+cd ~/Documents/Github/ai-driven-mini-t
 python3 server_tank.py
 ```
 
@@ -30,7 +30,7 @@ Python environment retains the installed dependencies and repaired entry points.
 For the local camera relay, when it is not already running:
 
 ```sh
-cd ~/Documents/Github/rook
+cd ~/Documents/Github/ai-driven-mini-t
 ./tools/mediamtx/mediamtx tank_camera.yml
 ```
 

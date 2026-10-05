@@ -1,6 +1,6 @@
 # From one model call per move to one model call per goal
 
-On October 2, 2026, Rook completed the same physical approach-and-center goal
+On October 2, 2026, AI-Driven Mini-T completed the same physical approach-and-center goal
 with a **5× shorter logged window**, using **one Qwen call instead of 21**.
 These are two successful runs, not a controlled benchmark or a general speed guarantee.
 
@@ -74,7 +74,7 @@ not from making Qwen itself faster. Capture and camera delay remain bottlenecks.
   supervised POC without obstacle avoidance or autonomous firing.
 
 Aggregate measurements are available in [optimization-results.json](optimization-results.json).
-Source revisions: [before](https://github.com/ameyarya/rook/commit/3a81291)
-and [after](https://github.com/ameyarya/rook/commit/7038b30).
+Source revisions: [before](https://github.com/ameyarya/ai-driven-mini-t/commit/3a81291)
+and [after](https://github.com/ameyarya/ai-driven-mini-t/commit/7038b30).
 The underlying local JSON logs were checked against the completed dashboard
 status. Camera images and raw private logs remain local.

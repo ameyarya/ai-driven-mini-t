@@ -4,7 +4,7 @@ The rover can stay powered off. The playground runs at **localhost:8001**,
 independently of the hardware dashboard at port 8000.
 
 ```sh
-cd /Users/am3yarya/Documents/Github/rook
+cd /Users/am3yarya/Documents/Github/ai-driven-mini-t
 python3 rover_playground.py
 ```
 
@@ -42,7 +42,7 @@ new sessions/rooms rather than relying solely on this initial frame split.
 
 [Qwen’s training framework](https://github.com/QwenLM/Qwen3-VL/tree/main/qwen-vl-finetune)
 is checked out locally under `tools/qwen3-vl/qwen-vl-finetune` at revision
-`96588727e44c78b25ba03ea03b8e12f7e64fd0da`. It is not vendored into Rook’s Git repo.
+`96588727e44c78b25ba03ea03b8e12f7e64fd0da`. It is not vendored into AI-Driven Mini-T’s Git repo.
 To reproduce the checkout:
 
 ```sh
@@ -66,7 +66,7 @@ has been provisioned. The memory requirements for our configuration have not
 been benchmarked.
 
 ```sh
-# On that training machine, from the Rook checkout:
+# On that training machine, from the AI-Driven Mini-T checkout:
 bash scripts/train_qwen_rook_lora.sh
 ```
 

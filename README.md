@@ -1,8 +1,8 @@
-# Rook
+# AI-Driven Mini-T
 
 **An AI brain for a mini toy tank.**
 
-Rook gives vision and autonomous control to a 3D-printed CyberBrick Mini-T
+AI-Driven Mini-T gives vision and autonomous control to a 3D-printed CyberBrick Mini-T
 tank using a DJI camera and a local vision-language model running on a Mac.
 Keyboard control and live video work today. Qwen interprets navigation goals; a detector and Python controller run the
 short move/observe loop without a model call for each adjustment.
@@ -16,7 +16,7 @@ The same approach-and-center goal completed in a **69-second logged window,
 down from 346 seconds** after moving repeated adjustments into a Python visual
 feedback controller. Qwen calls fell **21 → 1**, and observations **21 → 14**.
 
-![Rook navigation before and after](docs/assets/navigation-performance.svg)
+![AI-Driven Mini-T navigation before and after](docs/assets/navigation-performance.svg)
 
 This is a two-run POC case study with different starting poses and a 1% height
 tolerance in the new controller, not a controlled benchmark.
@@ -27,7 +27,7 @@ Project notes: [feature checklist](FEATURES.md) · [current status](docs/STATUS.
 
 ## Shooting prototype and local simulation
 
-![Rook simulation: search, align, approach, and one shot](docs/assets/rook-simulation.gif)
+![AI-Driven Mini-T simulation: search, align, approach, and one shot](docs/assets/rook-simulation.gif)
 
 [Watch/download the MP4](docs/assets/rook-simulation.mp4) ·
 [Recording results](docs/assets/rook-simulation.json). This is a fresh scripted

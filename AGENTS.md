@@ -1,4 +1,4 @@
-# Rook project workflow
+# AI-Driven Mini-T project workflow
 
 - This repository is the canonical working folder. Do not recreate active
   source files or runtime data in the parent `Code` directory.

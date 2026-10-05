@@ -15,7 +15,7 @@ class RecordedSim(RoverSim):
         super().__init__()
         self.output = output
         self.action = 'Ready'
-        self.title = 'Rook | Find, align, approach, shoot'
+        self.title = 'AI-Driven Mini-T | Find, align, approach, shoot'
         self.frames = 0
         self.next_frame = 0
         self.encoder = subprocess.Popen([

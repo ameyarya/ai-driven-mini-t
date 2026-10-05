@@ -1,4 +1,4 @@
-# Rook feature checklist
+# AI-Driven Mini-T feature checklist
 
 An AI brain for a mini toy tank.
 
@@ -86,8 +86,8 @@ from simulation or software tests. Unchecked items remain unfinished.
 
 These are not requirements for finishing the current tank mission.
 
-- [ ] Decide whether general-object navigation belongs in Rook.
-- [ ] Decide whether a Mac/phone-free tank is a future Rook milestone.
+- [ ] Decide whether general-object navigation belongs in AI-Driven Mini-T.
+- [ ] Decide whether a Mac/phone-free tank is a future AI-Driven Mini-T milestone.
 - [ ] Muse charm — separate project.
 - [ ] Wheeled desk buddy with camera/speaker/display — separate project.
 - [ ] Home rover for the dog — separate project.
