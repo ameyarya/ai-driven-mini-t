@@ -75,6 +75,8 @@ from simulation or software tests. Unchecked items remain unfinished.
 - [ ] Simulator calibration against real track and launcher measurements.
 - [x] Obstacle scenarios, ideal range readings, blocked-route stops and browser controls.
   Ten obstacle tests plus the existing ten physics tests pass; 19 browser checks pass.
+- [x] Scripted combined search/alignment/avoidance/approach/shot regression: 31 cases,
+  24 simulated contact hits and seven expected stops/cancellations; perfect-map inputs.
 - [ ] Broader Qwen-driven simulation testing across varied scenes and target positions.
 
 ## Physical acceptance tests still pending

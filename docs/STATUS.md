@@ -142,3 +142,16 @@ This is controller setup/testing, not training or camera obstacle detection.
 The map, pose and target location are perfect simulator oracles. Real sensing,
 localization, moving obstacles, unknown-map navigation and physical validation
 remain pending. See [obstacle setup and results](OBSTACLE_AVOIDANCE.md).
+
+## Combined simulation matrix — 2026-10-05
+
+A new standalone harness chains existing search/alignment, known-map avoidance
+and visual approach/one-shot controllers without resetting between stages.
+All 31 cases pass: 24 reachable cases produce one simulated projectile contact,
+two searches stop, one unsafe destination rejects routing, three stage
+cancellations stop, and one exhausted-ammunition fixture rejects firing.
+Zero obstacle overlaps; 79 host and 20 simulator regressions also pass.
+This is scripted orchestration, not integrated dashboard mission support, Qwen
+inference, automatic elevation aiming or physical validation. See
+[methods and limitations](COMBINED_SIMULATION.md) and
+[per-case results](combined-simulation-results.json).

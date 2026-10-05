@@ -41,6 +41,12 @@ Real sensing and physical avoidance remain pending.
 [Results](docs/obstacle-simulation-results.json) ·
 [Demo MP4](docs/assets/obstacle-avoidance-simulation.mp4).
 
+A [31-case combined-mission regression](docs/COMBINED_SIMULATION.md) now chains
+search, alignment, obstacle detours and one shot: 24 simulated contact hits,
+seven expected stops/cancellations, zero obstacle overlaps. Stages are scripted
+by the test harness with perfect-map inputs; Qwen and automatic elevation aiming
+are not tested.
+
 ## Shooting prototype and local simulation
 
 ![AI-Driven Mini-T simulation: search, align, approach, and one shot](docs/assets/rook-simulation.gif)
