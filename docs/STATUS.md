@@ -1,6 +1,8 @@
 # Project status
 
-Updated 2026-10-03.
+Updated 2026-10-04.
+
+Editable scope and completion checklist: [FEATURES.md](../FEATURES.md).
 
 Expanded simulator checks: 100 HTTP mission scenarios satisfy the tested
 invariants and eight rejection/Stop checks pass. Find/approach/fire hits in
@@ -24,8 +26,7 @@ No physical firing test was performed. Current adapter-v1 still refuses firing.
 
 MuJoCo runs locally at localhost:8002 with rendered camera views, an explicitly
 labeled segmentation oracle and projectile-contact ground truth. The default
-controller preview does not call Qwen; optional original-Qwen planning waits
-until the benchmark ends. All four scripted shooting missions pass the initial
+controller preview does not call Qwen; optional original-Qwen planning is available; the benchmark has finished. All four scripted shooting missions pass the initial
 scene; 100 deterministic projectile cases, 79 host tests and six Chrome checks
 pass. Inverse-image-height approach timing fixes simulated nonlinear overshoot;
 fresh physical validation remains pending. See [details](SHOOTING_SIMULATION.md).
@@ -75,12 +76,13 @@ See [setup and limitations](PLAYGROUND.md).
 ## Bounds and remaining work
 
 - Exact 360° coverage remains uncalibrated; search has explicit time/step bounds.
-- No obstacle avoidance, calibrated physical ranging, or autonomous firing yet.
+- No obstacle avoidance or calibrated physical ranging. Automatic firing is
+  implemented but not physically validated.
 - Receiver watchdog, Stop, stale-frame checks, clipping/ambiguity checks,
   wrong-way turn checks, and 40-step limit remain active.
 - Live capture plus controller observation was around two seconds in recorded
   tests; the 1.5-second settling wait and movement time are additional.
-- 69 navigation/vision/playground/training tests pass. Hardware behavior still needs physical
+- 79 host tests pass. Hardware behavior still needs physical
   checks; unit tests are not a substitute for successful tank runs.
 
 ## Workspace

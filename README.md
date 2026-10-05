@@ -22,7 +22,7 @@ This is a two-run POC case study with different starting poses and a 1% height
 tolerance in the new controller, not a controlled benchmark.
 [See the measurements, architecture, and limitations](docs/PERFORMANCE.md).
 
-Project notes: [current status](docs/STATUS.md) · [prompts](docs/PROMPTS.md) ·
+Project notes: [feature checklist](FEATURES.md) · [current status](docs/STATUS.md) · [prompts](docs/PROMPTS.md) ·
 [ideas](docs/IDEAS.md) · [workspace layout](docs/WORKSPACE.md).
 
 ## Shooting prototype and local simulation
