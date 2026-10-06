@@ -191,31 +191,39 @@ def movement_duration(action, error, measurement, history):
             # extrapolates dangerously when approaching a nearby object.
             samples.append((1/before-1/after)/duration if action=='forward' and before>0 and after>0
                            else expected_delta/duration)
+    precision = measurement.get('source')=='Bullseye reference matcher' and action in ('left','right')
+    if not samples and precision:
+        try:
+            calibration=json.loads((Path(__file__).resolve().parent/'docs/alignment-calibration.json').read_text())
+            gain=calibration['turn_gain_percent_per_ms'].get(action)
+            if type(gain) in (float,int) and gain>0:samples.append(gain)
+        except (OSError,ValueError,KeyError,TypeError):pass
     if samples:
         current=measurement.get('target_height')
         adjusted_error=(1/current-1/(current+error)) if action=='forward' and type(current) in (int,float) and current>0 else error
         duration = .65*adjusted_error/statistics.median(samples[-4:])
     else:
-        duration = 250 if action=='forward' else 150
+        duration = 250 if action=='forward' else (min(150, max(20,error*10)) if precision else 150)
         recent = [h for h in (history or [])[-2:] if h.get('action')==action]
         if recent:
             duration = max(duration, recent[-1]['duration_ms']*1.7)
     # Crossing the centre needs a smaller reverse correction.
     if history and action in ('left','right') and history[-1].get('action') in ('left','right') and history[-1]['action']!=action:
         duration = min(duration,history[-1]['duration_ms']/2)
-    return round(max(MIN_DURATION_MS,min(MAX_DURATION_MS,duration)))
+    return round(max(20 if precision else MIN_DURATION_MS,min(MAX_DURATION_MS,duration)))
 
 
 
 def alignment_tolerance(plan, measurement):
     """Coarse alignment far away; keep final completion tolerance unchanged."""
+    final_tolerance=1.0 if re.search(r'\bbullseye\b',str(plan.get('target','')),re.I) else CENTER_TOLERANCE
     height=measurement.get('target_height')
     desired=plan.get('height_percent')
     if plan.get('mode') in ('approach_size','find_approach_size') and type(height) in (int,float) and type(desired) in (int,float) and desired>0:
         if height>=desired-HEIGHT_TOLERANCE:
-            return CENTER_TOLERANCE
-        return max(CENTER_TOLERANCE,15-10*min(height/desired,1))
-    return CENTER_TOLERANCE
+            return final_tolerance
+        return max(final_tolerance,15-10*min(height/desired,1))
+    return final_tolerance
 
 
 def control_decision(plan, measurement, history):

@@ -187,3 +187,7 @@ Added the Complete mission dashboard button, using existing find_approach_shoot 
 ## Bullseye target — 2026-10-06
 
 Switched physical buttons and planning to the hand-drawn bullseye. YOLO-World found no boxes for four descriptions on supplied photo/fresh frame. A multi-scale grayscale reference matcher detects the fresh camera target (0.9302 correlation), with zero matches on 42 earlier development frames. Synthetic checks cover three scales, absent target and duplicate-target ambiguity; 81 host tests pass. Reference remains private in vision-output; missing reference blocks operation. Match measures the square, not the stand. Physical acceptance, perspective robustness, elevation and impact verification remain pending.
+
+## Physical Align calibration — 2026-10-06
+
+Browser-run bullseye Align reduced offset from 3.3% left to 0.5% right using 32 ms and 20 ms left corrections; completed in 3 observations. Repeat completed in 1 observation at the same offset without motion. Bullseye final tolerance is now ±1%, with measured left-turn seed and 20 ms minimum precision corrections. 82 host tests pass. Right direction and launcher aim remain uncalibrated. See [calibration](ALIGNMENT_CALIBRATION.md).

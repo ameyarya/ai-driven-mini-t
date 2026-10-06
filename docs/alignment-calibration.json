@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-06",
+  "target": "bullseye",
+  "turn_gain_percent_per_ms": {
+    "left": 0.068
+  },
+  "observations": [
+    {
+      "action": "left",
+      "duration_ms": 50,
+      "x_before_percent": 43.3,
+      "x_after_percent": 46.7
+    },
+    {
+      "action": "left",
+      "duration_ms": 32,
+      "x_before_percent": 46.7,
+      "x_after_percent": 48.75
+    },
+    {
+      "action": "left",
+      "duration_ms": 20,
+      "x_before_percent": 48.75,
+      "x_after_percent": 50.5
+    }
+  ],
+  "limitations": [
+    "Local surface and current speed only",
+    "Right turn gain not measured",
+    "Image alignment, not launcher aiming"
+  ],
+  "result": {
+    "baseline_offset_percent": -3.3,
+    "final_offset_percent": 0.5,
+    "tolerance_percent": 1,
+    "steps": 3,
+    "repeat_steps": 1,
+    "repeat_offset_percent": 0.5,
+    "shots": 0
+  }
+}

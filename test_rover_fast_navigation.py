@@ -18,6 +18,18 @@ def measurement(x=50,height=30,visible=True,clipped=False):
 
 
 class FastNavigationTests(unittest.TestCase):
+    def test_bullseye_precision_alignment_and_small_corrections(self):
+        plan=dict(mode='center',target='bullseye target',height_percent=0,uncertainties=[])
+        m=dict(measurement(x=46.7),source='Bullseye reference matcher')
+        decision=fast.control_decision(plan,m,[])
+        self.assertFalse(decision['goal_achieved'])
+        self.assertEqual(decision['alignment_tolerance_percent'],1)
+        self.assertEqual(decision['suggested_action'],'left')
+        self.assertLess(decision['duration_ms'],50)
+        self.assertTrue(fast.control_decision(plan,dict(m,target_x=50.5),[])['goal_achieved'])
+        self.assertEqual(fast.alignment_tolerance(dict(plan,target='can'),m),5)
+        self.assertEqual(fast.movement_duration('left',1,dict(m,target_x=49),[]),20)
+
     def test_generic_can_and_centering_contract(self):
         from rover_detector import target_description
         for goal in ['Position orange can in center', 'Center the blue can', 'Find the silver can', 'Find the can', 'Find Coca-Cola']:
