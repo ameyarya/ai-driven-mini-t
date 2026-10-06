@@ -64,10 +64,11 @@ header{flex-wrap:wrap;gap:10px}
 #trail-note{margin:10px 0;color:#8295af;font-size:10px}
 .panel{overflow:auto}
 @media(max-height:650px){.telemetry{gap:6px;margin-top:8px;padding-top:8px}#decision{max-height:3em}.hint{font-size:10px}}
+.mission-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 </style></head><body>
 <header><h1>AI-Driven Mini-T</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools" hidden><span id="vision-status" hidden></span></div></header>
 <main><section><div class="camera-views"><div class="camera-pane"><span class="pane-label">Live camera · about 1 second delay</span><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&amp;muted=true&amp;controls=false" title="Live DJI camera video" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera source · checking…</span></div></div><div class="camera-pane exact-input"><span class="pane-label" id="input-stage">Planner / controller input · waiting</span><canvas id="model-canvas" width="640" height="360" aria-label="Exact labeled planner or controller input image"></canvas><div id="model-empty">Start a goal to capture Qwen's first frame</div><span id="frame-age">No frame yet</span></div></div></section>
-<aside class="panel"><label for="nav-goal">Navigation goal</label><input id="nav-goal" maxlength="1000" placeholder="Enter a goal" autocomplete="off"><div class="actions"><button id="auto-start" class="primary" disabled>Start</button><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Top: live camera. Bottom: labeled controller input.<br>Qwen plans; Python adjusts using fresh measurements. Press Stop to cancel.</div>
+<aside class="panel"><h2>Tank actions</h2><div class="mission-actions"><button data-goal="Find the can by turning in place, center it, then stop." disabled>Find</button><button data-goal="Center the can, then stop." disabled>Align</button><button data-goal="Approach the can until it occupies 50% of image height. Keep it centered, then stop." disabled>Approach</button><button data-goal="Center the can, then shoot once and stop." disabled>Shoot</button></div><p class="hint">Find scans and aligns. Approach stops at 50% image height. Shoot aligns, then fires once.</p><div class="actions"><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Top: live camera. Bottom: labeled controller input.<br>Qwen plans; Python adjusts using fresh measurements. Press Stop to cancel.</div>
 <p id="search-note" class="hint" hidden></p>
 <div class="telemetry" aria-live="polite">
 <div><span>Target direction</span><strong id="target-direction">—</strong></div>
@@ -275,7 +276,7 @@ async function pollAuto(){
   if(!response.ok)throw Error('Autonomy server unavailable');
   const state=await response.json();
   autoActive=['observing','moving','settling','firing'].includes(state.state);
-  document.querySelector('#auto-start').disabled=autoActive||!cameraLive;
+  document.querySelectorAll('[data-goal]').forEach(button=>button.disabled=autoActive||startingGoal||!cameraLive);
 
   const progress={idle:'Ready',observing:state.step>1?'Analyzing again':'Analyzing',moving:'Moving',firing:'One shot · recording evidence',settling:'Stopped · waiting for fresh video',complete:'Goal achieved',stopped:'Stopped',error:'Run failed'};
   let line=progress[state.state]||state.state;
@@ -291,17 +292,22 @@ async function pollAuto(){
   if(autoActive)await fetch('/autonomy/heartbeat',{method:'POST',signal:AbortSignal.timeout(3000)});
  }catch(error){document.querySelector('#auto-status').textContent=error.message;}
 }
-document.querySelector('#auto-start').addEventListener('click',async()=>{
- if(!cameraLive){document.querySelector('#auto-status').textContent='Camera offline — restart Mimo';return;}
+let startingGoal=false;
+document.querySelectorAll('[data-goal]').forEach(button=>button.addEventListener('click',async()=>{
+ if(autoActive||startingGoal)return;
+ startingGoal=true;
+ document.querySelectorAll('[data-goal]').forEach(b=>b.disabled=true);
+ if(!cameraLive){document.querySelector('#auto-status').textContent='Camera offline — restart Mimo';startingGoal=false;return;}
  held.clear();wanted='X';fire=0;aim=0;
  while(busy)await new Promise(resolve=>setTimeout(resolve,30));
  last=state();
  try{
-  const response=await fetch('/autonomy/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:document.querySelector('#nav-goal').value}),signal:AbortSignal.timeout(5000)});
+  const response=await fetch('/autonomy/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:button.dataset.goal}),signal:AbortSignal.timeout(5000)});
   if(!response.ok)throw Error(await response.text());
   autoActive=true;await pollAuto();
  }catch(error){document.querySelector('#auto-status').textContent=error.message;}
-});
+ finally{startingGoal=false;document.querySelectorAll('[data-goal]').forEach(b=>b.disabled=autoActive||!cameraLive);}
+}));
 document.querySelector('#auto-stop').addEventListener('click',()=>{stopAuto();held.clear();wanted='X';fire=0;aim=0;last=state();});
 
 async function pollCamera(){
@@ -313,7 +319,7 @@ async function pollCamera(){
  const badge=document.querySelector('#camera-status');
  badge.textContent=cameraLive?'● Camera source live':'● Camera source offline';
  badge.style.color=cameraLive?'#91dfb7':'#f3ad87';
- document.querySelector('#auto-start').disabled=autoActive||!cameraLive;
+ document.querySelectorAll('[data-goal]').forEach(button=>button.disabled=autoActive||startingGoal||!cameraLive);
 
 }
 let polling=false;

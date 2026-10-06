@@ -223,9 +223,9 @@ a different key does not reconnect an already configured receiver.
 
 Open **http://localhost:8000**.
 
-### 5. Start a navigation goal
+### 5. Choose a tank action
 
-Can missions use generic **can** detection, ignoring color words. For point-and-shoot, enter: “Find the can, center it, then shoot once and stop.” Multiple detected cans cause an ambiguity stop; physical aiming and hit confirmation remain unvalidated.
+Can missions use generic **can** detection, ignoring color words. The dashboard has Find, Align, Approach and Shoot buttons plus Stop. Find searches and centers; Align centers a visible can; Approach keeps it centered until 50% image height; Shoot aligns a visible can and fires once. Multiple detected cans cause an ambiguity stop; physical aiming and hit confirmation remain unvalidated.
 
 The top pane shows live video (about one second of delay). The bottom pane
 shows the exact labeled planner or controller input, verified by SHA-256.
@@ -280,7 +280,7 @@ python3 rover_vision.py --goal "Find a clear path ahead."
 and find-and-center corrections (October 2, 2026). Exact 360° coverage remains
 uncalibrated; this confirms the search-and-center behavior, not heading accuracy.
 
-Enter **“Find the can by doing 360 turn in place”** and press Start.
+Enter **“Find the can by doing 360 turn in place”** using the Find action.
 Qwen selects the target and search mode once. Python turns right in 250 ms
 pulses, stops, waits for fresh video, and checks the detector. It switches from searching to
 centering as soon as a candidate appears. Success requires a fully visible,

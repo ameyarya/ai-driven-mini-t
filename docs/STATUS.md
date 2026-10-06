@@ -175,3 +175,7 @@ Offline comparison on 35 saved frames found `can` detects the latest-placement t
 ## Runtime target switched to can — 2026-10-06
 
 Detector vocabulary, warm-up class and production planner target now use `can`, based on the saved-image comparison. Confidence remains 0.10; multiple candidates still stop as ambiguous. 80 host regressions pass. Physical retest pending.
+
+## Dashboard actions — 2026-10-06
+
+Replaced the physical dashboard prompt box with Find, Align, Approach and Shoot plus Stop. Reuses existing validated goal/controller routes; Approach has a displayed 50% image-height setpoint and Shoot performs alignment then one bounded fire command. Browser verified all four buttons and no text field; no physical commands executed for this UI verification.

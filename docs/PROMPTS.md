@@ -62,3 +62,7 @@ See [obstacle avoidance](OBSTACLE_AVOIDANCE.md).
 Find the can, center it, then shoot once and stop.
 
 Can detection ignores color. This mission searches and aligns without approaching, then issues one fire command. It does not automatically adjust launcher elevation or confirm a physical hit.
+
+## Dashboard action buttons
+
+The physical dashboard replaces free text with Find, Align, Approach and Shoot. Each starts a separate mission and stops afterward. Find searches and centers, Align centers a visible can, Approach aligns and reaches 50% image height, Shoot aligns and fires once. Stop cancels. Buttons are disabled during a mission or camera outage; arrow keys remain available while idle.
