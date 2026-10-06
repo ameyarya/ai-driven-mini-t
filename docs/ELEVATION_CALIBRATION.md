@@ -24,3 +24,15 @@ the reference. Servo timing drift and backlash remain unmeasured. Height moves
 are bounded to ±600 ms from reference, in chunks up to 100 ms.
 
 No physical shots were fired to implement this simplified workflow.
+
+## Physical bullseye standoff update
+
+Physical Approach now targets 20% image height; goals above 20% are rejected,
+forward pulses are capped at 250 ms, and observations at 25% or larger stop
+all physical bullseye missions. These limits are image-size proxies for this
+stand, not calibrated centimeters or general obstacle avoidance. A shooting
+setup must be saved at 20% or less. Complete mission requires the saved setup.
+The former 50% physical approach was too close in a real browser test and was
+stopped without firing. Historical can/simulation setpoints remain unchanged.
+
+The setup dialog groups reference, adjustment, test/save and enabling into four steps. Height pulse timing changes elevation; the separate 350 ms firing pulse remains unchanged. Testing firing duration against range is future work and should hold height and distance constant.

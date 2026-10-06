@@ -80,3 +80,18 @@ The physical action buttons now substitute **bullseye** for can in the above mis
 ## Shoot with calibrated height
 
 Shoot also selects vertical height when auto aim is enabled in Launcher height calibration. It requires a confirmed reference and successful samples; unsupported target sizes stop without firing. Test shot uses the current manually nudged height with auto aim off. See [calibration workflow](ELEVATION_CALIBRATION.md).
+
+## Physical bullseye standoff update
+
+Physical Approach now targets 20% image height; goals above 20% are rejected,
+forward pulses are capped at 250 ms, and observations at 25% or larger stop
+all physical bullseye missions. These limits are image-size proxies for this
+stand, not calibrated centimeters or general obstacle avoidance. A shooting
+setup must be saved at 20% or less. Complete mission requires the saved setup.
+The former 50% physical approach was too close in a real browser test and was
+stopped without firing. Historical can/simulation setpoints remain unchanged.
+
+Current physical UI: **Aim & shoot** uses a saved, user-confirmed successful
+shooting setup (20% image height or less), approaches that size, restores timed
+launcher height and fires once. Without a setup it stays disabled. **Test shot**
+only aligns horizontally and fires at the selected height, without approaching.

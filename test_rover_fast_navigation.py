@@ -20,7 +20,7 @@ def measurement(x=50,height=30,visible=True,clipped=False):
 class FastNavigationTests(unittest.TestCase):
     def test_bullseye_precision_alignment_and_small_corrections(self):
         plan=dict(mode='center',target='bullseye target',height_percent=0,uncertainties=[])
-        m=dict(measurement(x=46.7),source='Bullseye reference matcher')
+        m=dict(measurement(x=46.7,height=15),source='Bullseye reference matcher')
         decision=fast.control_decision(plan,m,[])
         self.assertFalse(decision['goal_achieved'])
         self.assertEqual(decision['alignment_tolerance_percent'],1)
@@ -29,6 +29,25 @@ class FastNavigationTests(unittest.TestCase):
         self.assertTrue(fast.control_decision(plan,dict(m,target_x=50.5),[])['goal_achieved'])
         self.assertEqual(fast.alignment_tolerance(dict(plan,target='can'),m),5)
         self.assertEqual(fast.movement_duration('left',1,dict(m,target_x=49),[]),20)
+
+    def test_planner_prompt_treats_valid_measurements_as_facts(self):
+        request=fast.planner_request('Center the bullseye, then stop.',b'image',dict(measurement(x=62.5),candidate_count=1,target_confidence=.997))
+        prompt=request['messages'][0]['content']
+        self.assertIn('Never list measurement field names',prompt)
+        self.assertIn('x=62.5% is right of center',prompt)
+        self.assertEqual(request['format']['properties']['mode']['enum'],['center','unsupported'])
+        approach=fast.planner_request('Approach the bullseye until it occupies 50% of image height.',b'image',measurement(height=11.4))
+        self.assertEqual(approach['format']['properties']['height_percent']['enum'],[50])
+
+    def test_physical_bullseye_standoff_blocks_close_target_and_large_setpoint(self):
+        plan=dict(mode='approach_size',target='bullseye target',height_percent=20,uncertainties=[])
+        m=dict(measurement(height=26),source='Bullseye reference matcher')
+        self.assertEqual(fast.control_decision(plan,m,[])['suggested_action'],'stop')
+        self.assertTrue(fast.control_decision(plan,m,[])['uncertainties'])
+        m['target_height']=12
+        self.assertEqual(fast.control_decision(dict(plan,height_percent=50),m,[])['suggested_action'],'stop')
+        self.assertLessEqual(fast.control_decision(plan,m,[])['duration_ms'],250)
+        self.assertEqual(fast.control_decision(dict(plan,mode='shoot'),dict(m,target_height=26),[])['suggested_action'],'stop')
 
     def test_generic_can_and_centering_contract(self):
         from rover_detector import target_description

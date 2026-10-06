@@ -347,7 +347,8 @@ class Handler(BaseHTTPRequestHandler):
                     if request.get('shooting_setup') is True:
                         saved=elevation.snapshot()
                         if not saved['enabled'] or not saved['preset']:raise ValueError('Confirm reference and save a successful shooting setup first')
-                        goal=f"Approach the bullseye until it occupies {saved['preset']['height_percent']}% of image height. Keep it centered, then shoot once and stop."
+                        prefix='Find the bullseye by turning in place, then approach' if request.get('search') is True else 'Approach'
+                        goal=f"{prefix} the bullseye until it occupies {saved['preset']['height_percent']}% of image height. Keep it centered, then shoot once and stop."
                     autonomy.start(goal)
                 elif path == '/autonomy/stop':
                     autonomy.cancel()

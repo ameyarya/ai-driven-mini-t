@@ -201,3 +201,31 @@ User-authorized browser trial started 31.8% left, Align completed at 0.5% right,
 Added reference confirmation, bounded Up/Down nudges, one calibration shot, user-confirmed successful samples, reload acknowledgment and remaining-attempt display. Superseded by the one-distance shooting setup below; multi-distance interpolation has been removed. Samples persist privately; startup and manual elevation invalidate reference assumptions. 89 host tests pass; browser controls verified without firing. Physical auto-elevation validation still requires user-collected samples. See [workflow](ELEVATION_CALIBRATION.md).
 
 - Shooting setup simplified to one confirmed hit: Aim & shoot approaches the saved image size, restores launcher height, fires once and pauses for human confirmation. Physical acceptance pending.
+
+## Physical bullseye standoff update
+
+Physical Approach now targets 20% image height; goals above 20% are rejected,
+forward pulses are capped at 250 ms, and observations at 25% or larger stop
+all physical bullseye missions. These limits are image-size proxies for this
+stand, not calibrated centimeters or general obstacle avoidance. A shooting
+setup must be saved at 20% or less. Complete mission requires the saved setup.
+The former 50% physical approach was too close in a real browser test and was
+stopped without firing. Historical can/simulation setpoints remain unchanged.
+
+## Browser hardware verification — 2026-10-06
+
+- Align passed in 2 observations, ending 0.6% right of center (±1% tolerance).
+- Reproduced Qwen listing measurement field names as uncertainties, and using
+  current target height (11.4%) instead of the requested 50%. Prompt clarification
+  and a single-valued setpoint enum passed saved-image inference checks.
+- Old 50% approach brought the tank too close and was stopped. User moved it back.
+  New physical standoff limits are regression tested; no further approach run yet.
+- One authorized shot from 13.3% target height completed in 3 observations, with
+  horizontal alignment only. Recorded target remained upright: no confirmed hit.
+  One automatic attempt remains after a second test with +50 ms elevation. Both recorded targets remained upright; the first shot passed below according to the user, and the second flight could not be determined. No successful shooting setup saved.
+- Fixed polling that re-enabled uncalibrated shooting buttons, stale decisions
+  after planner failure, and misleading fire duration/action labels.
+- 91 host tests and 20 simulation tests pass. Find/360 was not run because the
+  camera is wired. Successful automatic elevation acceptance remains pending.
+
+Shooting setup now opens in a wider dialog with four spaced steps, a status strip, and separate reload controls. Browser rendering verified. Final attempt left unused because the second projectile trajectory was unclear.

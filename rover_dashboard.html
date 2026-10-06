@@ -66,10 +66,21 @@ header{flex-wrap:wrap;gap:10px}
 @media(max-height:650px){.telemetry{gap:6px;margin-top:8px;padding-top:8px}#decision{max-height:3em}.hint{font-size:10px}}
 .complete-mission{grid-column:1/-1}
 .mission-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+/* The setup is a focused, spaced dialog instead of a narrow button pile. */
+#shooting-setup[open]{position:fixed;inset:auto;top:50%;left:50%;transform:translate(-50%,-50%);width:min(460px,calc(100vw - 32px));max-height:calc(100dvh - 32px);padding:18px;box-shadow:0 0 0 100vmax #0009;z-index:5}
+.setup-status{padding:9px 11px;background:#101722;border-radius:8px;font-size:12px;line-height:1.5;color:#91dfb7;margin:4px 0 12px}
+.setup-step{border-top:1px solid #354154;padding:10px 0}
+.setup-step h3{font-size:13px;margin:0 0 8px}
+.setup-step p{font-size:11px;line-height:1.45;color:#9caec5;margin:7px 0 0}
+.setup-step>button{width:100%;margin-top:8px}
+.setup-buttons{display:grid;gap:8px}
+.setup-reload{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid #354154;font-size:12px;color:#9caec5}
+button:disabled{cursor:not-allowed}
+@media(max-height:650px){#shooting-setup[open]{padding:12px}.setup-step{padding:7px 0}.setup-step p{font-size:10px}.setup-step button{padding:7px 10px}}
 </style></head><body>
 <header><h1>AI-Driven Mini-T</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools" hidden><span id="vision-status" hidden></span></div></header>
 <main><section><div class="camera-views"><div class="camera-pane"><span class="pane-label">Live camera · about 1 second delay</span><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&amp;muted=true&amp;controls=false" title="Live DJI camera video" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera source · checking…</span></div></div><div class="camera-pane exact-input"><span class="pane-label" id="input-stage">Planner / controller input · waiting</span><canvas id="model-canvas" width="640" height="360" aria-label="Exact labeled planner or controller input image"></canvas><div id="model-empty">Start a goal to capture Qwen's first frame</div><span id="frame-age">No frame yet</span></div></div></section>
-<aside class="panel"><h2>Tank actions</h2><p class="hint">Target: bullseye on the stand</p><div class="mission-actions"><button data-goal="Find the bullseye by turning in place, center it, then stop." disabled>Find</button><button data-goal="Center the bullseye, then stop." disabled>Align</button><button data-goal="Approach the bullseye until it occupies 50% of image height. Keep it centered, then stop." disabled>Approach</button><button data-goal="Center the bullseye, then shoot once and stop." id="aim-shoot" disabled>Aim &amp; shoot</button><button class="primary complete-mission" data-goal="Find the bullseye by turning in place, then approach until it occupies 50% of image height. Keep it centered, then shoot once and stop." disabled>Complete mission</button></div><p class="hint">Find scans and aligns. Approach stops at 50% image height. Aim &amp; shoot approaches the saved distance, restores height and fires once. Complete mission finds, approaches, aligns and fires once.</p><div class="actions"><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Top: live camera. Bottom: labeled controller input.<br>Qwen plans; Python adjusts using fresh measurements. Press Stop to cancel.</div>
+<aside class="panel"><h2>Tank actions</h2><p class="hint">Target: bullseye on the stand</p><div class="mission-actions"><button data-goal="Find the bullseye by turning in place, center it, then stop." disabled>Find</button><button data-goal="Center the bullseye, then stop." disabled>Align</button><button data-goal="Approach the bullseye until it occupies 20% of image height. Keep it centered, then stop." disabled>Approach</button><button data-goal="Center the bullseye, then shoot once and stop." id="aim-shoot" disabled>Aim &amp; shoot</button><button id="complete-mission" class="primary complete-mission" data-goal="Find the bullseye by turning in place, then approach until it occupies 20% of image height. Keep it centered, then shoot once and stop." disabled>Complete mission</button></div><p class="hint">Find scans and aligns. Approach stops at 20% image height. Aim &amp; shoot approaches the saved distance, restores height and fires once. Complete mission adds a search to the saved shooting setup.</p><div class="actions"><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Top: live camera. Bottom: labeled controller input.<br>Qwen plans; Python adjusts using fresh measurements. Press Stop to cancel.</div>
 <p id="search-note" class="hint" hidden></p>
 <div class="telemetry" aria-live="polite">
 <div><span>Target direction</span><strong id="target-direction">—</strong></div>
@@ -79,7 +90,14 @@ header{flex-wrap:wrap;gap:10px}
 <div><span>Next movement</span><strong id="target-move">—</strong></div>
 <div><span>Inference</span><strong id="model-latency">—</strong></div>
 </div><p id="trail-note">Grid: image coordinates. Trail: target position over recent frames, not the rover's physical path.</p>
-<details><summary>Shooting setup</summary><p class="hint">Physically restore the same reference height before confirming. Offsets are timed movements, not measured angles.</p><button id="height-reference">Confirm reference height</button><div class="actions"><button id="height-up">Up · 50 ms</button><button id="height-down">Down · 50 ms</button></div><button data-goal="Center the bullseye, then shoot once and stop." id="height-test">Test shot at current height</button><button id="height-hit">Save successful shooting setup</button><div class="actions"><button id="height-enable">Use saved setup</button><button id="height-disable">Disable</button></div><button id="shots-reload">I reloaded six projectiles</button><p id="height-status" class="hint" role="status">Loading calibration…</p></details>
+<details id="shooting-setup"><summary>Shooting setup</summary>
+<p id="height-status" class="setup-status" role="status">Loading setup…</p>
+<div class="setup-step"><h3>1 · Set the starting height</h3><p>Restore your repeatable reference position. Confirming does not move the launcher.</p><button id="height-reference">Confirm reference height</button></div>
+<div class="setup-step"><h3>2 · Adjust the aim</h3><div class="actions"><button id="height-up" disabled>↑ Up · 50 ms</button><button id="height-down" disabled>↓ Down · 50 ms</button></div><p>These controls change height, not firing power.</p></div>
+<div class="setup-step"><h3>3 · Test and save a hit</h3><div class="setup-buttons"><button class="primary" data-goal="Center the bullseye, then shoot once and stop." id="height-test" disabled>Test shot at current height</button><button id="height-hit" disabled>Save successful shooting setup</button></div><p>Test aligns and fires once without approaching. Save only after the projectile knocks the target down.</p></div>
+<div class="setup-step"><h3>4 · Use the saved setup</h3><div class="actions"><button id="height-enable" disabled>Use saved setup</button><button id="height-disable">Disable</button></div></div>
+<div class="setup-reload"><span>Reload</span><button id="shots-reload">I reloaded six projectiles</button></div>
+</details>
 <details><summary>Model perception data</summary><pre id="perception-json">No result yet.</pre></details>
 <div class="manual" hidden><h2>Manual control</h2><div class="g"><span></span><button data-key="W" aria-label="Forward">↑</button><span></span><button data-key="A" aria-label="Left">←</button><span></span><button data-key="D" aria-label="Right">→</button><span></span><button data-key="S" aria-label="Backward">↓</button><span></span></div><div class="hint">Hold arrow keys to drive. Release to stop.</div><div id="status" role="status">Stopped</div></div>
 
@@ -245,7 +263,7 @@ function updateModelMetrics(r){
   document.querySelector('#target-offset').textContent=Number.isFinite(x)?Math.abs(x-50).toFixed(1)+'% '+(x<50?'left':x>50?'right':''):'—';
   document.querySelector('#target-tolerance').textContent=Number.isFinite(a.alignment_tolerance_percent)?'±'+a.alignment_tolerance_percent.toFixed(1)+'%':'—';
   document.querySelector('#target-height').textContent=Number.isFinite(height)?height.toFixed(1)+'%'+(a.target_clipped?' · clipped':''):'Not measured';
-  document.querySelector('#target-move').textContent=String(a.suggested_action||'Analyzing').toUpperCase()+(a.suggested_action!=='stop'&&Number.isFinite(a.duration_ms)?' · '+a.duration_ms+' ms':'');
+  document.querySelector('#target-move').textContent=String(a.suggested_action||'Analyzing').toUpperCase()+(!['stop','fire'].includes(a.suggested_action)&&Number.isFinite(a.duration_ms)?' · '+a.duration_ms+' ms':'');
   document.querySelector('#model-latency').textContent=r.input_role==='controller'?'No Qwen call · '+r.observation_seconds+'s observation':Number.isFinite(r.inference_seconds)?r.inference_seconds+'s':'Analyzing';
   document.querySelector('#perception-json').textContent=JSON.stringify({assessment:a,prompt_eval_ms:r.prompt_eval_ms,eval_ms:r.eval_ms},null,2);
 }
@@ -278,7 +296,7 @@ async function pollAuto(){
   if(!response.ok)throw Error('Autonomy server unavailable');
   const state=await response.json();
   autoActive=['observing','moving','settling','firing'].includes(state.state);
-  document.querySelectorAll('[data-goal]').forEach(button=>button.disabled=autoActive||startingGoal||!cameraLive);
+  updateGoalButtons();
 
   const progress={idle:'Ready',observing:state.step>1?'Analyzing again':'Analyzing',moving:'Moving',firing:'One shot · recording evidence',settling:'Stopped · waiting for fresh video',complete:'Goal achieved',stopped:'Stopped',error:'Run failed'};
   let line=progress[state.state]||state.state;
@@ -291,17 +309,30 @@ async function pollAuto(){
   searchNote.hidden=!['find','find_approach_size'].includes(state.plan?.mode);
   if(!searchNote.hidden)searchNote.textContent=(state.plan.mode==='find_approach_size'?'Search → center → approach '+state.plan.height_percent+'% · ':'Search in place · ')+(state.plan.search_direction||'right')+' · '+(state.plan.full_turn_ms?'timed 360° estimate':'360° not calibrated; bounded search');
   if(state.result)showAutoResult(state.result);
+  else if(state.state==='error')document.querySelector('#decision').textContent='No movement — planning failed';
+  if(['complete','stopped','error','idle'].includes(state.state)){
+   document.querySelector('#target-move').textContent='STOP';
+   if(state.shot)document.querySelector('#decision').textContent='Shot sequence finished — target knockdown not confirmed';
+  }
   if(autoActive)await fetch('/autonomy/heartbeat',{method:'POST',signal:AbortSignal.timeout(3000)});
  }catch(error){document.querySelector('#auto-status').textContent=error.message;}
 }
-let heightShotId=null, heightError='';
+let heightShotId=null, heightError='', heightState=null;
+function updateGoalButtons(){
+ document.querySelectorAll('[data-goal]').forEach(b=>{
+  b.disabled=autoActive||startingGoal||!cameraLive;
+  if(['aim-shoot','complete-mission'].includes(b.id))b.disabled ||= !heightState?.enabled||!heightState?.preset;
+  if(b.id==='height-test')b.disabled ||= !heightState?.reference_confirmed||heightState?.enabled;
+ });
+}
 async function pollHeight(){
  try{
   const r=await fetch('/elevation/status',{cache:'no-store'});if(!r.ok)throw Error(await r.text());
-  const h=await r.json();heightShotId=h.last_shot_id;
+  const h=await r.json();heightState=h;heightShotId=h.last_shot_id;
   const shoot=document.getElementById('aim-shoot');
   shoot.dataset.goal=h.preset?`Approach the bullseye until it occupies ${h.preset.height_percent}% of image height. Keep it centered, then shoot once and stop.`:'';
   shoot.dataset.ready=String(h.enabled&&!!h.preset);
+  document.getElementById('complete-mission').dataset.ready=shoot.dataset.ready;
   document.querySelector('#height-status').textContent=(heightError?heightError+' · ':'')+(h.enabled?'Auto aim enabled':'Auto aim off')+' · '+(h.reference_confirmed?('Height offset '+h.position_ms+' ms'):'Reference not confirmed')+' · '+h.points.length+' saved hits · '+h.remaining+' attempts left';
   ['height-reference','height-up','height-down','height-test','height-hit','height-enable','height-disable','shots-reload'].forEach(id=>document.getElementById(id).disabled=autoActive||startingGoal);
   if(!autoActive&&!startingGoal){
@@ -311,6 +342,7 @@ async function pollHeight(){
    document.getElementById('height-hit').disabled=!heightShotId;
    document.getElementById('height-enable').disabled=!h.reference_confirmed||!h.preset;
   }
+  updateGoalButtons();
  }catch(e){document.querySelector('#height-status').textContent=e.message;}
 }
 async function heightAction(action,body={}){
@@ -333,7 +365,7 @@ setInterval(pollHeight,3000);
 let startingGoal=false;
 document.querySelectorAll('[data-goal]').forEach(button=>button.addEventListener('click',async()=>{
  if(autoActive||startingGoal)return;
- if(button.id==='aim-shoot'&&button.dataset.ready!=='true'){document.querySelector('#auto-status').textContent='Save a successful shooting setup and confirm the reference height first';return;}
+ if(['aim-shoot','complete-mission'].includes(button.id)&&button.dataset.ready!=='true'){document.querySelector('#auto-status').textContent='Save a successful shooting setup and confirm the reference height first';return;}
  startingGoal=true;
  document.querySelectorAll('[data-goal]').forEach(b=>b.disabled=true);
  if(!cameraLive){document.querySelector('#auto-status').textContent='Camera offline — restart Mimo';startingGoal=false;return;}
@@ -341,11 +373,11 @@ document.querySelectorAll('[data-goal]').forEach(button=>button.addEventListener
  while(busy)await new Promise(resolve=>setTimeout(resolve,30));
  last=state();
  try{
-  const response=await fetch('/autonomy/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:button.dataset.goal,shooting_setup:button.id==='aim-shoot'}),signal:AbortSignal.timeout(5000)});
+  const response=await fetch('/autonomy/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:button.dataset.goal,shooting_setup:['aim-shoot','complete-mission'].includes(button.id),search:button.id==='complete-mission'}),signal:AbortSignal.timeout(5000)});
   if(!response.ok)throw Error(await response.text());
   autoActive=true;await pollAuto();
  }catch(error){document.querySelector('#auto-status').textContent=error.message;}
- finally{startingGoal=false;document.querySelectorAll('[data-goal]').forEach(b=>b.disabled=autoActive||!cameraLive);}
+ finally{startingGoal=false;updateGoalButtons();}
 }));
 document.querySelector('#auto-stop').addEventListener('click',()=>{stopAuto();held.clear();wanted='X';fire=0;aim=0;last=state();});
 
@@ -358,7 +390,7 @@ async function pollCamera(){
  const badge=document.querySelector('#camera-status');
  badge.textContent=cameraLive?'● Camera source live':'● Camera source offline';
  badge.style.color=cameraLive?'#91dfb7':'#f3ad87';
- document.querySelectorAll('[data-goal]').forEach(button=>button.disabled=autoActive||startingGoal||!cameraLive);
+ updateGoalButtons();
 
 }
 let polling=false;
@@ -367,5 +399,5 @@ async function refreshStatus(){
  try{await pollCamera();await pollModelInput();await pollAuto();if(!autoActive)await pollVision();}
  finally{polling=false;}
 }
-setInterval(refreshStatus,1000);refreshStatus();
+setInterval(refreshStatus,1000);refreshStatus();pollHeight();
 </script></body></html>

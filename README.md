@@ -432,3 +432,13 @@ First physical bullseye shot: [31.8% offset → alignment → target visibly fal
 Open **Shooting setup** to confirm a repeatable reference, adjust Up/Down, test one shot and save a confirmed hit. **Aim & shoot** approaches the saved target image size, restores that launcher offset and fires once. Actual angles are not sensed. [Workflow and limits](docs/ELEVATION_CALIBRATION.md).
 
 - Shooting setup simplified to one confirmed hit: Aim & shoot approaches the saved image size, restores launcher height, fires once and pauses for human confirmation. Physical acceptance pending.
+
+## Physical bullseye standoff update
+
+Physical Approach now targets 20% image height; goals above 20% are rejected,
+forward pulses are capped at 250 ms, and observations at 25% or larger stop
+all physical bullseye missions. These limits are image-size proxies for this
+stand, not calibrated centimeters or general obstacle avoidance. A shooting
+setup must be saved at 20% or less. Complete mission requires the saved setup.
+The former 50% physical approach was too close in a real browser test and was
+stopped without firing. Historical can/simulation setpoints remain unchanged.
