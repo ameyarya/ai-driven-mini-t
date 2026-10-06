@@ -416,3 +416,5 @@ locked MicroPython firmware and preserve original receiver files before changes.
 - [Qwen3-VL models on Ollama](https://ollama.com/library/qwen3-vl)
 - [MediaMTX](https://github.com/bluenviron/mediamtx)
 - [LLM Vision](https://llmvision.org/) — saved inspiration; Home Assistant integration, not a current dependency.
+
+Saved-image detector comparison: [four color-free descriptions](docs/COLOR_FREE_DETECTOR.md), with per-frame evidence and threshold tradeoffs.

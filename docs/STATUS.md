@@ -167,3 +167,7 @@ Supersedes the color-specific update above: detector classes and planner targets
 ## Repository-wide generic target cleanup — 2026-10-06
 
 All active examples, training generators, simulation missions and test targets now omit can color. Historical result prompt wording is normalized for readability; previous timings/outcomes were not rerun and do not establish generic detection reliability. Existing archived media and private trained weights retain their original content. The detector uses open-vocabulary soda-can detection, not a color filter; all-color physical reliability is unverified.
+
+## Color-free detector comparison — 2026-10-06
+
+Offline comparison on 35 saved frames found `can` detects the latest-placement target in 6/6 frames while `soda can`, `beverage can` and `aluminum can` detect none in that six-frame group. Two `can` frames have extra low-score background candidates. Filtering at 0.20 removes those but loses one historical candidate-bearing frame. No runtime changes or physical commands; see [comparison](COLOR_FREE_DETECTOR.md).

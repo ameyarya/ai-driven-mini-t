@@ -1,0 +1,1333 @@
+{
+  "date": "2026-10-06",
+  "offline_only": true,
+  "frames": 35,
+  "recent_frames": 25,
+  "historical_frames": 10,
+  "known_absent_frames": 3,
+  "latest_placement_frames": 6,
+  "limitations": [
+    "Correlated development images, not a held-out accuracy benchmark",
+    "Candidate counts are not accuracy",
+    "Only representative boxes visually inspected",
+    "No runtime setting changes or hardware commands"
+  ],
+  "reports": [
+    {
+      "model": "tools/yolov8s-worldv2.pt",
+      "prompt": "can",
+      "device": "mps",
+      "confidence_threshold": 0.1,
+      "imgsz": 640,
+      "torch": "2.14.1",
+      "ultralytics": "8.4.171",
+      "setup_seconds": 2.029,
+      "warmup_seconds": 3.659,
+      "frames": 35,
+      "frames_with_detection": 11,
+      "median_seconds": 0.0191,
+      "p95_seconds": 0.0206,
+      "results": [
+        {
+          "frame": "frame-20261006-113309-676030000.jpg",
+          "seconds": 0.0193,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114036-760145000.jpg",
+          "seconds": 0.0189,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114053-341979000.jpg",
+          "seconds": 0.018,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114055-548923000.jpg",
+          "seconds": 0.0192,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114106-670668000.jpg",
+          "seconds": 0.0197,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114108-442589000.jpg",
+          "seconds": 0.0191,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114119-579929000.jpg",
+          "seconds": 0.0183,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114342-488886000.jpg",
+          "seconds": 0.0194,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114353-689611000.jpg",
+          "seconds": 0.019,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114355-516533000.jpg",
+          "seconds": 0.0192,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114407-37141000.jpg",
+          "seconds": 0.0187,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114409-752376000.jpg",
+          "seconds": 0.018,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114420-706731000.jpg",
+          "seconds": 0.0205,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114558-837194000.jpg",
+          "seconds": 0.0182,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114610-610244000.jpg",
+          "seconds": 0.0178,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114612-803653000.jpg",
+          "seconds": 0.0175,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114624-339854000.jpg",
+          "seconds": 0.0177,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114626-783337000.jpg",
+          "seconds": 0.018,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114638-64207000.jpg",
+          "seconds": 0.0173,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114936-377178000.jpg",
+          "seconds": 0.0365,
+          "detections": [
+            {
+              "confidence": 0.574,
+              "bbox_pixels": [
+                302.6,
+                195.52,
+                345.65,
+                273.9
+              ],
+              "bbox_normalized": [
+                473,
+                543,
+                540,
+                761
+              ],
+              "center_x_percent": 50.64,
+              "height_percent": 21.77,
+              "touches_image_edge": false
+            },
+            {
+              "confidence": 0.1091,
+              "bbox_pixels": [
+                225.0,
+                177.33,
+                264.78,
+                218.09
+              ],
+              "bbox_normalized": [
+                352,
+                493,
+                414,
+                606
+              ],
+              "center_x_percent": 38.26,
+              "height_percent": 11.32,
+              "touches_image_edge": false
+            },
+            {
+              "confidence": 0.1005,
+              "bbox_pixels": [
+                225.28,
+                157.33,
+                265.92,
+                218.22
+              ],
+              "bbox_normalized": [
+                352,
+                437,
+                415,
+                606
+              ],
+              "center_x_percent": 38.37,
+              "height_percent": 16.91,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261006-114949-449572000.jpg",
+          "seconds": 0.0389,
+          "detections": [
+            {
+              "confidence": 0.498,
+              "bbox_pixels": [
+                302.76,
+                195.41,
+                345.56,
+                273.94
+              ],
+              "bbox_normalized": [
+                473,
+                543,
+                540,
+                761
+              ],
+              "center_x_percent": 50.65,
+              "height_percent": 21.81,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261006-114951-995921000.jpg",
+          "seconds": 0.0206,
+          "detections": [
+            {
+              "confidence": 0.5559,
+              "bbox_pixels": [
+                302.6,
+                195.59,
+                345.62,
+                273.85
+              ],
+              "bbox_normalized": [
+                473,
+                543,
+                540,
+                761
+              ],
+              "center_x_percent": 50.64,
+              "height_percent": 21.74,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261006-115003-254794000.jpg",
+          "seconds": 0.0192,
+          "detections": [
+            {
+              "confidence": 0.5322,
+              "bbox_pixels": [
+                302.71,
+                195.59,
+                345.6,
+                273.8
+              ],
+              "bbox_normalized": [
+                473,
+                543,
+                540,
+                761
+              ],
+              "center_x_percent": 50.65,
+              "height_percent": 21.73,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261006-115004-961781000.jpg",
+          "seconds": 0.0189,
+          "detections": [
+            {
+              "confidence": 0.563,
+              "bbox_pixels": [
+                302.57,
+                195.69,
+                345.6,
+                273.66
+              ],
+              "bbox_normalized": [
+                473,
+                544,
+                540,
+                760
+              ],
+              "center_x_percent": 50.64,
+              "height_percent": 21.66,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261006-115016-67795000.jpg",
+          "seconds": 0.0193,
+          "detections": [
+            {
+              "confidence": 0.4975,
+              "bbox_pixels": [
+                302.85,
+                195.57,
+                345.51,
+                273.96
+              ],
+              "bbox_normalized": [
+                473,
+                543,
+                540,
+                761
+              ],
+              "center_x_percent": 50.65,
+              "height_percent": 21.77,
+              "touches_image_edge": false
+            },
+            {
+              "confidence": 0.1766,
+              "bbox_pixels": [
+                224.94,
+                177.18,
+                265.2,
+                217.93
+              ],
+              "bbox_normalized": [
+                351,
+                492,
+                414,
+                605
+              ],
+              "center_x_percent": 38.29,
+              "height_percent": 11.32,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261001-183746.jpg",
+          "seconds": 0.0182,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-192642.jpg",
+          "seconds": 0.0188,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-201426.jpg",
+          "seconds": 0.019,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-184553.jpg",
+          "seconds": 0.0199,
+          "detections": [
+            {
+              "confidence": 0.8666,
+              "bbox_pixels": [
+                299.16,
+                168.43,
+                367.36,
+                300.49
+              ],
+              "bbox_normalized": [
+                467,
+                468,
+                574,
+                835
+              ],
+              "center_x_percent": 52.07,
+              "height_percent": 36.68,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261001-194614.jpg",
+          "seconds": 0.0191,
+          "detections": [
+            {
+              "confidence": 0.2808,
+              "bbox_pixels": [
+                236.29,
+                125.0,
+                349.63,
+                351.65
+              ],
+              "bbox_normalized": [
+                369,
+                347,
+                546,
+                977
+              ],
+              "center_x_percent": 45.78,
+              "height_percent": 62.96,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261001-194745.jpg",
+          "seconds": 0.0205,
+          "detections": [
+            {
+              "confidence": 0.6838,
+              "bbox_pixels": [
+                154.69,
+                120.67,
+                282.25,
+                360.0
+              ],
+              "bbox_normalized": [
+                242,
+                335,
+                441,
+                1000
+              ],
+              "center_x_percent": 34.14,
+              "height_percent": 66.48,
+              "touches_image_edge": true
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261001-201408.jpg",
+          "seconds": 0.0195,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261002-164253.jpg",
+          "seconds": 0.0204,
+          "detections": [
+            {
+              "confidence": 0.2571,
+              "bbox_pixels": [
+                213.17,
+                163.06,
+                284.16,
+                300.23
+              ],
+              "bbox_normalized": [
+                333,
+                453,
+                444,
+                834
+              ],
+              "center_x_percent": 38.85,
+              "height_percent": 38.1,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261002-165028.jpg",
+          "seconds": 0.0187,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261002-171532.jpg",
+          "seconds": 0.0202,
+          "detections": [
+            {
+              "confidence": 0.1104,
+              "bbox_pixels": [
+                224.32,
+                167.76,
+                288.15,
+                291.27
+              ],
+              "bbox_normalized": [
+                351,
+                466,
+                450,
+                809
+              ],
+              "center_x_percent": 40.04,
+              "height_percent": 34.31,
+              "touches_image_edge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "model": "tools/yolov8s-worldv2.pt",
+      "prompt": "soda can",
+      "device": "mps",
+      "confidence_threshold": 0.1,
+      "imgsz": 640,
+      "torch": "2.14.1",
+      "ultralytics": "8.4.171",
+      "setup_seconds": 1.699,
+      "warmup_seconds": 0.449,
+      "frames": 35,
+      "frames_with_detection": 4,
+      "median_seconds": 0.0178,
+      "p95_seconds": 0.0192,
+      "results": [
+        {
+          "frame": "frame-20261006-113309-676030000.jpg",
+          "seconds": 0.0192,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114036-760145000.jpg",
+          "seconds": 0.018,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114053-341979000.jpg",
+          "seconds": 0.018,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114055-548923000.jpg",
+          "seconds": 0.018,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114106-670668000.jpg",
+          "seconds": 0.0175,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114108-442589000.jpg",
+          "seconds": 0.018,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114119-579929000.jpg",
+          "seconds": 0.0174,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114342-488886000.jpg",
+          "seconds": 0.0172,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114353-689611000.jpg",
+          "seconds": 0.0173,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114355-516533000.jpg",
+          "seconds": 0.0174,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114407-37141000.jpg",
+          "seconds": 0.0171,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114409-752376000.jpg",
+          "seconds": 0.0173,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114420-706731000.jpg",
+          "seconds": 0.0175,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114558-837194000.jpg",
+          "seconds": 0.0178,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114610-610244000.jpg",
+          "seconds": 0.0175,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114612-803653000.jpg",
+          "seconds": 0.0177,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114624-339854000.jpg",
+          "seconds": 0.0171,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114626-783337000.jpg",
+          "seconds": 0.0174,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114638-64207000.jpg",
+          "seconds": 0.0175,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114936-377178000.jpg",
+          "seconds": 0.0177,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114949-449572000.jpg",
+          "seconds": 0.0205,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114951-995921000.jpg",
+          "seconds": 0.0181,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-115003-254794000.jpg",
+          "seconds": 0.0184,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-115004-961781000.jpg",
+          "seconds": 0.0193,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-115016-67795000.jpg",
+          "seconds": 0.0181,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-183746.jpg",
+          "seconds": 0.0183,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-192642.jpg",
+          "seconds": 0.0192,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-201426.jpg",
+          "seconds": 0.0182,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-184553.jpg",
+          "seconds": 0.0176,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-194614.jpg",
+          "seconds": 0.0187,
+          "detections": [
+            {
+              "confidence": 0.8274,
+              "bbox_pixels": [
+                236.26,
+                124.9,
+                350.03,
+                352.44
+              ],
+              "bbox_normalized": [
+                369,
+                347,
+                547,
+                979
+              ],
+              "center_x_percent": 45.8,
+              "height_percent": 63.2,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261001-194745.jpg",
+          "seconds": 0.019,
+          "detections": [
+            {
+              "confidence": 0.8656,
+              "bbox_pixels": [
+                154.07,
+                121.0,
+                282.38,
+                360.0
+              ],
+              "bbox_normalized": [
+                241,
+                336,
+                441,
+                1000
+              ],
+              "center_x_percent": 34.1,
+              "height_percent": 66.39,
+              "touches_image_edge": true
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261001-201408.jpg",
+          "seconds": 0.0174,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261002-164253.jpg",
+          "seconds": 0.0186,
+          "detections": [
+            {
+              "confidence": 0.2471,
+              "bbox_pixels": [
+                213.04,
+                163.2,
+                283.46,
+                300.72
+              ],
+              "bbox_normalized": [
+                333,
+                453,
+                443,
+                835
+              ],
+              "center_x_percent": 38.79,
+              "height_percent": 38.2,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261002-165028.jpg",
+          "seconds": 0.0168,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261002-171532.jpg",
+          "seconds": 0.0184,
+          "detections": [
+            {
+              "confidence": 0.4631,
+              "bbox_pixels": [
+                224.35,
+                167.97,
+                288.08,
+                291.38
+              ],
+              "bbox_normalized": [
+                351,
+                467,
+                450,
+                809
+              ],
+              "center_x_percent": 40.03,
+              "height_percent": 34.28,
+              "touches_image_edge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "model": "tools/yolov8s-worldv2.pt",
+      "prompt": "beverage can",
+      "device": "mps",
+      "confidence_threshold": 0.1,
+      "imgsz": 640,
+      "torch": "2.14.1",
+      "ultralytics": "8.4.171",
+      "setup_seconds": 1.705,
+      "warmup_seconds": 0.452,
+      "frames": 35,
+      "frames_with_detection": 7,
+      "median_seconds": 0.0182,
+      "p95_seconds": 0.0198,
+      "results": [
+        {
+          "frame": "frame-20261006-113309-676030000.jpg",
+          "seconds": 0.0201,
+          "detections": [
+            {
+              "confidence": 0.2211,
+              "bbox_pixels": [
+                263.76,
+                180.03,
+                304.73,
+                249.38
+              ],
+              "bbox_normalized": [
+                412,
+                500,
+                476,
+                693
+              ],
+              "center_x_percent": 44.41,
+              "height_percent": 19.26,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261006-114036-760145000.jpg",
+          "seconds": 0.0185,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114053-341979000.jpg",
+          "seconds": 0.0181,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114055-548923000.jpg",
+          "seconds": 0.0182,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114106-670668000.jpg",
+          "seconds": 0.0181,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114108-442589000.jpg",
+          "seconds": 0.0187,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114119-579929000.jpg",
+          "seconds": 0.0177,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114342-488886000.jpg",
+          "seconds": 0.0178,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114353-689611000.jpg",
+          "seconds": 0.0179,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114355-516533000.jpg",
+          "seconds": 0.0178,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114407-37141000.jpg",
+          "seconds": 0.0603,
+          "detections": [
+            {
+              "confidence": 0.1039,
+              "bbox_pixels": [
+                31.36,
+                158.39,
+                91.43,
+                253.32
+              ],
+              "bbox_normalized": [
+                49,
+                440,
+                143,
+                704
+              ],
+              "center_x_percent": 9.59,
+              "height_percent": 26.37,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261006-114409-752376000.jpg",
+          "seconds": 0.0198,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114420-706731000.jpg",
+          "seconds": 0.0194,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114558-837194000.jpg",
+          "seconds": 0.0185,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114610-610244000.jpg",
+          "seconds": 0.0185,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114612-803653000.jpg",
+          "seconds": 0.0194,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114624-339854000.jpg",
+          "seconds": 0.0187,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114626-783337000.jpg",
+          "seconds": 0.0184,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114638-64207000.jpg",
+          "seconds": 0.0185,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114936-377178000.jpg",
+          "seconds": 0.0177,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114949-449572000.jpg",
+          "seconds": 0.0184,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114951-995921000.jpg",
+          "seconds": 0.0177,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-115003-254794000.jpg",
+          "seconds": 0.0173,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-115004-961781000.jpg",
+          "seconds": 0.0174,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-115016-67795000.jpg",
+          "seconds": 0.0172,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-183746.jpg",
+          "seconds": 0.0173,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-192642.jpg",
+          "seconds": 0.0174,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-201426.jpg",
+          "seconds": 0.0175,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-184553.jpg",
+          "seconds": 0.0171,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-194614.jpg",
+          "seconds": 0.0183,
+          "detections": [
+            {
+              "confidence": 0.8744,
+              "bbox_pixels": [
+                236.38,
+                124.84,
+                349.65,
+                351.94
+              ],
+              "bbox_normalized": [
+                369,
+                347,
+                546,
+                978
+              ],
+              "center_x_percent": 45.78,
+              "height_percent": 63.08,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261001-194745.jpg",
+          "seconds": 0.0185,
+          "detections": [
+            {
+              "confidence": 0.8876,
+              "bbox_pixels": [
+                154.08,
+                120.82,
+                281.99,
+                360.0
+              ],
+              "bbox_normalized": [
+                241,
+                336,
+                441,
+                1000
+              ],
+              "center_x_percent": 34.07,
+              "height_percent": 66.44,
+              "touches_image_edge": true
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261001-201408.jpg",
+          "seconds": 0.0188,
+          "detections": [
+            {
+              "confidence": 0.1553,
+              "bbox_pixels": [
+                0.0,
+                68.81,
+                32.99,
+                360.0
+              ],
+              "bbox_normalized": [
+                0,
+                191,
+                52,
+                1000
+              ],
+              "center_x_percent": 2.58,
+              "height_percent": 80.89,
+              "touches_image_edge": true
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261002-164253.jpg",
+          "seconds": 0.0182,
+          "detections": [
+            {
+              "confidence": 0.1456,
+              "bbox_pixels": [
+                213.43,
+                163.21,
+                283.97,
+                300.02
+              ],
+              "bbox_normalized": [
+                333,
+                453,
+                444,
+                833
+              ],
+              "center_x_percent": 38.86,
+              "height_percent": 38.0,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261002-165028.jpg",
+          "seconds": 0.0169,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261002-171532.jpg",
+          "seconds": 0.0196,
+          "detections": [
+            {
+              "confidence": 0.504,
+              "bbox_pixels": [
+                224.4,
+                167.68,
+                287.79,
+                291.12
+              ],
+              "bbox_normalized": [
+                351,
+                466,
+                450,
+                809
+              ],
+              "center_x_percent": 40.02,
+              "height_percent": 34.29,
+              "touches_image_edge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "model": "tools/yolov8s-worldv2.pt",
+      "prompt": "aluminum can",
+      "device": "mps",
+      "confidence_threshold": 0.1,
+      "imgsz": 640,
+      "torch": "2.14.1",
+      "ultralytics": "8.4.171",
+      "setup_seconds": 1.704,
+      "warmup_seconds": 0.451,
+      "frames": 35,
+      "frames_with_detection": 4,
+      "median_seconds": 0.0182,
+      "p95_seconds": 0.0201,
+      "results": [
+        {
+          "frame": "frame-20261006-113309-676030000.jpg",
+          "seconds": 0.018,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114036-760145000.jpg",
+          "seconds": 0.0179,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114053-341979000.jpg",
+          "seconds": 0.0182,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114055-548923000.jpg",
+          "seconds": 0.02,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114106-670668000.jpg",
+          "seconds": 0.0191,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114108-442589000.jpg",
+          "seconds": 0.0194,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114119-579929000.jpg",
+          "seconds": 0.0184,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114342-488886000.jpg",
+          "seconds": 0.0178,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114353-689611000.jpg",
+          "seconds": 0.0204,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114355-516533000.jpg",
+          "seconds": 0.019,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114407-37141000.jpg",
+          "seconds": 0.0188,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114409-752376000.jpg",
+          "seconds": 0.0182,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114420-706731000.jpg",
+          "seconds": 0.0176,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114558-837194000.jpg",
+          "seconds": 0.0178,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114610-610244000.jpg",
+          "seconds": 0.0175,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114612-803653000.jpg",
+          "seconds": 0.0173,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114624-339854000.jpg",
+          "seconds": 0.0174,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114626-783337000.jpg",
+          "seconds": 0.0171,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114638-64207000.jpg",
+          "seconds": 0.0171,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114936-377178000.jpg",
+          "seconds": 0.0173,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114949-449572000.jpg",
+          "seconds": 0.02,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-114951-995921000.jpg",
+          "seconds": 0.0184,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-115003-254794000.jpg",
+          "seconds": 0.0183,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-115004-961781000.jpg",
+          "seconds": 0.0174,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261006-115016-67795000.jpg",
+          "seconds": 0.0178,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-183746.jpg",
+          "seconds": 0.0177,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-192642.jpg",
+          "seconds": 0.0172,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-201426.jpg",
+          "seconds": 0.0173,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-184553.jpg",
+          "seconds": 0.0187,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261001-194614.jpg",
+          "seconds": 0.0204,
+          "detections": [
+            {
+              "confidence": 0.4015,
+              "bbox_pixels": [
+                235.93,
+                124.88,
+                350.27,
+                352.86
+              ],
+              "bbox_normalized": [
+                369,
+                347,
+                547,
+                980
+              ],
+              "center_x_percent": 45.8,
+              "height_percent": 63.33,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261001-194745.jpg",
+          "seconds": 0.0194,
+          "detections": [
+            {
+              "confidence": 0.6425,
+              "bbox_pixels": [
+                154.18,
+                120.78,
+                282.72,
+                360.0
+              ],
+              "bbox_normalized": [
+                241,
+                336,
+                442,
+                1000
+              ],
+              "center_x_percent": 34.13,
+              "height_percent": 66.45,
+              "touches_image_edge": true
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261001-201408.jpg",
+          "seconds": 0.0188,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261002-164253.jpg",
+          "seconds": 0.0201,
+          "detections": [
+            {
+              "confidence": 0.1162,
+              "bbox_pixels": [
+                212.84,
+                163.22,
+                284.37,
+                300.87
+              ],
+              "bbox_normalized": [
+                333,
+                453,
+                444,
+                836
+              ],
+              "center_x_percent": 38.84,
+              "height_percent": 38.24,
+              "touches_image_edge": false
+            }
+          ]
+        },
+        {
+          "frame": "frame-20261002-165028.jpg",
+          "seconds": 0.0188,
+          "detections": []
+        },
+        {
+          "frame": "frame-20261002-171532.jpg",
+          "seconds": 0.0189,
+          "detections": [
+            {
+              "confidence": 0.2578,
+              "bbox_pixels": [
+                223.87,
+                167.66,
+                288.22,
+                291.82
+              ],
+              "bbox_normalized": [
+                350,
+                466,
+                450,
+                811
+              ],
+              "center_x_percent": 40.01,
+              "height_percent": 34.49,
+              "touches_image_edge": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
