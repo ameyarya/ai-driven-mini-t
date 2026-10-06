@@ -225,6 +225,8 @@ Open **http://localhost:8000**.
 
 ### 5. Start a navigation goal
 
+Can missions use generic **soda can** detection, ignoring color words. For point-and-shoot, enter: “Find the can, center it, then shoot once and stop.” Multiple detected cans cause an ambiguity stop; physical aiming and hit confirmation remain unvalidated.
+
 The top pane shows live video (about one second of delay). The bottom pane
 shows the exact labeled planner or controller input, verified by SHA-256.
 It explicitly identifies whether Qwen is analyzing that frame or the Python

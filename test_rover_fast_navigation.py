@@ -18,13 +18,14 @@ def measurement(x=50,height=30,visible=True,clipped=False):
 
 
 class FastNavigationTests(unittest.TestCase):
-    def test_orange_can_and_centering_contract(self):
+    def test_generic_can_and_centering_contract(self):
         from rover_detector import target_description
-        self.assertEqual(target_description('Position orange can in center'), 'orange soda can')
+        for goal in ['Position orange can in center', 'Center the red can', 'Find the can', 'Find Coca-Cola']:
+            self.assertEqual(target_description(goal), 'soda can')
         request=fast.planner_request('Position orange can in center', b'image', measurement())
         self.assertEqual(request['format']['properties']['mode']['enum'], ['center','unsupported'])
         request=fast.planner_request('Find the orange can, center it, then shoot once', b'image', measurement())
-        self.assertEqual(request['format']['properties']['target']['enum'], ['orange soda can'])
+        self.assertEqual(request['format']['properties']['target']['enum'], ['soda can'])
         self.assertEqual(request['format']['properties']['mode']['enum'], ['find_shoot','unsupported'])
 
     def test_planner_and_controller_display_roles_are_truthful(self):

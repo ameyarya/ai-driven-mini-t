@@ -54,3 +54,9 @@ Qwen; the goal text box does not configure this controller. Start still runs
 the existing mission planner and does not add obstacle route planning.
 Use Stop to cancel, or select Clear and Reset to resume the usual missions.
 See [obstacle avoidance](OBSTACLE_AVOIDANCE.md).
+
+## Generic can: point and shoot
+
+Find the can, center it, then shoot once and stop.
+
+Can detection ignores color. This mission searches and aligns without approaching, then issues one fire command. It does not automatically adjust launcher elevation or confirm a physical hit.

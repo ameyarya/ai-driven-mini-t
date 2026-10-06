@@ -14,8 +14,7 @@ def target_description(goal):
     # replaced with the can; their detection quality has not been validated.
     import re
     if re.search(r'\bcan\b|coca.?cola', goal, re.I):
-        color = re.search(r'\b(red|orange|yellow|green|blue|purple|pink|black|white|silver)\b', goal, re.I)
-        return (color.group(1).lower() if color else 'red') + ' soda can'
+        return 'soda can'
     return goal
 
 
@@ -39,7 +38,7 @@ class Detector:
         self.torch = torch
         self.device = device
         self.model = YOLOWorld(weights)
-        self.description = 'red soda can'
+        self.description = 'soda can'
         self.model.set_classes([self.description])
         import numpy as np
         self.model.predict(np.zeros((360,640,3),dtype=np.uint8),device=device,imgsz=640,conf=.10,verbose=False)

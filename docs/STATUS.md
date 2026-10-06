@@ -159,3 +159,7 @@ inference, automatic elevation aiming or physical validation. See
 ## Physical test startup and orange target — 2026-10-06
 
 The detector now preserves explicitly named can colors, including orange, rather than always searching for red. Center-only goals constrain the planner to center or unsupported, preventing an absent target from silently changing the mission to search. Shooting plans preserve the requested can color. 80 host regression tests pass; orange detection and physical firing still require user validation. Startup accepts `TANK_SERIAL_PORT` for changed USB device paths.
+
+## Generic soda-can target — 2026-10-06
+
+Supersedes the color-specific update above: detector classes and planner targets now use `soda can`, ignoring color words entirely. This applies to centering, search, approach and shooting. Several detected cans remain ambiguous and stop rather than silently selecting one. 80 host tests pass; physical detection across colors and firing accuracy remain unvalidated.

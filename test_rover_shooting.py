@@ -18,7 +18,7 @@ def measurement(x=50, visible=True, clipped=False):
 class ShootingTests(unittest.TestCase):
     def test_shooting_schema_cannot_name_overlay_text_as_target(self):
         request=fast.planner_request('Center red can then shoot once',b'image',measurement())
-        self.assertEqual(request['format']['properties']['target']['enum'],['red soda can'])
+        self.assertEqual(request['format']['properties']['target']['enum'],['soda can'])
         legacy=fast.planner_request('Center red can then shoot once',b'image',measurement(),shooting_enabled=False)
         self.assertNotIn('enum',legacy['format']['properties']['target'])
     def test_shooting_contract_preserves_search_approach_and_explicit_intent(self):

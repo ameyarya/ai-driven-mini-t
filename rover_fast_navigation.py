@@ -50,7 +50,7 @@ def planner_request(goal, image, measurement, history=None, shooting_enabled=Tru
         'uncertainties':{'type':'array','items':{'type':'string'},'maxItems':3}},
         'required':['mode','target','height_percent','reason','uncertainties'],
         'additionalProperties':False}
-    if shooting_enabled and shooting_goal(goal):
+    if shooting_enabled and re.search(r'\bcan\b|coca.?cola', goal, re.I):
         # Shooting POC has one supported target; annotation text must not become
         # an actuator target. Goal validation still rejects unnamed/other targets.
         from rover_detector import target_description
@@ -72,6 +72,7 @@ def planner_request(goal, image, measurement, history=None, shooting_enabled=Tru
                 'Return unsupported for '+('' if shooting_enabled else 'firing, ')+
                 'moving away, physical distances, or other missions. Never silently omit '
                 'parts of a mission. target is an object name, not an action. height_percent '
+                'For can goals use soda can, ignoring color words in the goal. '
                 'is 0 for center; approach_size requires an explicit size in the goal. '
                 'Only genuine visibility/ambiguity/path-clearance concerns are uncertainties; '
                 'an unfinished goal is not uncertainty. Stop if approach clearance is uncertain. '
