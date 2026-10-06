@@ -195,3 +195,7 @@ Browser-run bullseye Align reduced offset from 3.3% left to 0.5% right using 32 
 ## First visually confirmed physical shot — 2026-10-06
 
 User-authorized browser trial started 31.8% left, Align completed at 0.5% right, then one shot knocked the bullseye onto the floor. Assistant reviewed recorded tipping/floor evidence; 1/6 attempts used, 5 remain. No search, approach or launcher elevation change. The current height worked in this one scene; automatic aiming and impact classification remain pending. Tilt-aware reference matching recovered the starting view without lowering the match cutoff. 82 host tests and 3 synthetic matcher tests pass. See [physical evidence summary](PHYSICAL_SHOOTING.md).
+
+## Launcher elevation calibration workflow — 2026-10-06
+
+Added reference confirmation, bounded Up/Down nudges, one calibration shot, user-confirmed successful samples, reload acknowledgment and remaining-attempt display. Shoot can optionally interpolate timed elevation offsets after at least two successful target sizes; it re-observes before firing and refuses out-of-range extrapolation. Samples persist privately; startup and manual elevation invalidate reference assumptions. 89 host tests pass; browser controls verified without firing. Physical auto-elevation validation still requires user-collected samples. See [workflow](ELEVATION_CALIBRATION.md).

@@ -14,7 +14,7 @@
   archived hardware diagnostics as part of normal tests.
 - Verify navigation changes with:
   `python3 -m unittest test_rover_autonomy test_rover_vision_labeled test_rover_fast_navigation test_rover_playground test_rover_training`
-- Shooting changes also require `test_rover_shooting`; simulation checks run in
+- Shooting changes also require `test_rover_shooting` and `test_rover_elevation`; simulation checks run in
   `.sim-venv` with `cd simulation && ../.sim-venv/bin/python -m unittest test_sim test_obstacles`.
 - Simulator preview is not Qwen inference or physical validation. Keep oracle
   measurements and contact ground truth explicitly labeled; never claim a real

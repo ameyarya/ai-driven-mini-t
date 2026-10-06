@@ -426,3 +426,7 @@ The dashboard now targets the hand-drawn bullseye on its stand. Find, Align, App
 Bullseye Align was physically calibrated to ±1% image width: [measurements and limitations](docs/ALIGNMENT_CALIBRATION.md). Browser test reached 0.5% right and remained stable on repeat.
 
 First physical bullseye shot: [31.8% offset → alignment → target visibly falls](docs/PHYSICAL_SHOOTING.md). One attempt used, five remained; launcher height was unchanged and recordings remain private.
+
+### Automatic vertical aiming setup
+
+Open **Launcher height calibration** to confirm a repeatable physical reference, nudge Up/Down, take one test shot and save a user-confirmed hit. After hits at two different apparent target sizes, enable experimental automatic height selection for Shoot. It interpolates timed offsets only within the recorded range; actual launcher angles are not sensed. [Workflow and limits](docs/ELEVATION_CALIBRATION.md).

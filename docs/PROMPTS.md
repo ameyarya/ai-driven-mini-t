@@ -76,3 +76,7 @@ Uses the existing combined search/approach/shoot controller. It does not add phy
 ## Current dashboard target: bullseye
 
 The physical action buttons now substitute **bullseye** for can in the above missions. Complete mission searches, approaches until the matched bullseye square occupies 50% of image height, aligns, then fires once. Historical can prompts and simulation fixtures remain for regression testing. Detection uses a private grayscale reference matcher rather than YOLO-World for this drawing.
+
+## Shoot with calibrated height
+
+Shoot also selects vertical height when auto aim is enabled in Launcher height calibration. It requires a confirmed reference and successful samples; unsupported target sizes stop without firing. Test shot uses the current manually nudged height with auto aim off. See [calibration workflow](ELEVATION_CALIBRATION.md).

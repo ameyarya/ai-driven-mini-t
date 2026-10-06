@@ -79,6 +79,7 @@ header{flex-wrap:wrap;gap:10px}
 <div><span>Next movement</span><strong id="target-move">—</strong></div>
 <div><span>Inference</span><strong id="model-latency">—</strong></div>
 </div><p id="trail-note">Grid: image coordinates. Trail: target position over recent frames, not the rover's physical path.</p>
+<details><summary>Launcher height calibration</summary><p class="hint">Physically restore the same reference height before confirming. Offsets are timed movements, not measured angles.</p><button id="height-reference">Confirm reference height</button><div class="actions"><button id="height-up">Up · 50 ms</button><button id="height-down">Down · 50 ms</button></div><button id="height-test">Test shot at current height</button><button id="height-hit">Save last shot as confirmed hit</button><div class="actions"><button id="height-enable">Enable auto aim</button><button id="height-disable">Disable</button></div><button id="shots-reload">I reloaded six projectiles</button><p id="height-status" class="hint" role="status">Loading calibration…</p></details>
 <details><summary>Model perception data</summary><pre id="perception-json">No result yet.</pre></details>
 <div class="manual" hidden><h2>Manual control</h2><div class="g"><span></span><button data-key="W" aria-label="Forward">↑</button><span></span><button data-key="A" aria-label="Left">←</button><span></span><button data-key="D" aria-label="Right">→</button><span></span><button data-key="S" aria-label="Backward">↓</button><span></span></div><div class="hint">Hold arrow keys to drive. Release to stop.</div><div id="status" role="status">Stopped</div></div>
 
@@ -293,6 +294,41 @@ async function pollAuto(){
   if(autoActive)await fetch('/autonomy/heartbeat',{method:'POST',signal:AbortSignal.timeout(3000)});
  }catch(error){document.querySelector('#auto-status').textContent=error.message;}
 }
+let heightShotId=null, heightError='';
+async function pollHeight(){
+ try{
+  const r=await fetch('/elevation/status',{cache:'no-store'});if(!r.ok)throw Error(await r.text());
+  const h=await r.json();heightShotId=h.last_shot_id;
+  document.querySelector('#height-status').textContent=(heightError?heightError+' · ':'')+(h.enabled?'Auto aim enabled':'Auto aim off')+' · '+(h.reference_confirmed?('Height offset '+h.position_ms+' ms'):'Reference not confirmed')+' · '+h.points.length+' saved hits · '+h.remaining+' attempts left';
+  ['height-reference','height-up','height-down','height-test','height-hit','height-enable','height-disable','shots-reload'].forEach(id=>document.getElementById(id).disabled=autoActive||startingGoal);
+  if(!autoActive&&!startingGoal){
+   document.getElementById('height-up').disabled=!h.reference_confirmed;
+   document.getElementById('height-down').disabled=!h.reference_confirmed;
+   document.getElementById('height-test').disabled=!h.reference_confirmed||!cameraLive||h.enabled;
+   document.getElementById('height-hit').disabled=!heightShotId;
+   const sizes=h.points.map(p=>p.height_percent);
+   document.getElementById('height-enable').disabled=!h.reference_confirmed||sizes.length<2||Math.max(...sizes)-Math.min(...sizes)<3;
+  }
+ }catch(e){document.querySelector('#height-status').textContent=e.message;}
+}
+async function heightAction(action,body={}){
+ heightError='';
+ try{
+  const r=await fetch('/elevation/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok)throw Error(await r.text());await pollHeight();
+ }catch(e){heightError=e.message;document.querySelector('#height-status').textContent=e.message;}
+}
+document.getElementById('height-reference').addEventListener('click',()=>heightAction('reference',{confirmed:true}));
+document.getElementById('height-up').addEventListener('click',()=>heightAction('adjust',{delta_ms:50}));
+document.getElementById('height-down').addEventListener('click',()=>heightAction('adjust',{delta_ms:-50}));
+document.getElementById('height-hit').addEventListener('click',()=>heightAction('hit',{shot_id:heightShotId}));
+document.getElementById('height-enable').addEventListener('click',()=>heightAction('enable'));
+document.getElementById('height-disable').addEventListener('click',()=>heightAction('disable'));
+document.getElementById('shots-reload').addEventListener('click',async()=>{
+ try{const r=await fetch('/shots/reloaded',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reloaded:true})});if(!r.ok)throw Error(await r.text());await pollHeight();}catch(e){document.querySelector('#height-status').textContent=e.message;}
+});
+document.getElementById('height-test').addEventListener('click',()=>{if(!autoActive&&!startingGoal)document.querySelector('[data-goal="Center the bullseye, then shoot once and stop."]').click();});
+setInterval(pollHeight,3000);
 let startingGoal=false;
 document.querySelectorAll('[data-goal]').forEach(button=>button.addEventListener('click',async()=>{
  if(autoActive||startingGoal)return;

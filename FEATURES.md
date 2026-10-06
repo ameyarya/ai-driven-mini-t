@@ -50,7 +50,8 @@ from simulation or software tests. Unchecked items remain unfinished.
   Implemented and simulation-tested; one physical bullseye trial knocked the target onto the floor (2026-10-06).
 - [x] Persistent limit of six automatic attempts before explicit reload acknowledgment.
 - [x] Record shot evidence without claiming that a command acknowledgment proves a hit.
-- [ ] Automatic launcher elevation/aiming.
+- [x] Experimental elevation calibration workflow and interpolation from user-confirmed hits.
+- [ ] Physical acceptance of automatic launcher elevation/aiming.
 - [ ] Calibrate physical firing range, elevation and firing duration.
 - [ ] Detect actual projectile release from camera evidence.
 - [ ] Classify hit, miss or uncertain from camera evidence.

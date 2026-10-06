@@ -204,6 +204,43 @@ shots = ShotController(autonomous_fire_state, Path(__file__).resolve().parent/'p
     record=record_shot, pulse_ms=int(os.environ.get('ROOK_FIRE_PULSE_MS','350')))
 
 
+from rover_elevation import ElevationCalibration
+elevation=ElevationCalibration(Path(__file__).resolve().parent/'playground-data/elevation-calibration.json')
+
+def set_elevation_direction(direction):
+    with lock:
+        send("wire('X')")
+        response=wireless_update.exchange(ser,b'L',wireless_update.secrets.token_bytes(4),bytes((0,direction+1,100))).decode()
+        if response.split('|')[:2] != ['86',str(direction)]:
+            raise ValueError('Launcher elevation acknowledgment mismatch')
+
+def calibrated_fire(token):
+    measurement=autonomy.snapshot().get('result',{}).get('assessment',{})
+    height=measurement.get('target_height')
+    if elevation.enabled:
+        if measurement.get('source')!='Bullseye reference matcher':raise ValueError('Auto elevation is calibrated for the bullseye only')
+        destination=elevation.desired(height)
+        elevation.move(destination,set_elevation_direction,token)
+        if token.wait(1.5):raise ValueError('Cancelled before firing')
+        frame=rover_vision.capture_frame()
+        current=rover_vision.prepare_detector_image('Center the bullseye',frame,[])['measurement']
+        if token.is_set():raise ValueError('Cancelled before firing')
+        if (current.get('target_visible') is not True or current.get('candidate_count')!=1
+            or current.get('target_clipped') or abs(current.get('target_x',0)-50)>1
+            or abs(current.get('target_height',0)-height)>1.5):
+            raise ValueError('Target changed after elevation adjustment; stopped without firing')
+    metadata=dict(elevation.snapshot(),height_percent=height,target=measurement.get('target_description'),unit='timed offset from confirmed reference, not degrees')
+    metadata.pop('points',None)
+    outcome=shots.fire_once(token)
+    outcome['elevation']=metadata
+    ledger=shots.directory/'ledger.json'
+    data=json.loads(ledger.read_text())
+    for attempt in data['attempts']:
+        if attempt['id']==outcome['id']:attempt['elevation']=metadata
+    shots._save(ledger,data)
+    return outcome
+
+
 def autonomous_drive(key):
     if key != 'X':
         paths = rover_vision.read_json('http://127.0.0.1:9997/v3/paths/list')['items']
@@ -225,7 +262,7 @@ def autonomous_refresh(key):
 
 autonomy = rover_autonomy.NavigationController(rover_vision.assess, autonomous_drive, autonomous_refresh,
     planner=rover_fast_navigation.plan_goal, fast_observe=rover_fast_navigation.observe_goal,
-    fire=shots.fire_once)
+    fire=calibrated_fire)
 
 
 def analyze_frame(goal):
@@ -253,6 +290,31 @@ class Handler(BaseHTTPRequestHandler):
         global vision_state
         if self.headers.get('Origin') not in (None,'http://localhost:8000','http://127.0.0.1:8000'):
             self.send_error(403)
+            return
+        if urlparse(self.path).path.startswith('/elevation/'):
+            try:
+                if autonomy.active():raise ValueError('Stop the mission before calibrating elevation')
+                size=int(self.headers.get('Content-Length','0'))
+                if not 0<size<=1024:raise ValueError('Invalid calibration request')
+                body=json.loads(self.rfile.read(size));action=urlparse(self.path).path.rsplit('/',1)[-1]
+                if action=='reference':
+                    if body!={'confirmed':True}:raise ValueError('Confirm physically restoring the reference height')
+                    elevation.confirm_reference()
+                elif action=='adjust':
+                    delta=body.get('delta_ms')
+                    if delta not in (-50,50) or type(delta) is not int:raise ValueError('Use a 50 ms up/down adjustment')
+                    if elevation.position is None:raise ValueError('Confirm reference height first')
+                    elevation.move(elevation.position+delta,set_elevation_direction,threading.Event())
+                elif action=='hit':
+                    shot=autonomy.snapshot().get('shot')
+                    if not shot:raise ValueError('No completed dashboard shot to calibrate')
+                    if body.get('shot_id')!=shot['id']:raise ValueError('Shot changed; confirm the current shot')
+                    elevation.save_hit(shot)
+                elif action=='enable':elevation.enable()
+                elif action=='disable':elevation.enabled=False
+                else:raise ValueError('Unknown elevation action')
+                self.text_result(200,json.dumps(elevation.snapshot()))
+            except Exception as error:self.text_result(400,str(error))
             return
         if urlparse(self.path).path == '/shots/reloaded':
             try:
@@ -335,6 +397,14 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         url = urlparse(self.path)
+        if url.path == '/elevation/status':
+            body=elevation.snapshot()
+            ledger=shots.directory/'ledger.json'
+            attempts=json.loads(ledger.read_text()).get('attempts',[]) if ledger.exists() else []
+            body['remaining']=max(0,6-len(attempts))
+            shot=autonomy.snapshot().get('shot',{})
+            body['last_shot_id']=shot.get('id')
+            self.text_result(200,json.dumps(body));return
         if url.path == '/camera/status':
             try:
                 paths = rover_vision.read_json('http://127.0.0.1:9997/v3/paths/list', timeout=1)['items']
@@ -403,6 +473,7 @@ class Handler(BaseHTTPRequestHandler):
                     return
                 fire=int(params.get('fire',['0'])[0])
                 aim=int(params.get('aim',['0'])[0])
+                if aim:elevation.invalidate()
                 if fire not in (0,1) or aim not in (-1,0,1):
                     raise ValueError('Invalid launcher state')
                 percent=int(params.get('speed',['100'])[0])
