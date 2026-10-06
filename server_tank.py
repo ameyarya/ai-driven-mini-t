@@ -342,7 +342,12 @@ class Handler(BaseHTTPRequestHandler):
                     length = int(self.headers.get('Content-Length', '0'))
                     if not 0 < length <= 4096:
                         raise ValueError('Invalid goal request')
-                    goal = json.loads(self.rfile.read(length)).get('goal', '')
+                    request = json.loads(self.rfile.read(length))
+                    goal = request.get('goal', '')
+                    if request.get('shooting_setup') is True:
+                        saved=elevation.snapshot()
+                        if not saved['enabled'] or not saved['preset']:raise ValueError('Confirm reference and save a successful shooting setup first')
+                        goal=f"Approach the bullseye until it occupies {saved['preset']['height_percent']}% of image height. Keep it centered, then shoot once and stop."
                     autonomy.start(goal)
                 elif path == '/autonomy/stop':
                     autonomy.cancel()

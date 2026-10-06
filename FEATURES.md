@@ -50,7 +50,7 @@ from simulation or software tests. Unchecked items remain unfinished.
   Implemented and simulation-tested; one physical bullseye trial knocked the target onto the floor (2026-10-06).
 - [x] Persistent limit of six automatic attempts before explicit reload acknowledgment.
 - [x] Record shot evidence without claiming that a command acknowledgment proves a hit.
-- [x] Experimental elevation calibration workflow and interpolation from user-confirmed hits.
+- [x] One-distance shooting setup from a user-confirmed hit, with saved timed launcher height.
 - [ ] Physical acceptance of automatic launcher elevation/aiming.
 - [ ] Calibrate physical firing range, elevation and firing duration.
 - [ ] Detect actual projectile release from camera evidence.
@@ -107,3 +107,5 @@ Evidence and limitations: [status](docs/STATUS.md),
 [simulation tests](docs/SHOOTING_SIMULATION.md),
 [launcher results](docs/launcher-simulation-results.json),
 [planner comparison](docs/FULL_PLANNER_COMPARISON.md).
+
+- Shooting setup simplified to one confirmed hit: Aim & shoot approaches the saved image size, restores launcher height, fires once and pauses for human confirmation. Physical acceptance pending.

@@ -429,4 +429,6 @@ First physical bullseye shot: [31.8% offset → alignment → target visibly fal
 
 ### Automatic vertical aiming setup
 
-Open **Launcher height calibration** to confirm a repeatable physical reference, nudge Up/Down, take one test shot and save a user-confirmed hit. After hits at two different apparent target sizes, enable experimental automatic height selection for Shoot. It interpolates timed offsets only within the recorded range; actual launcher angles are not sensed. [Workflow and limits](docs/ELEVATION_CALIBRATION.md).
+Open **Shooting setup** to confirm a repeatable reference, adjust Up/Down, test one shot and save a confirmed hit. **Aim & shoot** approaches the saved target image size, restores that launcher offset and fires once. Actual angles are not sensed. [Workflow and limits](docs/ELEVATION_CALIBRATION.md).
+
+- Shooting setup simplified to one confirmed hit: Aim & shoot approaches the saved image size, restores launcher height, fires once and pauses for human confirmation. Physical acceptance pending.

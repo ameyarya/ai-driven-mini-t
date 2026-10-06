@@ -12,15 +12,15 @@ class ElevationTests(unittest.TestCase):
   return dict(id=ident,fire_command_sent=True,reset_acknowledged=True,elevation=dict(reference_confirmed=True,target='bullseye target',height_percent=height,position_ms=position))
  def points(self):
   self.c.confirm_reference();self.c.save_hit(self.shot('one',15,0));self.c.save_hit(self.shot('two',30,100))
- def test_requires_reference_and_two_separate_sizes(self):
+ def test_requires_reference_and_one_successful_shot(self):
   with self.assertRaises(ValueError):self.c.enable()
   self.c.confirm_reference()
   with self.assertRaises(ValueError):self.c.enable()
   self.c.save_hit(self.shot('one',15,0))
-  with self.assertRaises(ValueError):self.c.enable()
- def test_interpolation_and_no_extrapolation(self):
-  self.points();self.c.enable();self.assertEqual(self.c.desired(22.5),50)
-  for height in (14,31,float('nan'),None):
+  self.c.enable();self.assertTrue(self.c.enabled)
+ def test_saved_distance_and_range_rejection(self):
+  self.points();self.c.enable();self.assertEqual(self.c.desired(30),100)
+  for height in (14,34,float('nan'),None):
    with self.assertRaises(ValueError):self.c.desired(height)
  def test_restart_retains_points_but_requires_reference(self):
   self.points();self.c.enable();new=ElevationCalibration(self.c.path)
@@ -42,7 +42,7 @@ class ElevationTests(unittest.TestCase):
   self.assertIsNone(self.c.position)
  def test_save_requires_acknowledged_shot_and_unique_id(self):
   self.points()
-  with self.assertRaises(ValueError):self.c.save_hit(self.shot('one',15,0))
+  self.c.save_hit(self.shot('one',15,0));self.assertEqual(self.c.desired(15),0)
   with self.assertRaises(ValueError):self.c.save_hit(dict(self.shot('bad',20,0),fire_command_sent=False))
   with self.assertRaises(ValueError):self.c.save_hit(dict(self.shot('bad',20,0),elevation={}))
 

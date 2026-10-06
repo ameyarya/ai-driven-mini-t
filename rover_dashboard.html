@@ -69,7 +69,7 @@ header{flex-wrap:wrap;gap:10px}
 </style></head><body>
 <header><h1>AI-Driven Mini-T</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools" hidden><span id="vision-status" hidden></span></div></header>
 <main><section><div class="camera-views"><div class="camera-pane"><span class="pane-label">Live camera · about 1 second delay</span><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&amp;muted=true&amp;controls=false" title="Live DJI camera video" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera source · checking…</span></div></div><div class="camera-pane exact-input"><span class="pane-label" id="input-stage">Planner / controller input · waiting</span><canvas id="model-canvas" width="640" height="360" aria-label="Exact labeled planner or controller input image"></canvas><div id="model-empty">Start a goal to capture Qwen's first frame</div><span id="frame-age">No frame yet</span></div></div></section>
-<aside class="panel"><h2>Tank actions</h2><p class="hint">Target: bullseye on the stand</p><div class="mission-actions"><button data-goal="Find the bullseye by turning in place, center it, then stop." disabled>Find</button><button data-goal="Center the bullseye, then stop." disabled>Align</button><button data-goal="Approach the bullseye until it occupies 50% of image height. Keep it centered, then stop." disabled>Approach</button><button data-goal="Center the bullseye, then shoot once and stop." disabled>Shoot</button><button class="primary complete-mission" data-goal="Find the bullseye by turning in place, then approach until it occupies 50% of image height. Keep it centered, then shoot once and stop." disabled>Complete mission</button></div><p class="hint">Find scans and aligns. Approach stops at 50% image height. Shoot aligns, then fires once. Complete mission finds, approaches, aligns and fires once.</p><div class="actions"><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Top: live camera. Bottom: labeled controller input.<br>Qwen plans; Python adjusts using fresh measurements. Press Stop to cancel.</div>
+<aside class="panel"><h2>Tank actions</h2><p class="hint">Target: bullseye on the stand</p><div class="mission-actions"><button data-goal="Find the bullseye by turning in place, center it, then stop." disabled>Find</button><button data-goal="Center the bullseye, then stop." disabled>Align</button><button data-goal="Approach the bullseye until it occupies 50% of image height. Keep it centered, then stop." disabled>Approach</button><button data-goal="Center the bullseye, then shoot once and stop." id="aim-shoot" disabled>Aim &amp; shoot</button><button class="primary complete-mission" data-goal="Find the bullseye by turning in place, then approach until it occupies 50% of image height. Keep it centered, then shoot once and stop." disabled>Complete mission</button></div><p class="hint">Find scans and aligns. Approach stops at 50% image height. Aim &amp; shoot approaches the saved distance, restores height and fires once. Complete mission finds, approaches, aligns and fires once.</p><div class="actions"><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Top: live camera. Bottom: labeled controller input.<br>Qwen plans; Python adjusts using fresh measurements. Press Stop to cancel.</div>
 <p id="search-note" class="hint" hidden></p>
 <div class="telemetry" aria-live="polite">
 <div><span>Target direction</span><strong id="target-direction">—</strong></div>
@@ -79,7 +79,7 @@ header{flex-wrap:wrap;gap:10px}
 <div><span>Next movement</span><strong id="target-move">—</strong></div>
 <div><span>Inference</span><strong id="model-latency">—</strong></div>
 </div><p id="trail-note">Grid: image coordinates. Trail: target position over recent frames, not the rover's physical path.</p>
-<details><summary>Launcher height calibration</summary><p class="hint">Physically restore the same reference height before confirming. Offsets are timed movements, not measured angles.</p><button id="height-reference">Confirm reference height</button><div class="actions"><button id="height-up">Up · 50 ms</button><button id="height-down">Down · 50 ms</button></div><button id="height-test">Test shot at current height</button><button id="height-hit">Save last shot as confirmed hit</button><div class="actions"><button id="height-enable">Enable auto aim</button><button id="height-disable">Disable</button></div><button id="shots-reload">I reloaded six projectiles</button><p id="height-status" class="hint" role="status">Loading calibration…</p></details>
+<details><summary>Shooting setup</summary><p class="hint">Physically restore the same reference height before confirming. Offsets are timed movements, not measured angles.</p><button id="height-reference">Confirm reference height</button><div class="actions"><button id="height-up">Up · 50 ms</button><button id="height-down">Down · 50 ms</button></div><button data-goal="Center the bullseye, then shoot once and stop." id="height-test">Test shot at current height</button><button id="height-hit">Save successful shooting setup</button><div class="actions"><button id="height-enable">Use saved setup</button><button id="height-disable">Disable</button></div><button id="shots-reload">I reloaded six projectiles</button><p id="height-status" class="hint" role="status">Loading calibration…</p></details>
 <details><summary>Model perception data</summary><pre id="perception-json">No result yet.</pre></details>
 <div class="manual" hidden><h2>Manual control</h2><div class="g"><span></span><button data-key="W" aria-label="Forward">↑</button><span></span><button data-key="A" aria-label="Left">←</button><span></span><button data-key="D" aria-label="Right">→</button><span></span><button data-key="S" aria-label="Backward">↓</button><span></span></div><div class="hint">Hold arrow keys to drive. Release to stop.</div><div id="status" role="status">Stopped</div></div>
 
@@ -299,6 +299,9 @@ async function pollHeight(){
  try{
   const r=await fetch('/elevation/status',{cache:'no-store'});if(!r.ok)throw Error(await r.text());
   const h=await r.json();heightShotId=h.last_shot_id;
+  const shoot=document.getElementById('aim-shoot');
+  shoot.dataset.goal=h.preset?`Approach the bullseye until it occupies ${h.preset.height_percent}% of image height. Keep it centered, then shoot once and stop.`:'';
+  shoot.dataset.ready=String(h.enabled&&!!h.preset);
   document.querySelector('#height-status').textContent=(heightError?heightError+' · ':'')+(h.enabled?'Auto aim enabled':'Auto aim off')+' · '+(h.reference_confirmed?('Height offset '+h.position_ms+' ms'):'Reference not confirmed')+' · '+h.points.length+' saved hits · '+h.remaining+' attempts left';
   ['height-reference','height-up','height-down','height-test','height-hit','height-enable','height-disable','shots-reload'].forEach(id=>document.getElementById(id).disabled=autoActive||startingGoal);
   if(!autoActive&&!startingGoal){
@@ -306,8 +309,7 @@ async function pollHeight(){
    document.getElementById('height-down').disabled=!h.reference_confirmed;
    document.getElementById('height-test').disabled=!h.reference_confirmed||!cameraLive||h.enabled;
    document.getElementById('height-hit').disabled=!heightShotId;
-   const sizes=h.points.map(p=>p.height_percent);
-   document.getElementById('height-enable').disabled=!h.reference_confirmed||sizes.length<2||Math.max(...sizes)-Math.min(...sizes)<3;
+   document.getElementById('height-enable').disabled=!h.reference_confirmed||!h.preset;
   }
  }catch(e){document.querySelector('#height-status').textContent=e.message;}
 }
@@ -327,11 +329,11 @@ document.getElementById('height-disable').addEventListener('click',()=>heightAct
 document.getElementById('shots-reload').addEventListener('click',async()=>{
  try{const r=await fetch('/shots/reloaded',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reloaded:true})});if(!r.ok)throw Error(await r.text());await pollHeight();}catch(e){document.querySelector('#height-status').textContent=e.message;}
 });
-document.getElementById('height-test').addEventListener('click',()=>{if(!autoActive&&!startingGoal)document.querySelector('[data-goal="Center the bullseye, then shoot once and stop."]').click();});
 setInterval(pollHeight,3000);
 let startingGoal=false;
 document.querySelectorAll('[data-goal]').forEach(button=>button.addEventListener('click',async()=>{
  if(autoActive||startingGoal)return;
+ if(button.id==='aim-shoot'&&button.dataset.ready!=='true'){document.querySelector('#auto-status').textContent='Save a successful shooting setup and confirm the reference height first';return;}
  startingGoal=true;
  document.querySelectorAll('[data-goal]').forEach(b=>b.disabled=true);
  if(!cameraLive){document.querySelector('#auto-status').textContent='Camera offline — restart Mimo';startingGoal=false;return;}
@@ -339,7 +341,7 @@ document.querySelectorAll('[data-goal]').forEach(button=>button.addEventListener
  while(busy)await new Promise(resolve=>setTimeout(resolve,30));
  last=state();
  try{
-  const response=await fetch('/autonomy/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:button.dataset.goal}),signal:AbortSignal.timeout(5000)});
+  const response=await fetch('/autonomy/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:button.dataset.goal,shooting_setup:button.id==='aim-shoot'}),signal:AbortSignal.timeout(5000)});
   if(!response.ok)throw Error(await response.text());
   autoActive=true;await pollAuto();
  }catch(error){document.querySelector('#auto-status').textContent=error.message;}

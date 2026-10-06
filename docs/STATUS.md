@@ -198,4 +198,6 @@ User-authorized browser trial started 31.8% left, Align completed at 0.5% right,
 
 ## Launcher elevation calibration workflow — 2026-10-06
 
-Added reference confirmation, bounded Up/Down nudges, one calibration shot, user-confirmed successful samples, reload acknowledgment and remaining-attempt display. Shoot can optionally interpolate timed elevation offsets after at least two successful target sizes; it re-observes before firing and refuses out-of-range extrapolation. Samples persist privately; startup and manual elevation invalidate reference assumptions. 89 host tests pass; browser controls verified without firing. Physical auto-elevation validation still requires user-collected samples. See [workflow](ELEVATION_CALIBRATION.md).
+Added reference confirmation, bounded Up/Down nudges, one calibration shot, user-confirmed successful samples, reload acknowledgment and remaining-attempt display. Superseded by the one-distance shooting setup below; multi-distance interpolation has been removed. Samples persist privately; startup and manual elevation invalidate reference assumptions. 89 host tests pass; browser controls verified without firing. Physical auto-elevation validation still requires user-collected samples. See [workflow](ELEVATION_CALIBRATION.md).
+
+- Shooting setup simplified to one confirmed hit: Aim & shoot approaches the saved image size, restores launcher height, fires once and pauses for human confirmation. Physical acceptance pending.
