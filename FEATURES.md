@@ -47,7 +47,7 @@ from simulation or software tests. Unchecked items remain unfinished.
 ## Autonomous shooting
 
 - [x] One-shot stage after alignment, with bounded fire/reset commands.
-  Implemented and simulation-tested; automatic physical firing is untested.
+  Implemented and simulation-tested; one physical bullseye trial knocked the target onto the floor (2026-10-06).
 - [x] Persistent limit of six automatic attempts before explicit reload acknowledgment.
 - [x] Record shot evidence without claiming that a command acknowledgment proves a hit.
 - [ ] Automatic launcher elevation/aiming.

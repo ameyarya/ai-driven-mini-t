@@ -21,7 +21,7 @@ def target_description(goal):
 
 
 def bullseye_candidates(image, reference):
-    """Scale-only grayscale reference matching; score is not a probability."""
+    """Scale/rotation grayscale reference matching; score is not a probability."""
     import cv2
     import numpy as np
     if reference is None:
@@ -30,16 +30,19 @@ def bullseye_candidates(image, reference):
     template=cv2.cvtColor(reference,cv2.COLOR_BGR2GRAY)
     h,w=gray.shape
     matches=[]
-    for scale in np.geomspace(.2,3,55):
-        resized=cv2.resize(template,None,fx=scale,fy=scale)
-        rh,rw=resized.shape
-        if min(rh,rw)<12 or rh>=h or rw>=w:continue
-        scores=cv2.matchTemplate(gray,resized,cv2.TM_CCOEFF_NORMED)
-        for _ in range(4):
-            _,score,_,(x,y)=cv2.minMaxLoc(scores)
-            if score<.70:break
-            matches.append((score,[x,y,x+rw,y+rh]))
-            cv2.rectangle(scores,(max(0,x-rw//2),max(0,y-rh//2)),(x+rw//2,y+rh//2),-1,-1)
+    for angle in (-15,-7.5,0,7.5,15):
+        matrix=cv2.getRotationMatrix2D((template.shape[1]/2,template.shape[0]/2),angle,1)
+        rotated=cv2.warpAffine(template,matrix,template.shape[::-1],borderMode=cv2.BORDER_REPLICATE)
+        for scale in np.geomspace(.2,3,55):
+            resized=cv2.resize(rotated,None,fx=scale,fy=scale)
+            rh,rw=resized.shape
+            if min(rh,rw)<12 or rh>=h or rw>=w:continue
+            scores=cv2.matchTemplate(gray,resized,cv2.TM_CCOEFF_NORMED)
+            for _ in range(4):
+                _,score,_,(x,y)=cv2.minMaxLoc(scores)
+                if score<.70:break
+                matches.append((score,[x,y,x+rw,y+rh]))
+                cv2.rectangle(scores,(max(0,x-rw//2),max(0,y-rh//2)),(x+rw//2,y+rh//2),-1,-1)
     kept=[]
     for score,box in sorted(matches,reverse=True):
         duplicate=False

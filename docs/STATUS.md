@@ -191,3 +191,7 @@ Switched physical buttons and planning to the hand-drawn bullseye. YOLO-World fo
 ## Physical Align calibration — 2026-10-06
 
 Browser-run bullseye Align reduced offset from 3.3% left to 0.5% right using 32 ms and 20 ms left corrections; completed in 3 observations. Repeat completed in 1 observation at the same offset without motion. Bullseye final tolerance is now ±1%, with measured left-turn seed and 20 ms minimum precision corrections. 82 host tests pass. Right direction and launcher aim remain uncalibrated. See [calibration](ALIGNMENT_CALIBRATION.md).
+
+## First visually confirmed physical shot — 2026-10-06
+
+User-authorized browser trial started 31.8% left, Align completed at 0.5% right, then one shot knocked the bullseye onto the floor. Assistant reviewed recorded tipping/floor evidence; 1/6 attempts used, 5 remain. No search, approach or launcher elevation change. The current height worked in this one scene; automatic aiming and impact classification remain pending. Tilt-aware reference matching recovered the starting view without lowering the match cutoff. 82 host tests and 3 synthetic matcher tests pass. See [physical evidence summary](PHYSICAL_SHOOTING.md).

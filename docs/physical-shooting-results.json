@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-06",
+  "physical_test": true,
+  "trial": 1,
+  "start_offset_percent": -31.8,
+  "aligned_offset_percent": 0.5,
+  "alignment_steps": 3,
+  "target_height_percent": 14.7,
+  "fire_attempts": 1,
+  "projectiles_loaded_user_confirmed": 6,
+  "remaining_attempts": 5,
+  "fire_pulse_ms": 350,
+  "launcher_elevation": "Existing physical setting; angle unknown; unchanged",
+  "hit": "confirmed_visual_fall",
+  "verification": "Assistant reviewed private recording: target upright, tipping at approximately 1.5 seconds, lying on floor by 1.75 seconds",
+  "search_used": false,
+  "approach_used": false,
+  "limitations": [
+    "Single scene and distance",
+    "Not automatic hit classification",
+    "Launcher elevation angle and ballistic range not calibrated",
+    "Reference matcher tilt tested at limited angles; no broad reliability claim"
+  ]
+}
