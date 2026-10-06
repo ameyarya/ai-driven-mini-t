@@ -237,3 +237,5 @@ Portrait camera: live feed rotates 90° clockwise and the two views sit side by 
 Portrait standoff preserves the previous target pixel size relative to the short edge: Approach uses 11.25% portrait height (equivalent to 20% landscape height), with a 14.06% portrait stop limit. Rotation does not permit approaching closer simply because the image is taller.
 
 Shooting setup now expands within the right control column, with no centered popup or dimming over the cameras. The setup includes its own Stop button.
+
+Portrait detection follow-up: the landscape reference failed to match the current upright portrait bullseye. Replaced the private template with a manually verified portrait crop, preserving the previous template locally. Eight saved portrait frames each produced one candidate (correlation 0.959–0.994); a target-free upper-image crop produced none, with the 0.70 cutoff unchanged. On the previously failed shot frame, the running detector localized x=42.2%, height=10.0%, and Qwen returned a validated shoot plan. No actuator commands or shots were issued for this verification. This is a view-specific template check, not general detection accuracy.
