@@ -225,7 +225,7 @@ Open **http://localhost:8000**.
 
 ### 5. Choose a tank action
 
-Can missions use generic **can** detection, ignoring color words. The dashboard has Find, Align, Approach and Shoot buttons plus Stop. Find searches and centers; Align centers a visible can; Approach keeps it centered until 50% image height; Shoot aligns a visible can and fires once. Multiple detected cans cause an ambiguity stop; physical aiming and hit confirmation remain unvalidated.
+Can missions use generic **can** detection, ignoring color words. The dashboard has Find, Align, Approach, Shoot and Complete mission buttons plus Stop. Find searches and centers; Align centers a visible can; Approach keeps it centered until 50% image height; Shoot aligns a visible can and fires once. Complete mission searches, approaches to 50% image height, aligns and fires once. Multiple detected cans cause an ambiguity stop; physical aiming and hit confirmation remain unvalidated.
 
 The top pane shows live video (about one second of delay). The bottom pane
 shows the exact labeled planner or controller input, verified by SHA-256.

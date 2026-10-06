@@ -179,3 +179,7 @@ Detector vocabulary, warm-up class and production planner target now use `can`, 
 ## Dashboard actions — 2026-10-06
 
 Replaced the physical dashboard prompt box with Find, Align, Approach and Shoot plus Stop. Reuses existing validated goal/controller routes; Approach has a displayed 50% image-height setpoint and Shoot performs alignment then one bounded fire command. Browser verified all four buttons and no text field; no physical commands executed for this UI verification.
+
+## Complete mission action — 2026-10-06
+
+Added the Complete mission dashboard button, using existing find_approach_shoot planning with a 50% image-height goal and one shot. Uses the same camera, ambiguity, cancellation and shot-ledger checks as other actions. Physical combined acceptance remains pending; this is not real-world obstacle avoidance or automatic elevation aiming.
