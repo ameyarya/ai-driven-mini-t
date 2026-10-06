@@ -229,3 +229,5 @@ stopped without firing. Historical can/simulation setpoints remain unchanged.
   camera is wired. Successful automatic elevation acceptance remains pending.
 
 Shooting setup now opens in a wider dialog with four spaced steps, a status strip, and separate reload controls. Browser rendering verified. Final attempt left unused because the second projectile trajectory was unclear.
+
+Calibration follow-up: frame-by-frame review of the +50 ms shot showed the blue projectile near the stand base, below the bullseye. A third test at +150 ms offset also left the target standing. Three attempts were used in this test session, taking the existing ledger from three remaining to zero. The tank did not approach during those shots. User took over physical calibration; no hit profile was saved. Current launcher offset remains +150 ms from the confirmed reference. Reload is required before further shots. UI now disables firing actions at zero attempts and serializes height adjustments.
