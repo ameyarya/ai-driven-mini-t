@@ -247,6 +247,8 @@ def control_decision(plan, measurement, history):
         if any(h.get('action')=='fire' for h in history):
             return dict(assessment, reason='Fire command already attempted; no automatic retry',
                         uncertainties=['Shot outcome unconfirmed'])
+        bias=plan.get('aim_offset_percent',0)
+        if type(bias) not in (int,float) or abs(bias)>5:raise ValueError('Invalid shooting aim offset')
         base = dict(plan, mode=SHOOT_MODES[plan['mode']])
         base_history = history
         if base['mode']=='find' and history and history[-1].get('phase')=='fire_confirmation':
@@ -256,7 +258,7 @@ def control_decision(plan, measurement, history):
             return decision
         if (measurement.get('target_clipped') is not False or
                 measurement.get('candidate_count', 1) != 1 or
-                abs(measurement.get('target_x', 0)-50)>CENTER_TOLERANCE):
+                abs(measurement.get('target_x', 0)-(50+bias))>alignment_tolerance(base,measurement)):
             return dict(assessment, reason='Firing requires one fully visible centered target',
                         uncertainties=['Firing alignment not confirmed'])
         previous = history[-1] if history else {}
@@ -306,7 +308,7 @@ def control_decision(plan, measurement, history):
         return dict(assessment,reason='Target lost or ambiguous',uncertainties=['Target not reliably localized'],needs_replan=True)
     if plan['mode']=='approach_size' and (measurement.get('target_clipped') is not False or type(height) not in (int,float) or not 0<height<=100):
         return dict(assessment,reason='Target size unavailable; stopped',uncertainties=['Target clipped or size invalid'])
-    offset=x-50
+    offset=x-(50+plan.get('aim_offset_percent',0))
     tolerance=alignment_tolerance(plan,measurement)
     assessment['alignment_tolerance_percent']=round(tolerance,2)
     if abs(offset)>tolerance:

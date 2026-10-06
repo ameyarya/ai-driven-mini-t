@@ -17,7 +17,7 @@ class ElevationCalibration:
         self.path.parent.mkdir(parents=True,exist_ok=True)
         temporary=self.path.with_suffix('.tmp');temporary.write_text(json.dumps(self.data,indent=2)+'\n');temporary.replace(self.path)
     def snapshot(self):
-        with self.lock:return {'reference_confirmed':self.position is not None,'position_ms':self.position,'enabled':self.enabled,'points':self.data['points'],'preset':self.data.get('preset')}
+        with self.lock:return {'reference_confirmed':self.position is not None,'position_ms':self.position,'enabled':self.enabled,'points':self.data['points'],'preset':self.data.get('preset'),'aim_offset_percent':self.data.get('aim_offset_percent',0)}
     def confirm_reference(self):
         with self.lock:self.position=0;self.enabled=False
     def invalidate(self):
