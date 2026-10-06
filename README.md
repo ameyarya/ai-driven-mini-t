@@ -212,7 +212,7 @@ Close Thonny and other applications holding the serial port.
 
 ```sh
 python3 -m serial.tools.list_ports -v
-python3 -u server_tank.py
+TANK_SERIAL_PORT=/dev/cu.usbmodem1101 python3 -u server_tank.py
 ```
 
 Check `PORT` and the receiver peer address in `server_tank.py` before running

@@ -155,3 +155,7 @@ This is scripted orchestration, not integrated dashboard mission support, Qwen
 inference, automatic elevation aiming or physical validation. See
 [methods and limitations](COMBINED_SIMULATION.md) and
 [per-case results](combined-simulation-results.json).
+
+## Physical test startup and orange target — 2026-10-06
+
+The detector now preserves explicitly named can colors, including orange, rather than always searching for red. Center-only goals constrain the planner to center or unsupported, preventing an absent target from silently changing the mission to search. Shooting plans preserve the requested can color. 80 host regression tests pass; orange detection and physical firing still require user validation. Startup accepts `TANK_SERIAL_PORT` for changed USB device paths.

@@ -38,6 +38,8 @@ def planner_request(goal, image, measurement, history=None, shooting_enabled=Tru
         allowed_modes=['find_approach_size' if requested is not None else 'find','unsupported']
     elif requested is not None:
         allowed_modes=['approach_size','unsupported']
+    elif vision.is_centering_goal(goal):
+        allowed_modes=['center','unsupported']
     else:
         allowed_modes=['center','approach_size','find','find_approach_size','unsupported']
     schema = {'type':'object','properties':{
@@ -51,7 +53,8 @@ def planner_request(goal, image, measurement, history=None, shooting_enabled=Tru
     if shooting_enabled and shooting_goal(goal):
         # Shooting POC has one supported target; annotation text must not become
         # an actuator target. Goal validation still rejects unnamed/other targets.
-        schema['properties']['target']['enum']=['red soda can']
+        from rover_detector import target_description
+        schema['properties']['target']['enum']=[target_description(goal)]
     return {
             'model':'qwen3-vl:4b-instruct','stream':False,'format':schema,
             'messages':[{'role':'user','images':[base64.b64encode(image).decode()],

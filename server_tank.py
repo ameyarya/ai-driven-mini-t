@@ -18,7 +18,7 @@ from urllib.parse import urlparse, parse_qs
 import serial
 import wireless_update
 
-PORT = "/dev/cu.usbmodem1101"   # USB transmitter, MAC 206ef1450f1c
+PORT = os.environ.get("TANK_SERIAL_PORT", "/dev/cu.usbmodem1101")   # USB transmitter, MAC 206ef1450f1c
 SPEED = 1024
 
 MOVES = {

@@ -13,7 +13,10 @@ def target_description(goal):
     # The current POC target. Other descriptions are passed through, not silently
     # replaced with the can; their detection quality has not been validated.
     import re
-    return 'red soda can' if re.search(r'\bcan\b|coca.?cola', goal, re.I) else goal
+    if re.search(r'\bcan\b|coca.?cola', goal, re.I):
+        color = re.search(r'\b(red|orange|yellow|green|blue|purple|pink|black|white|silver)\b', goal, re.I)
+        return (color.group(1).lower() if color else 'red') + ' soda can'
+    return goal
 
 
 def progress(measurement, history):
