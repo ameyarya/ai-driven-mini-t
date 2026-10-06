@@ -81,7 +81,7 @@
   "qwen_backend": "Original Qwen3-VL 4B via Ollama; no shooting adapter",
   "qwen_cases": [
     {
-      "goal": "Center the red can, then shoot once.",
+      "goal": "Center the can, then shoot once.",
       "planner_seconds": 3.84,
       "status": "Simulated contact HIT",
       "steps": 2,
@@ -99,7 +99,7 @@
       "passed": true
     },
     {
-      "goal": "Find the red can by turning in place, center it, then shoot once.",
+      "goal": "Find the can by turning in place, center it, then shoot once.",
       "planner_seconds": 3.93,
       "status": "Simulated contact HIT",
       "steps": 3,
@@ -117,7 +117,7 @@
       "passed": true
     },
     {
-      "goal": "Approach the red can until 50% of image height, keep it centered, then shoot once.",
+      "goal": "Approach the can until 50% of image height, keep it centered, then shoot once.",
       "planner_seconds": 4.18,
       "status": "Simulated contact HIT",
       "steps": 10,
@@ -135,7 +135,7 @@
       "passed": true
     },
     {
-      "goal": "Find the red can, approach until 50% of image height, keep it centered, then shoot once.",
+      "goal": "Find the can, approach until 50% of image height, keep it centered, then shoot once.",
       "planner_seconds": 4.33,
       "status": "Simulated contact HIT",
       "steps": 12,
@@ -162,7 +162,7 @@
   ],
   "fixes": [
     "Find-and-center goals classified as search even without 360/search wording",
-    "Shooting target schema constrained to supported red soda can, preventing overlay-text target confusion"
+    "Shooting target schema constrained to supported soda can, preventing overlay-text target confusion"
   ],
   "initial_browser_failure": "Qwen named SIM ORACLE as target; validation rejected before firing. Fixed by can-only shooting schema.",
   "browser_checks": {
@@ -226,5 +226,6 @@
       "errors": []
     }
   },
-  "host_tests": 79
+  "host_tests": 79,
+  "prompt_wording_note": "Can color wording normalized on 2026-10-06. Historical outcomes and timings are unchanged; this is not a rerun with generic detection."
 }

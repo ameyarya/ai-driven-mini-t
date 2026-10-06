@@ -11,7 +11,7 @@ def main():
     parser.add_argument('--frames-dir', type=Path, required=True)
     parser.add_argument('--output-dir', type=Path, required=True)
     parser.add_argument('--weights', default='yolov8s-worldv2.pt')
-    parser.add_argument('--prompt', default='red soda can')
+    parser.add_argument('--prompt', default='soda can')
     parser.add_argument('--device', default='cpu')
     parser.add_argument('--confidence', type=float, default=.10)
     parser.add_argument('--limit', type=int)

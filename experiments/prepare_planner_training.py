@@ -15,19 +15,19 @@ from rover_fast_navigation import planner_request
 
 OUT = ROOT / 'playground-data' / 'planner-training'
 GOALS = {
-    'center': ['Center the red can in the image, then stop.', 'Position the red can in the center.', 'Keep the red can in the middle of the camera image.'],
-    'approach_size': ['Move closer to the red can until it occupies roughly 50% of the image height. Keep it centered, then stop.', 'Approach the red can until it fills 40% of the image height. Center it, then stop.', 'Move closer until the red can occupies 60% of the image height. Keep it centered.'],
-    'find': ['Find the red can by doing a 360 turn in place. Center it, then stop.', 'Search for the red can by turning in place, center it, then stop.', 'Scan for the red can, center it in the image, then stop.'],
-    'find_approach_size': ['Find the red can by turning in place, then move closer until it occupies roughly 50% of the image height. Keep it centered, then stop.', 'Search for the red can, then approach until it fills 40% of the image height. Keep it centered.', 'Find and center the red can, then approach until it occupies 60% of the image height.'],
-    'shoot': ['Find the red can and shoot it.', 'Fire at the red can.', 'Aim the launcher at the red can and fire.'],
-    'away': ['Move farther away from the red can.', 'Drive backward away from the red can.', 'Move away from the red can, then stop.'],
-    'physical_distance': ['Move within 20 centimeters of the red can.', 'Approach the red can to a distance of 30 cm.', 'Stop 10 inches from the red can.'],
+    'center': ['Center the can in the image, then stop.', 'Position the can in the center.', 'Keep the can in the middle of the camera image.'],
+    'approach_size': ['Move closer to the can until it occupies roughly 50% of the image height. Keep it centered, then stop.', 'Approach the can until it fills 40% of the image height. Center it, then stop.', 'Move closer until the can occupies 60% of the image height. Keep it centered.'],
+    'find': ['Find the can by doing a 360 turn in place. Center it, then stop.', 'Search for the can by turning in place, center it, then stop.', 'Scan for the can, center it in the image, then stop.'],
+    'find_approach_size': ['Find the can by turning in place, then move closer until it occupies roughly 50% of the image height. Keep it centered, then stop.', 'Search for the can, then approach until it fills 40% of the image height. Keep it centered.', 'Find and center the can, then approach until it occupies 60% of the image height.'],
+    'shoot': ['Find the can and shoot it.', 'Fire at the can.', 'Aim the launcher at the can and fire.'],
+    'away': ['Move farther away from the can.', 'Drive backward away from the can.', 'Move away from the can, then stop.'],
+    'physical_distance': ['Move within 20 centimeters of the can.', 'Approach the can to a distance of 30 cm.', 'Stop 10 inches from the can.'],
 }
 
 
 def expected_plan(kind, goal, measurement):
     """Labels reflect existing capability, not unimplemented shooting behavior."""
-    target = 'red soda can'
+    target = 'soda can'
     result = dict(mode=kind,target=target,height_percent=0,reason='',uncertainties=[])
     if kind in ('shoot','away','physical_distance'):
         return dict(result,mode='unsupported',reason={'shoot':'Firing is not supported by this controller.','away':'Moving away is not supported by this controller.','physical_distance':'Physical distances require calibration; only image size is supported.'}[kind])

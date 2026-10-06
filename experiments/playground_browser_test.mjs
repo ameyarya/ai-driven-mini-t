@@ -53,13 +53,13 @@ try{
  const pick=predicate=>frames.slice().reverse().find(x=>predicate(x.measurement));
  const scenes=[['left',pick(m=>m.target_visible&&m.target_x<35&&!m.target_clipped)],['right',pick(m=>m.target_visible&&m.target_x>65&&!m.target_clipped)],['center',pick(m=>m.target_visible&&Math.abs(m.target_x-50)<3&&!m.target_clipped)],['missing',pick(m=>!m.target_visible&&m.candidate_count===0)]];
  const goals=[
- ['center','Center the red can in the image, then stop.','center'],
- ['approach','Move closer to the red can until it occupies roughly 50% of the image height. Keep it centered, then stop.','approach_size'],
- ['find','Find the red can by doing a 360 turn in place. Center it, then stop.','find'],
- ['combined','Find the red can by turning in place, then move closer until it occupies roughly 50% of the image height. Keep it centered, then stop.','find_approach_size'],
- ['shoot','Find the red can and shoot it.','unsupported'],
- ['away','Move farther away from the red can.','unsupported'],
- ['physical_distance','Move within 20 centimeters of the red can.','unsupported']
+ ['center','Center the can in the image, then stop.','center'],
+ ['approach','Move closer to the can until it occupies roughly 50% of the image height. Keep it centered, then stop.','approach_size'],
+ ['find','Find the can by doing a 360 turn in place. Center it, then stop.','find'],
+ ['combined','Find the can by turning in place, then move closer until it occupies roughly 50% of the image height. Keep it centered, then stop.','find_approach_size'],
+ ['shoot','Find the can and shoot it.','unsupported'],
+ ['away','Move farther away from the can.','unsupported'],
+ ['physical_distance','Move within 20 centimeters of the can.','unsupported']
  ];
  for(const [scene,item] of scenes){if(!item){results.cases.push({scene,skipped:'No matching recorded scene'});continue}
   for(const [name,goal,visibleExpectedMode] of goals){

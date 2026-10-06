@@ -8,7 +8,7 @@ These are two successful runs, not a controlled benchmark or a general speed gua
 
 ## The goal
 
-> Move closer to the red can until it occupies roughly 50% of the image height.
+> Move closer to the can until it occupies roughly 50% of the image height.
 > Keep it centered, then stop.
 
 | Measurement | Before: Qwen every observation | After: Qwen planner + visual controller |

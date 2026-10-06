@@ -11,8 +11,8 @@ from pathlib import Path
 from rover_sim import RoverSim, ROOT, navigation
 import obstacle_navigation as avoidance
 
-FIND = 'Find the red can by turning in place, center it, then stop.'
-SHOOT = 'Approach the red can until 50% of image height, center it, then shoot once.'
+FIND = 'Find the can by turning in place, center it, then stop.'
+SHOOT = 'Approach the can until 50% of image height, center it, then shoot once.'
 
 
 def scenarios():
@@ -55,7 +55,7 @@ def run_case(sim, spec):
             sim.start_avoidance()
         else:
             sim.goal=goal
-            sim.plan=dict(mode=mode,target='red can',height_percent=50 if stage=='shoot' else 0,
+            sim.plan=dict(mode=mode,target='can',height_percent=50 if stage=='shoot' else 0,
                           reason='Scripted matrix stage',uncertainties=[])
             navigation.validate_plan(sim.plan,goal)
             sim.history=[]

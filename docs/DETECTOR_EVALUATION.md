@@ -12,7 +12,9 @@ not uploaded.
 
 ## Results
 
-A fixed manifest of 196 saved frames was rerun with `red soda can` and explicit
+These historical color-specific results predate generic detection. Current runtime uses `soda can`; this report does not establish reliability across all can appearances.
+
+A fixed manifest of 196 saved frames was rerun with `color-specific soda-can prompt (historical)` and explicit
 MPS synchronization. 186 frames produced at least one candidate. This is a
 **detection count, not an accuracy score**: the entire set has not been independently
 annotated and many frames are highly correlated.
@@ -28,12 +30,12 @@ in the other runs were excluded):
 
 | Prompt | Frames detected at 0.10 | Frames detected at 0.25 |
 | --- | ---: | ---: |
-| red soda can | 186 | 177 |
+| color-specific soda-can prompt (historical) | 186 | 177 |
 | soda can | 177 | 160 |
 | Coca-Cola can | 175 | 72 |
 
 More detections alone do not prove greater accuracy. Visual spot-checks favored
-`red soda can` for this particular object/environment. This is prompt selection
+`color-specific soda-can prompt (historical)` for this particular object/environment. This is prompt selection
 on development images, not a held-out benchmark.
 
 ## Manually reviewed cases
@@ -69,7 +71,7 @@ Promising enough to prototype as independent measurement input to Qwen, but not
 integrated into control yet. Keep weak detections explicit as uncertain candidates,
 check target continuity, and stop or reobserve when target identity/visibility is
 ambiguous. Before treating low-confidence candidates as control measurements,
-add diverse no-target/red-distractor cases and a held-out annotated frame set.
+add diverse no-target/color-matched distractor cases and a held-out annotated frame set.
 
 The annotated JPEGs and full per-frame reports remain in local `detector-output/`;
 images are not published. Reproduce with [the offline runner](../experiments/README.md).

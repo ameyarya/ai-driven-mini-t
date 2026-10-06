@@ -1,7 +1,7 @@
 # Obstacle avoidance: simulation milestone
 
 The first avoidance controller is implemented and tested in MuJoCo. It routes
-around static blocks, approaches the red can, faces it and stops. It never
+around static blocks, approaches the can, faces it and stops. It never
 fires. This is a navigation baseline, not model training or camera perception.
 
 ## Try it

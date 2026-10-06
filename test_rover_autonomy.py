@@ -45,10 +45,10 @@ class ControllerTests(unittest.TestCase):
             self.assertEqual(a['goal_achieved'], achieved)
 
     def test_complex_mission_is_not_reduced_to_centering(self):
-        self.assertTrue(is_centering_goal('position red can in center'))
+        self.assertTrue(is_centering_goal('position can in center'))
         self.assertFalse(is_centering_goal('scan 360, approach the can, centre it and shoot'))
         for goal in [
-            'Move closer to the red can until it occupies roughly 40% of the image height. Keep it centered, then stop.',
+            'Move closer to the can until it occupies roughly 40% of the image height. Keep it centered, then stop.',
             'Move away from the can and keep it in the center',
             'Keep the can centered and make it fill half the image',
         ]:

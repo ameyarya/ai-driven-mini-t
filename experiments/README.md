@@ -11,9 +11,9 @@ images. Both model weights download on first use.
 ```sh
 python experiments/detector_eval.py \
   --frames-dir ../vision-output \
-  --output-dir ../detector-output/red-soda-can \
+  --output-dir ../detector-output/soda-can \
   --weights ../tools/yolov8s-worldv2.pt \
-  --prompt 'red soda can' \
+  --prompt 'soda can' \
   --device mps
 ```
 

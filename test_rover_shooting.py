@@ -17,26 +17,26 @@ def measurement(x=50, visible=True, clipped=False):
 
 class ShootingTests(unittest.TestCase):
     def test_shooting_schema_cannot_name_overlay_text_as_target(self):
-        request=fast.planner_request('Center red can then shoot once',b'image',measurement())
+        request=fast.planner_request('Center can then shoot once',b'image',measurement())
         self.assertEqual(request['format']['properties']['target']['enum'],['soda can'])
-        legacy=fast.planner_request('Center red can then shoot once',b'image',measurement(),shooting_enabled=False)
+        legacy=fast.planner_request('Center can then shoot once',b'image',measurement(),shooting_enabled=False)
         self.assertNotIn('enum',legacy['format']['properties']['target'])
     def test_shooting_contract_preserves_search_approach_and_explicit_intent(self):
-        p=dict(mode='find_approach_shoot',target='red can',height_percent=50,uncertainties=[])
-        goal='Find red can, approach until 50% image height, then shoot'
+        p=dict(mode='find_approach_shoot',target='can',height_percent=50,uncertainties=[])
+        goal='Find can, approach until 50% image height, then shoot'
         fast.validate_plan(p,goal)
         for changes in ({'mode':'approach_shoot'},{'mode':'find_shoot'},{'height_percent':40},{'target':'person'}):
             with self.assertRaises(ValueError):fast.validate_plan(dict(p,**changes),goal)
         with self.assertRaises(ValueError):fast.validate_plan(p,'Find can and approach until 50% image height')
 
     def test_no_shot_for_absent_clipped_or_ambiguous_target(self):
-        p=dict(mode='shoot',target='red can',height_percent=0)
+        p=dict(mode='shoot',target='can',height_percent=0)
         for m in (measurement(visible=False),measurement(clipped=True),dict(measurement(),candidate_count=2)):
             self.assertNotEqual(fast.control_decision(p,m,[])['suggested_action'],'fire')
 
     def test_mission_cannot_hide_multiple_shots_or_unnamed_target(self):
-        p=dict(mode='shoot',target='red can',height_percent=0,uncertainties=[])
-        for goal in ('Shoot it','Fire six shots at red can','Shoot red can until hit'):
+        p=dict(mode='shoot',target='can',height_percent=0,uncertainties=[])
+        for goal in ('Shoot it','Fire six shots at can','Shoot can until hit'):
             with self.assertRaises(ValueError):fast.validate_plan(p,goal)
 
     def test_inverse_height_gain_limits_nonlinear_approach(self):
@@ -47,7 +47,7 @@ class ShootingTests(unittest.TestCase):
         self.assertEqual(duration,325)  # 65% of the estimated 500 ms translation.
 
     def test_find_shoot_confirmation_does_not_loop_or_repeat(self):
-        p=dict(mode='find_shoot',target='red can',height_percent=0)
+        p=dict(mode='find_shoot',target='can',height_percent=0)
         history=[]
         for _ in range(5):
             a=fast.control_decision(p,measurement(),history)
@@ -98,7 +98,7 @@ class ShootingTests(unittest.TestCase):
             self.assertEqual(len(list(Path(folder).glob('ledger-before-reload-*.json'))),1)
 
     def test_controller_fires_once_and_does_not_claim_hit_or_goal_success(self):
-        plan=dict(mode='shoot',target='red can',height_percent=0,uncertainties=[])
+        plan=dict(mode='shoot',target='can',height_percent=0,uncertainties=[])
         calls=[];moves=[]
         def observe(goal,plan,history):
             return dict(captured_at=time.time(),assessment=fast.control_decision(plan,measurement(),history))

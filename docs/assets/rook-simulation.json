@@ -6,7 +6,7 @@
     "lateral": 0.15,
     "heading": 3
   },
-  "goal": "Find the red can, approach until 50% of image height, then shoot once.",
+  "goal": "Find the can, approach until 50% of image height, then shoot once.",
   "status": "Simulated contact HIT",
   "shots": [
     {
@@ -26,5 +26,6 @@
     "Segmentation oracle",
     "Uncalibrated kinematic tracks and launcher",
     "Not a recording of historical benchmark runs"
-  ]
+  ],
+  "prompt_wording_note": "Can color wording normalized on 2026-10-06. Historical outcomes and timings are unchanged; this is not a rerun with generic detection."
 }

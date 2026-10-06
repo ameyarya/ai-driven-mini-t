@@ -21,7 +21,7 @@ class PlaygroundTests(unittest.TestCase):
         (self.frames / 'label.jpg').write_bytes(b'labeled-image')
         self.record = dict(frame='/old/path/raw.jpg', model_frame='/old/path/label.jpg',
                            detector=dict(target_visible=True, target_x=30, target_height=10),
-                           input_sha256=hashlib.sha256(b'labeled-image').hexdigest(), goal='Center the red can')
+                           input_sha256=hashlib.sha256(b'labeled-image').hexdigest(), goal='Center the can')
         (self.frames / 'old.controller.json').write_text(json.dumps(self.record))
         self.data_patch = patch.object(p, 'DATA', self.root / 'data')
         self.data_patch.start()
@@ -39,10 +39,10 @@ class PlaygroundTests(unittest.TestCase):
         item = next(iter(p.catalog(self.frames).values()))
         original = (self.frames / 'old.controller.json').read_bytes()
         response = dict(model='test', message=dict(content=json.dumps(dict(
-            mode='center', target='red can', height_percent=0, reason='Center', uncertainties=[]))))
+            mode='center', target='can', height_percent=0, reason='Center', uncertainties=[]))))
         with patch.object(p.navigation.vision, 'read_json', return_value=response) as request, \
                 patch.object(p.navigation.vision, 'capture_frame', side_effect=AssertionError('Camera accessed')):
-            result = p.infer(item, 'Center the red can')
+            result = p.infer(item, 'Center the can')
         self.assertEqual(result['plan']['mode'], 'center')
         body = request.call_args.args[1]
         self.assertEqual(p.base64.b64decode(body['messages'][0]['images'][0]), b'labeled-image')
@@ -57,10 +57,10 @@ class PlaygroundTests(unittest.TestCase):
         run = p.DATA / 'runs' / ('a' * 32)
         run.mkdir(parents=True)
         result = dict(id=run.name, source=item['id'], image_sha256=item['sha256'],
-                      goal='Center the red can', prompt='Test prompt')
+                      goal='Center the can', prompt='Test prompt')
         (run / 'result.json').write_text(json.dumps(result))
         self.assertEqual(p.export_dataset(items)['train'], 0)
-        expected = dict(mode='center', target='red can', height_percent=0, reason='Center', uncertainties=[])
+        expected = dict(mode='center', target='can', height_percent=0, reason='Center', uncertainties=[])
         p.review(run.name, expected)
         counts = p.export_dataset(items)
         self.assertEqual(counts['train'] + counts['validation'], 1)
@@ -76,8 +76,8 @@ class PlaygroundTests(unittest.TestCase):
             run = p.DATA / 'runs' / (c * 32)
             run.mkdir(parents=True)
             (run / 'result.json').write_text(json.dumps(dict(id=run.name,source=item['id'],
-                image_sha256=item['sha256'], goal='Center the red can', prompt='Test',
-                expected=dict(mode='center', target='red can',height_percent=0,reason='OK',uncertainties=[]))))
+                image_sha256=item['sha256'], goal='Center the can', prompt='Test',
+                expected=dict(mode='center', target='can',height_percent=0,reason='OK',uncertainties=[]))))
         counts = p.export_dataset(items)
         self.assertIn(2, (counts['train'], counts['validation']))
 
@@ -85,7 +85,7 @@ class PlaygroundTests(unittest.TestCase):
         item = next(iter(p.catalog(self.frames).values()))
         entered = threading.Event()
         release = threading.Event()
-        goals = ['Center red can', 'Center soda can']
+        goals = ['Center can', 'Center soda can']
         calls = []
 
         def transport(url, body=None, timeout=5):
@@ -94,7 +94,7 @@ class PlaygroundTests(unittest.TestCase):
                 entered.set()
                 self.assertTrue(release.wait(3))
             return dict(model='test', message=dict(content=json.dumps(dict(
-                mode='center', target='red can', height_percent=0, reason='Center', uncertainties=[]))))
+                mode='center', target='can', height_percent=0, reason='Center', uncertainties=[]))))
 
         with patch.object(p.navigation.vision, 'read_json', side_effect=transport), ThreadPoolExecutor(2) as pool:
             first = pool.submit(p.infer, item, goals[0])
@@ -132,19 +132,19 @@ class PlaygroundTests(unittest.TestCase):
                 p.validate_label(bad, 'Center can')
 
     def test_planner_cannot_convert_center_or_physical_distance_to_search(self):
-        plan = dict(mode='find',target='red can',height_percent=0,reason='Search',uncertainties=[])
-        for goal in ('Center the red can in the image, then stop.',
-                     'Move within 20 centimeters of the red can.',
-                     'Move within 20 cm of the red can.'):
+        plan = dict(mode='find',target='can',height_percent=0,reason='Search',uncertainties=[])
+        for goal in ('Center the can in the image, then stop.',
+                     'Move within 20 centimeters of the can.',
+                     'Move within 20 cm of the can.'):
             with self.subTest(goal=goal), self.assertRaises(ValueError):
                 p.navigation.validate_plan(plan, goal)
 
     def test_mlx_backend_routes_locally_with_same_image(self):
         item = next(iter(p.catalog(self.frames).values()))
         response = dict(model='fine-tuned',message=dict(content=json.dumps(dict(
-            mode='center',target='red can',height_percent=0,reason='Center',uncertainties=[]))))
+            mode='center',target='can',height_percent=0,reason='Center',uncertainties=[]))))
         with patch.object(p.navigation.vision,'read_json',return_value=response) as request:
-            result=p.infer(item,'Center the red can',backend='mlx')
+            result=p.infer(item,'Center the can',backend='mlx')
         self.assertEqual(request.call_args.args[0],'http://127.0.0.1:8767/api/chat')
         self.assertEqual(result['backend'],'mlx')
         self.assertFalse(result['motor_commands_sent'])
@@ -156,7 +156,7 @@ class PlaygroundTests(unittest.TestCase):
 
     def test_bad_review_cannot_discard_requested_search(self):
         with self.assertRaises(ValueError):
-            p.validate_label(dict(mode='center',target='can',height_percent=0,reason='OK',uncertainties=[]), 'Find the red can by doing a 360 turn')
+            p.validate_label(dict(mode='center',target='can',height_percent=0,reason='OK',uncertainties=[]), 'Find the can by doing a 360 turn')
         with self.assertRaises(ValueError):
             p.review('../secret', {})
 

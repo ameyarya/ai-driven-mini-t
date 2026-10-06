@@ -92,7 +92,7 @@ old shooting-refusal contract and include training-session observations.
 ## What works today
 
 - Hold-to-drive keyboard control over a USB transmitter and ESP-NOW.
-- Turn-in-place search that finds the red can, centers it, and confirms full visibility; physically tested successfully.
+- Turn-in-place search that finds the can, centers it, and confirms full visibility; physically tested successfully.
 - Wireless DJI capture and live video plus an exact Qwen-input view in a localhost dashboard.
 - Target-box overlay, crosshair, image grid, offset/size measurements, snapshot age, and target-position trail.
 - Local **Qwen3-VL 4B Instruct** image analysis through Ollama.
@@ -246,7 +246,7 @@ warms up automatically before capture; first use may download CLIP weights.
 Weights and camera images are excluded from Git.
 
 Enter a goal in the empty **Navigation goal** box, then click **Start**.
-For example: “Turn until the red can is centred in the image, then stop.”
+For example: “Turn until the can is centred in the image, then stop.”
 Qwen interprets the goal once into a target and visual setpoint. Supported goals
 are finding a target by turning in place, centering, or approaching to an explicit percentage of image height while
 centered. Python then measures each fresh frame, aligns before advancing, and
@@ -280,7 +280,7 @@ python3 rover_vision.py --goal "Find a clear path ahead."
 and find-and-center corrections (October 2, 2026). Exact 360° coverage remains
 uncalibrated; this confirms the search-and-center behavior, not heading accuracy.
 
-Enter **“Find the red can by doing 360 turn in place”** and press Start.
+Enter **“Find the can by doing 360 turn in place”** and press Start.
 Qwen selects the target and search mode once. Python turns right in 250 ms
 pulses, stops, waits for fresh video, and checks the detector. It switches from searching to
 centering as soon as a candidate appears. Success requires a fully visible,
@@ -305,7 +305,7 @@ and then centers it. No calibration is assumed or invented.
 
 Use:
 
-> Find the red can by turning in place. Center it, then move closer until it
+> Find the can by turning in place. Center it, then move closer until it
 > occupies roughly 50% of the image height. Keep it centered, then stop.
 
 Qwen creates one `find_approach_size` plan with the requested height. The
@@ -347,7 +347,7 @@ controls have their own timeout. Forward/reverse includes the tested approximate
 
 ## What we have verified
 
-- Local model recognized a synthetic red square.
+- Local model recognized a synthetic colored square.
 - Real DJI frame analysis completed in about **10–12 seconds** on the M4 Mac.
 - It identified a Coca-Cola can on the **right** of the image.
 - It suggested STOP for an obscured camera frame.

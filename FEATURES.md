@@ -32,10 +32,10 @@ from simulation or software tests. Unchecked items remain unfinished.
 - [x] Local Qwen3-VL 4B goal planning with validated structured output.
 - [x] Python move → stop → observe feedback loop using fresh detections.
 - [x] Adaptive turn and approach timing rather than one fixed pulse length.
-- [x] Center the red can. Physically tested.
+- [x] Center the can. Physically tested.
 - [x] Approach to a requested percentage of image height. Physically tested;
   the latest inverse-height timing change still needs a physical retest.
-- [x] Turn-in-place search for the red can. Physically tested; exact 360° coverage is uncalibrated.
+- [x] Turn-in-place search for the can. Physically tested; exact 360° coverage is uncalibrated.
 - [x] Combined search → approximate alignment → approach → final alignment.
   Implemented and simulation-tested; physical runs have not yet completed reliably.
 - [x] Bounded target-loss recovery, stale-frame checks, Stop and step/search limits.

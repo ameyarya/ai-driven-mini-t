@@ -74,7 +74,7 @@ Qwen planner requests and exact input images are saved privately when used.
 
 Example one-shot mission:
 
-> Find the red can by turning in place, then approach until it occupies
+> Find the can by turning in place, then approach until it occupies
 > 50% of image height. Keep it centered, then shoot once.
 
 ## Verification
@@ -136,7 +136,7 @@ These request times are not a controlled speed benchmark.
 The broader tests found and fixed two bugs: find-and-center goals were treated
 as center-only without the words search/360, and Qwen sometimes named the
 "SIM ORACLE" overlay as the firing target. The latter was rejected before
-firing. Shooting now constrains the target field to the supported red soda can;
+firing. Shooting now constrains the target field to the supported soda can;
 unsupported/unnamed goals still fail validation. Both the scripted and real-Qwen
 browser paths pass all six checks after correction.
 

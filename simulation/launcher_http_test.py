@@ -30,7 +30,7 @@ def main():
             check(name,not accepted and status()['launcher_elevation']==-10)
         post('/reset',{})
         check('Reset returns launcher to zero',status()['launcher_elevation']==0)
-        post('/goal',dict(goal='Find the red can and shoot once',backend='scripted'))
+        post('/goal',dict(goal='Find the can and shoot once',backend='scripted'))
         post('/launcher',dict(action='up',duration_ms=1000))
         check('Manual launcher input cancels goal',not status()['running'])
         post('/fire',{})

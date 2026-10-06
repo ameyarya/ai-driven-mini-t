@@ -73,7 +73,7 @@ def serve(port=8002):
                         searching=navigation.search_goal(goal);shooting=navigation.shooting_goal(goal)
                         if shooting:mode=('find_approach_shoot' if searching else 'approach_shoot') if requested else ('find_shoot' if searching else 'shoot')
                         else:mode=('find_approach_size' if searching else 'approach_size') if requested else ('find' if searching else 'center')
-                        plan=dict(mode=mode,target='red can',height_percent=requested or 0,reason='Scripted contract preview; Qwen not called',uncertainties=[])
+                        plan=dict(mode=mode,target='can',height_percent=requested or 0,reason='Scripted contract preview; Qwen not called',uncertainties=[])
                     elif backend=='ollama':
                         if benchmark_busy():raise ValueError('Wait for the all-frame GPU benchmark to finish before Qwen inference')
                         request=navigation.planner_request(goal,image,measurement)

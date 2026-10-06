@@ -10,11 +10,11 @@ ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'playground-data/simulation/http-matrix.json'
 URL='http://127.0.0.1:8002'
 GOALS=[
-    ('center','Center the red can, then stop.'),
-    ('find','Find the red can by turning in place, center it, then stop.'),
-    ('approach','Approach the red can until 50% of image height, then stop.'),
-    ('shoot','Center the red can, then shoot once.'),
-    ('combined_shoot','Find the red can, approach until 50% of image height, then shoot once.'),
+    ('center','Center the can, then stop.'),
+    ('find','Find the can by turning in place, center it, then stop.'),
+    ('approach','Approach the can until 50% of image height, then stop.'),
+    ('shoot','Center the can, then shoot once.'),
+    ('combined_shoot','Find the can, approach until 50% of image height, then shoot once.'),
 ]
 
 
@@ -63,8 +63,8 @@ def main():
     for name,path,body in [
         ('Unknown movement rejected','/move',dict(action='fly',duration_ms=250)),
         ('Unbounded pulse rejected','/move',dict(action='forward',duration_ms=2000)),
-        ('Physical distance rejected','/goal',dict(goal='Approach red can to 20 centimeters',backend='scripted')),
-        ('Repeated firing mission rejected','/goal',dict(goal='Shoot red can six times',backend='scripted')),
+        ('Physical distance rejected','/goal',dict(goal='Approach can to 20 centimeters',backend='scripted')),
+        ('Repeated firing mission rejected','/goal',dict(goal='Shoot can six times',backend='scripted')),
         ('Unnamed target rejected','/goal',dict(goal='Shoot it',backend='scripted')),
         ('Blank goal rejected','/goal',dict(goal='',backend='scripted')),
     ]:
@@ -77,7 +77,7 @@ def main():
     except urllib.error.HTTPError as error:passed=error.code==400
     report['checks'].append(dict(name='Seventh shot rejected',passed=passed))
     post('/reset',{})
-    post('/goal',dict(goal='Find the red can and shoot once',backend='scripted'))
+    post('/goal',dict(goal='Find the can and shoot once',backend='scripted'))
     post('/stop',{})
     report['checks'].append(dict(name='Stop cancels without shooting',passed=not status()['running'] and not status()['shots']))
     post('/reset',{})
@@ -97,10 +97,10 @@ def main():
 def qwen_smoke():
     results=[]
     goals=[
-        'Center the red can, then shoot once.',
-        'Find the red can by turning in place, center it, then shoot once.',
-        'Approach the red can until 50% of image height, keep it centered, then shoot once.',
-        'Find the red can, approach until 50% of image height, keep it centered, then shoot once.',
+        'Center the can, then shoot once.',
+        'Find the can by turning in place, center it, then shoot once.',
+        'Approach the can until 50% of image height, keep it centered, then shoot once.',
+        'Find the can, approach until 50% of image height, keep it centered, then shoot once.',
     ]
     for goal in goals:
         post('/reset',dict(distance=.8,lateral=.15))

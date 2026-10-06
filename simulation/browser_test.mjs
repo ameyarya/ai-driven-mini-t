@@ -40,7 +40,7 @@ await evaluate("document.querySelector('#reset').click()");
 await until("document.querySelector('#shots').textContent==='No shots' && document.querySelector('#elevation').textContent.includes('0.0°')");
 check('Reset restores level launcher',true);
 if(backend==='ollama')await evaluate("document.querySelector('#backend').value='ollama'");
-await evaluate("document.querySelector('#goal').value='Center the red can, then shoot once.';document.querySelector('#start').click()");
+await evaluate("document.querySelector('#goal').value='Center the can, then shoot once.';document.querySelector('#start').click()");
 await until("document.querySelector('#shots').textContent.includes('contact HIT')");check('UI mission fires and reports simulated contact',true);
 await evaluate("document.querySelector('#stop').click()");await until("document.querySelector('#status').textContent.includes('Stopped by user')");check('Stop button works',true);
 await evaluate("document.querySelector('#reset').click()");await until("document.querySelector('#shots').textContent==='No shots'");check('Reset reloads simulated launcher',true);

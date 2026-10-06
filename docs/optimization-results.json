@@ -1,6 +1,6 @@
 {
   "date": "2026-10-02",
-  "goal": "Move closer to the red can until it occupies roughly 50% of the image height. Keep it centered, then stop.",
+  "goal": "Move closer to the can until it occupies roughly 50% of the image height. Keep it centered, then stop.",
   "timing_definition": "First captured frame timestamp through final result JSON modification timestamp; excludes startup and initial capture. After includes initial Qwen planning.",
   "before": {
     "architecture": "Qwen for every observation",
@@ -33,5 +33,6 @@
     "Different starting alignment and possibly other conditions.",
     "After accepts 49% for a roughly 50% goal; before used a >=50% size check.",
     "Counts and timings reconstructed from local JSON logs; images and raw private logs are not published."
-  ]
+  ],
+  "prompt_wording_note": "Can color wording normalized on 2026-10-06. Historical outcomes and timings are unchanged; this is not a rerun with generic detection."
 }

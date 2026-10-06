@@ -115,7 +115,7 @@ class RoverSim:
         self.waypoint=1;self.avoidance_steps=0;self.history=[]
         if not self.route:
             self.route=[];self.plan=None;self.status='Stopped: no clear route';return
-        self.plan={'mode':'obstacle_route'};self.goal='Avoid obstacles, approach red can, then stop'
+        self.plan={'mode':'obstacle_route'};self.goal='Avoid obstacles, approach can, then stop'
         self.status='Obstacle route started (known simulation map)'
 
     def step_avoidance(self):

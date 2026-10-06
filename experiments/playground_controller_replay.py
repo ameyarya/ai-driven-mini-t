@@ -13,7 +13,7 @@ def run():
     cases = []
     for item in catalog().values():
         for mode in ('center', 'approach_size', 'find', 'find_approach_size'):
-            plan = dict(mode=mode,target='red soda can',height_percent=50 if 'size' in mode else 0,
+            plan = dict(mode=mode,target='soda can',height_percent=50 if 'size' in mode else 0,
                         reason='Replay fixture',uncertainties=[],search_direction='right',
                         heading_calibrated=False,full_turn_ms=None)
             m = item['measurement']

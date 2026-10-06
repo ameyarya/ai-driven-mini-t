@@ -33,15 +33,15 @@ class TrainingDataTests(unittest.TestCase):
         self.assertEqual([len(x['items']) for x in sessions(items)],[2,1])
 
     def test_scoring_checks_schema_and_goal_without_matching_reason_text(self):
-        expected=dict(mode='center',target='red soda can',height_percent=0,reason='Center',uncertainties=[])
+        expected=dict(mode='center',target='soda can',height_percent=0,reason='Center',uncertainties=[])
         self.assertEqual(score(dict(expected,reason='Align the object.'),expected),[])
         self.assertTrue(score(dict(expected,mode='find'),expected))
         self.assertTrue(score(dict(expected,extra='unexpected'),expected))
         self.assertTrue(score(dict(expected,uncertainties=['unknown']),expected))
 
     def test_production_and_training_share_image_prompt(self):
-        r=planner_request('Center red can',b'photo',dict(target_x=25))
-        self.assertIn('Goal: Center red can',r['messages'][0]['content'])
+        r=planner_request('Center can',b'photo',dict(target_x=25))
+        self.assertIn('Goal: Center can',r['messages'][0]['content'])
         self.assertIn('"target_x": 25',r['messages'][0]['content'])
         self.assertEqual(r['messages'][0]['images'],['cGhvdG8='])
 

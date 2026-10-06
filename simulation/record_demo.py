@@ -77,8 +77,8 @@ def main():
     try:
         sim.reset(distance=.8, lateral=.15, heading=3)
         sim.next_frame = sim.data.time
-        sim.goal = 'Find the red can, approach until 50% of image height, then shoot once.'
-        sim.plan = dict(mode='find_approach_shoot', target='red can', height_percent=50,
+        sim.goal = 'Find the can, approach until 50% of image height, then shoot once.'
+        sim.plan = dict(mode='find_approach_shoot', target='can', height_percent=50,
                         reason='Scripted controller demonstration', uncertainties=[])
         sim.action = 'Goal: search in place, approach to 50% image height, fire once'
         sim.hold(1.5)

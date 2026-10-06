@@ -10,7 +10,7 @@ from unittest.mock import patch
 import rover_fast_navigation as fast
 from rover_autonomy import NavigationController
 
-PLAN={'mode':'approach_size','target':'red soda can','height_percent':50,'uncertainties':[],'reason':'Approach and center'}
+PLAN={'mode':'approach_size','target':'soda can','height_percent':50,'uncertainties':[],'reason':'Approach and center'}
 
 
 def measurement(x=50,height=30,visible=True,clipped=False):
@@ -20,7 +20,7 @@ def measurement(x=50,height=30,visible=True,clipped=False):
 class FastNavigationTests(unittest.TestCase):
     def test_generic_can_and_centering_contract(self):
         from rover_detector import target_description
-        for goal in ['Position orange can in center', 'Center the red can', 'Find the can', 'Find Coca-Cola']:
+        for goal in ['Position orange can in center', 'Center the blue can', 'Find the silver can', 'Find the can', 'Find Coca-Cola']:
             self.assertEqual(target_description(goal), 'soda can')
         request=fast.planner_request('Position orange can in center', b'image', measurement())
         self.assertEqual(request['format']['properties']['mode']['enum'], ['center','unsupported'])
@@ -37,9 +37,9 @@ class FastNavigationTests(unittest.TestCase):
                 self.assertEqual(base64.b64decode(body['messages'][0]['images'][0]),labeled.read_bytes())
                 return {'model':'test','message':{'content':json.dumps(PLAN)}}
             with patch.object(fast.vision,'capture_frame',return_value=frame),patch.object(fast.vision,'prepare_detector_image',return_value=prepared),patch.object(fast.vision,'read_json',side_effect=response) as chat:
-                plan=fast.plan_goal('Approach red can to 50% of image height')
+                plan=fast.plan_goal('Approach can to 50% of image height')
                 self.assertEqual(fast.vision.input_snapshot()['result']['input_role'],'qwen_planner')
-                result=fast.observe_goal('Approach red can to 50% of image height',plan,[])
+                result=fast.observe_goal('Approach can to 50% of image height',plan,[])
                 self.assertEqual(chat.call_count,1)
                 self.assertEqual(result['input_role'],'controller')
                 self.assertEqual(result['input_sha256'],hashlib.sha256(labeled.read_bytes()).hexdigest())
@@ -47,7 +47,7 @@ class FastNavigationTests(unittest.TestCase):
 
     def test_find_rotates_without_advancing_when_target_absent(self):
         plan=dict(PLAN,mode='find',height_percent=0,search_direction='right',full_turn_ms=None)
-        fast.validate_plan(plan,'Find the red can by doing 360 turn in place')
+        fast.validate_plan(plan,'Find the can by doing 360 turn in place')
         a=fast.control_decision(plan,measurement(visible=False),[])
         self.assertEqual(a['suggested_action'],'right')
         self.assertEqual(a['duration_ms'],250)
@@ -115,20 +115,20 @@ class FastNavigationTests(unittest.TestCase):
         moves=[]
         def observe(goal,plan,history):return {'captured_at':time.time(),'assessment':fast.control_decision(plan,next(frames),history)}
         c=NavigationController(None,moves.append,planner=lambda *a,**k:plan,fast_observe=observe)
-        c.state['goal']='Find red can by rotating in place'
+        c.state['goal']='Find can by rotating in place'
         with patch.object(c.cancelled,'wait',return_value=False):c.run(c.cancelled)
         self.assertEqual(moves,['D','X','X','X'])
         self.assertEqual(c.snapshot()['state'],'complete')
 
     def test_find_mission_cannot_silently_drop_approach(self):
         fast.validate_plan(dict(PLAN,mode='find',height_percent=0),
-                           'Find the red can by turning in place, center it, then stop.')
-        with self.assertRaises(ValueError):fast.validate_plan(dict(PLAN,mode='find'),'Find red can, then approach it')
-        with self.assertRaises(ValueError):fast.validate_plan(PLAN,'Find red can by rotating 360')
+                           'Find the can by turning in place, center it, then stop.')
+        with self.assertRaises(ValueError):fast.validate_plan(dict(PLAN,mode='find'),'Find can, then approach it')
+        with self.assertRaises(ValueError):fast.validate_plan(PLAN,'Find can by rotating 360')
 
     def test_combined_mission_searches_confirms_then_approaches(self):
         plan=dict(PLAN,mode='find_approach_size')
-        goal='Find red can, center it, then move closer until 50% of image height'
+        goal='Find can, center it, then move closer until 50% of image height'
         fast.validate_plan(plan,goal)
         frames=iter([measurement(visible=False),measurement(x=98,clipped=True),
                      measurement(x=60),measurement(x=50),measurement(x=50),
@@ -166,7 +166,7 @@ class FastNavigationTests(unittest.TestCase):
 
     def test_combined_mission_requires_exact_requested_height(self):
         for height in (0,40):
-            with self.assertRaises(ValueError):fast.validate_plan(dict(PLAN,mode='find_approach_size',height_percent=height),'Find red can, then approach to 50% of image height')
+            with self.assertRaises(ValueError):fast.validate_plan(dict(PLAN,mode='find_approach_size',height_percent=height),'Find can, then approach to 50% of image height')
 
     def test_far_target_can_advance_without_precise_centering(self):
         a=fast.control_decision(PLAN,measurement(x=40,height=10),[])
@@ -267,7 +267,7 @@ class FastNavigationTests(unittest.TestCase):
         def observe(goal,plan,history):
             return {'captured_at':time.time(),'assessment':fast.control_decision(plan,next(answers),history)}
         c=NavigationController(None,moves.append,planner=planner,fast_observe=observe)
-        c.state['goal']='Approach red can to 50% image height'
+        c.state['goal']='Approach can to 50% image height'
         with patch.object(c.cancelled,'wait',return_value=False):c.run(c.cancelled)
         self.assertEqual(len(calls),1)
         self.assertEqual(moves,['A','X','W','X','X'])
@@ -278,7 +278,7 @@ class FastNavigationTests(unittest.TestCase):
         def planner(goal,history):calls.append(goal);return PLAN
         def observe(goal,plan,history):return {'captured_at':time.time(),'assessment':fast.control_decision(plan,measurement(visible=False),history)}
         c=NavigationController(None,moves.append,planner=planner,fast_observe=observe)
-        c.state['goal']='Center red can'
+        c.state['goal']='Center can'
         c.run(c.cancelled)
         self.assertEqual(len(calls),3)
         self.assertTrue(all(m=='X' for m in moves))
@@ -288,7 +288,7 @@ class FastNavigationTests(unittest.TestCase):
         moves=[]
         def planner(goal,history):c.cancel();return PLAN
         c=NavigationController(None,moves.append,planner=planner,fast_observe=lambda *a: self.fail('Observed after Stop'))
-        c.state['state']='observing';c.state['goal']='Center red can'
+        c.state['state']='observing';c.state['goal']='Center can'
         c.run(c.cancelled)
         self.assertEqual(moves,['X'])
 
