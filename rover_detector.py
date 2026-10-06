@@ -14,7 +14,7 @@ def target_description(goal):
     # replaced with the can; their detection quality has not been validated.
     import re
     if re.search(r'\bcan\b|coca.?cola', goal, re.I):
-        return 'soda can'
+        return 'can'
     return goal
 
 
@@ -38,7 +38,7 @@ class Detector:
         self.torch = torch
         self.device = device
         self.model = YOLOWorld(weights)
-        self.description = 'soda can'
+        self.description = 'can'
         self.model.set_classes([self.description])
         import numpy as np
         self.model.predict(np.zeros((360,640,3),dtype=np.uint8),device=device,imgsz=640,conf=.10,verbose=False)

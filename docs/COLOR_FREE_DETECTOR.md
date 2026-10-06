@@ -19,4 +19,4 @@ Re-filtering saved detections at 0.20 removes the extra candidates while retaini
 
 Steady-state detector medians were 17.8–19.1 ms, excluding model setup, warm-up, labeling and Qwen. Full per-frame numeric evidence: [results](color-free-detector-results.json). Private annotated camera images remain local.
 
-Next experiment: use the color-free description `can`, verify target continuity and ambiguity, and test difficult/absent scenes before choosing a threshold policy. Existing runtime remains `soda can` until that change is implemented and validated. No description is proven reliable for every can color or appearance.
+Next experiment: use the color-free description `can`, verify target continuity and ambiguity, and test difficult/absent scenes before choosing a threshold policy. Runtime switched to `can` after this comparison on 2026-10-06, retaining the 0.10 cutoff and the multiple-candidate ambiguity stop. Physical retest remains pending. No description is proven reliable for every can color or appearance.

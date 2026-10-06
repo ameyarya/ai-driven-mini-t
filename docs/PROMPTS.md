@@ -1,6 +1,6 @@
 # AI-Driven Mini-T prompts
 
-Can missions use generic **soda can** detection and ignore color entirely.
+Can missions use generic **can** detection and ignore color entirely.
 
 ## Center a visible target
 

@@ -10,7 +10,7 @@ from unittest.mock import patch
 import rover_fast_navigation as fast
 from rover_autonomy import NavigationController
 
-PLAN={'mode':'approach_size','target':'soda can','height_percent':50,'uncertainties':[],'reason':'Approach and center'}
+PLAN={'mode':'approach_size','target':'can','height_percent':50,'uncertainties':[],'reason':'Approach and center'}
 
 
 def measurement(x=50,height=30,visible=True,clipped=False):
@@ -21,11 +21,11 @@ class FastNavigationTests(unittest.TestCase):
     def test_generic_can_and_centering_contract(self):
         from rover_detector import target_description
         for goal in ['Position orange can in center', 'Center the blue can', 'Find the silver can', 'Find the can', 'Find Coca-Cola']:
-            self.assertEqual(target_description(goal), 'soda can')
+            self.assertEqual(target_description(goal), 'can')
         request=fast.planner_request('Position orange can in center', b'image', measurement())
         self.assertEqual(request['format']['properties']['mode']['enum'], ['center','unsupported'])
         request=fast.planner_request('Find the orange can, center it, then shoot once', b'image', measurement())
-        self.assertEqual(request['format']['properties']['target']['enum'], ['soda can'])
+        self.assertEqual(request['format']['properties']['target']['enum'], ['can'])
         self.assertEqual(request['format']['properties']['mode']['enum'], ['find_shoot','unsupported'])
 
     def test_planner_and_controller_display_roles_are_truthful(self):

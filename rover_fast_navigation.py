@@ -72,7 +72,7 @@ def planner_request(goal, image, measurement, history=None, shooting_enabled=Tru
                 'Return unsupported for '+('' if shooting_enabled else 'firing, ')+
                 'moving away, physical distances, or other missions. Never silently omit '
                 'parts of a mission. target is an object name, not an action. height_percent '
-                'For can goals use soda can, ignoring color words in the goal. '
+                'For can goals use can, ignoring color words in the goal. '
                 'is 0 for center; approach_size requires an explicit size in the goal. '
                 'Only genuine visibility/ambiguity/path-clearance concerns are uncertainties; '
                 'an unfinished goal is not uncertainty. Stop if approach clearance is uncertain. '
