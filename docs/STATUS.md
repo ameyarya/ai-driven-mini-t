@@ -235,3 +235,5 @@ Calibration follow-up: frame-by-frame review of the +50 ms shot showed the blue 
 Portrait camera: live feed rotates 90° clockwise and the two views sit side by side. Snapshots and shot clips use the same upright transform, at 360×640. Rotation is configured in camera-orientation.json. Changing camera orientation invalidates previous image-size shooting calibration; collect a new successful setup.
 
 Portrait standoff preserves the previous target pixel size relative to the short edge: Approach uses 11.25% portrait height (equivalent to 20% landscape height), with a 14.06% portrait stop limit. Rotation does not permit approaching closer simply because the image is taller.
+
+Shooting setup now expands within the right control column, with no centered popup or dimming over the cameras. The setup includes its own Stop button.

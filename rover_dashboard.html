@@ -66,15 +66,20 @@ header{flex-wrap:wrap;gap:10px}
 @media(max-height:650px){.telemetry{gap:6px;margin-top:8px;padding-top:8px}#decision{max-height:3em}.hint{font-size:10px}}
 .complete-mission{grid-column:1/-1}
 .mission-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-/* The setup is a focused, spaced dialog instead of a narrow button pile. */
-#shooting-setup[open]{position:fixed;inset:auto;top:50%;left:50%;transform:translate(-50%,-50%);width:min(460px,calc(100vw - 32px));max-height:calc(100dvh - 32px);padding:18px;box-shadow:0 0 0 100vmax #0009;z-index:5}
+/* Shooting setup stays inside the right control column. */
+.panel:has(#shooting-setup[open]){overflow:hidden}
+.panel:has(#shooting-setup[open])>:not(#shooting-setup){display:none}
+main:has(#shooting-setup[open]){grid-template-columns:minmax(0,1fr) 320px}
+#shooting-setup button{font-size:12px;padding:8px 10px}
+#height-stop{flex:0 0 60px}
+#shooting-setup[open]{position:absolute;inset:0;top:0;left:0;transform:none;width:100%;height:100%;max-height:none;padding:12px;box-shadow:none;z-index:2}
 .setup-status{padding:9px 11px;background:#101722;border-radius:8px;font-size:12px;line-height:1.5;color:#91dfb7;margin:4px 0 12px}
-.setup-step{border-top:1px solid #354154;padding:10px 0}
+.setup-step{border-top:1px solid #354154;padding:7px 0}
 .setup-step h3{font-size:13px;margin:0 0 8px}
 .setup-step p{font-size:11px;line-height:1.45;color:#9caec5;margin:7px 0 0}
 .setup-step>button{width:100%;margin-top:8px}
 .setup-buttons{display:grid;gap:8px}
-.setup-reload{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid #354154;font-size:12px;color:#9caec5}
+.setup-reload{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid #354154;font-size:12px;color:#9caec5}
 button:disabled{cursor:not-allowed}
 @media(max-height:650px){#shooting-setup[open]{padding:12px}.setup-step{padding:7px 0}.setup-step p{font-size:10px}.setup-step button{padding:7px 10px}}
 .camera-views.portrait{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
@@ -96,7 +101,7 @@ button:disabled{cursor:not-allowed}
 <p id="height-status" class="setup-status" role="status">Loading setup…</p>
 <div class="setup-step"><h3>1 · Set the starting height</h3><p>Restore your repeatable reference position. Confirming does not move the launcher.</p><button id="height-reference">Confirm reference height</button></div>
 <div class="setup-step"><h3>2 · Adjust the aim</h3><div class="actions"><button id="height-up" disabled>↑ Up · 50 ms</button><button id="height-down" disabled>↓ Down · 50 ms</button></div><p>These controls change height, not firing power.</p></div>
-<div class="setup-step"><h3>3 · Test and save a hit</h3><div class="setup-buttons"><button class="primary" data-goal="Center the bullseye, then shoot once and stop." id="height-test" disabled>Test shot at current height</button><button id="height-hit" disabled>Save successful shooting setup</button></div><p>Test aligns and fires once without approaching. Save only after the projectile knocks the target down.</p></div>
+<div class="setup-step"><h3>3 · Test and save a hit</h3><div class="setup-buttons"><div class="actions"><button class="primary" data-goal="Center the bullseye, then shoot once and stop." id="height-test" disabled>Test shot at current height</button><button id="height-stop">Stop</button></div><button id="height-hit" disabled>Save successful shooting setup</button></div><p>Test aligns and fires once without approaching. Save only after the projectile knocks the target down.</p></div>
 <div class="setup-step"><h3>4 · Use the saved setup</h3><div class="actions"><button id="height-enable" disabled>Use saved setup</button><button id="height-disable">Disable</button></div></div>
 <div class="setup-reload"><span>Reload</span><button id="shots-reload">I reloaded six projectiles</button></div>
 </details>
@@ -362,7 +367,7 @@ async function pollHeight(){
 async function heightAction(action,body={}){
  if(heightBusy)return;
  heightBusy=true;updateGoalButtons();
- document.querySelectorAll('#shooting-setup button').forEach(b=>b.disabled=true);
+ document.querySelectorAll('#shooting-setup button').forEach(b=>b.disabled=b.id!=='height-stop');
  heightError='';
  try{
   const r=await fetch('/elevation/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -397,6 +402,7 @@ document.querySelectorAll('[data-goal]').forEach(button=>button.addEventListener
  }catch(error){document.querySelector('#auto-status').textContent=error.message;}
  finally{startingGoal=false;updateGoalButtons();}
 }));
+document.querySelector('#height-stop').addEventListener('click',()=>document.querySelector('#auto-stop').click());
 document.querySelector('#auto-stop').addEventListener('click',()=>{stopAuto();held.clear();wanted='X';fire=0;aim=0;last=state();});
 
 async function pollCamera(){
