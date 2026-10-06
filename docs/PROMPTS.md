@@ -1,24 +1,26 @@
-# Rover prompts
+# AI-Driven Mini-T prompts
+
+Can missions use generic **soda can** detection and ignore color entirely.
 
 ## Center a visible target
 
-> Position red can in center
+> Position the can in the center
 
 ## Search in place, then center
 
-> Find the red can by doing 360 turn in place
+> Find the can by doing 360 turn in place
 
 Search is bounded; exact 360° coverage is uncalibrated. The standalone search
 finishes with the can fully visible and centered.
 
 ## Approach a visible target
 
-> Move closer to the red can until it occupies roughly 50% of the image height.
+> Move closer to the can until it occupies roughly 50% of the image height.
 > Keep it centered, then stop.
 
 ## Search and approach in one mission
 
-> Find the red can by turning in place. Center it, then move closer until it
+> Find the can by turning in place. Center it, then move closer until it
 > occupies roughly 50% of the image height. Keep it centered, then stop.
 
 Combined missions are implemented but still undergoing physical testing.
@@ -27,9 +29,9 @@ as the target grows. Missed detections stop movement before retry/reacquisition.
 
 ## One-shot firing (implemented, physical test pending)
 
-> Center the red can, then shoot once.
+> Center the can, then shoot once.
 
-> Find the red can by turning in place, then approach until it occupies
+> Find the can by turning in place, then approach until it occupies
 > 50% of image height. Keep it centered, then shoot once.
 
 The host supports a single fire/reset command after stationary confirmation.
