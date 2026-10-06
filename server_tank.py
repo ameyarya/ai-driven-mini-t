@@ -1,3 +1,4 @@
+from camera_orientation import video_filter, rotation as camera_rotation
 """Local web page -> USB transmitter -> ESP-NOW motor receiver.
 
 Setup:  pip3 install pyserial
@@ -185,7 +186,7 @@ def record_shot(ident, token):
     with log.open('wb') as output:
         process = subprocess.Popen(['ffmpeg','-hide_banner','-loglevel','error',
             '-rw_timeout','5000000','-i','rtmp://192.168.1.192:1935/live/tank',
-            '-t','6','-an','-vf','scale=640:-2','-c:v','libx264','-preset','ultrafast',
+            '-t','6','-an','-vf',video_filter(),'-c:v','libx264','-preset','ultrafast',
             '-y',str(clip)],stdout=output,stderr=output)
     def finish():
         try:
@@ -411,6 +412,9 @@ class Handler(BaseHTTPRequestHandler):
             shot=autonomy.snapshot().get('shot',{})
             body['last_shot_id']=shot.get('id')
             self.text_result(200,json.dumps(body));return
+        if url.path == '/camera/orientation':
+            self.text_result(200,json.dumps({'rotation':camera_rotation()}))
+            return
         if url.path == '/camera/status':
             try:
                 paths = rover_vision.read_json('http://127.0.0.1:9997/v3/paths/list', timeout=1)['items']

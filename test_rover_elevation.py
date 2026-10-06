@@ -2,11 +2,13 @@ import tempfile
 import threading
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 from rover_elevation import ElevationCalibration
 
 class ElevationTests(unittest.TestCase):
  def setUp(self):
   self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+  limit=patch('rover_elevation.standoff_limit',return_value=20);limit.start();self.addCleanup(limit.stop)
   self.c=ElevationCalibration(Path(self.temp.name)/'height.json')
  def shot(self,ident,height,position):
   return dict(id=ident,fire_command_sent=True,reset_acknowledged=True,elevation=dict(reference_confirmed=True,target='bullseye target',height_percent=height,position_ms=position))

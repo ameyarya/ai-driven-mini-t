@@ -4,6 +4,7 @@ import math
 from pathlib import Path
 import threading
 import time
+from camera_orientation import standoff_limit
 
 class ElevationCalibration:
     def __init__(self,path):
@@ -63,7 +64,7 @@ class ElevationCalibration:
             if aiming.get('target')!='bullseye target':raise ValueError('Only bullseye shots calibrate this profile')
             height=aiming.get('height_percent');position=aiming.get('position_ms')
             if type(height) not in (float,int) or not 0<height<100 or type(position) is not int or not -600<=position<=600:raise ValueError('Invalid calibration measurement')
-            if height>20:raise ValueError('Shooting setup must keep bullseye image height at most 20%; move tank back')
+            if height>standoff_limit():raise ValueError(f'Shooting setup must keep bullseye image height at most {standoff_limit()}%; move tank back')
             preset={'shot_id':shot['id'],'height_percent':height,'position_ms':position,'confirmation':'user-confirmed hit','time':time.time()}
             self.data['points'].append(preset)
             self.data['preset']=preset

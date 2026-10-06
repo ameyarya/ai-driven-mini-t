@@ -20,7 +20,7 @@ def measurement(x=50,height=30,visible=True,clipped=False):
 class FastNavigationTests(unittest.TestCase):
     def test_bullseye_precision_alignment_and_small_corrections(self):
         plan=dict(mode='center',target='bullseye target',height_percent=0,uncertainties=[])
-        m=dict(measurement(x=46.7,height=15),source='Bullseye reference matcher')
+        m=dict(measurement(x=46.7,height=10),source='Bullseye reference matcher')
         decision=fast.control_decision(plan,m,[])
         self.assertFalse(decision['goal_achieved'])
         self.assertEqual(decision['alignment_tolerance_percent'],1)
@@ -40,11 +40,11 @@ class FastNavigationTests(unittest.TestCase):
         self.assertEqual(approach['format']['properties']['height_percent']['enum'],[50])
 
     def test_physical_bullseye_standoff_blocks_close_target_and_large_setpoint(self):
-        plan=dict(mode='approach_size',target='bullseye target',height_percent=20,uncertainties=[])
+        plan=dict(mode='approach_size',target='bullseye target',height_percent=10,uncertainties=[])
         m=dict(measurement(height=26),source='Bullseye reference matcher')
         self.assertEqual(fast.control_decision(plan,m,[])['suggested_action'],'stop')
         self.assertTrue(fast.control_decision(plan,m,[])['uncertainties'])
-        m['target_height']=12
+        m['target_height']=6
         self.assertEqual(fast.control_decision(dict(plan,height_percent=50),m,[])['suggested_action'],'stop')
         self.assertLessEqual(fast.control_decision(plan,m,[])['duration_ms'],250)
         self.assertEqual(fast.control_decision(dict(plan,mode='shoot'),dict(m,target_height=26),[])['suggested_action'],'stop')

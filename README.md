@@ -442,3 +442,5 @@ stand, not calibrated centimeters or general obstacle avoidance. A shooting
 setup must be saved at 20% or less. Complete mission requires the saved setup.
 The former 50% physical approach was too close in a real browser test and was
 stopped without firing. Historical can/simulation setpoints remain unchanged.
+
+Portrait camera support: upright live and model views sit side by side; captures and shot clips use the same rotation. See camera-orientation.json. Shooting calibration must be repeated after changing orientation.

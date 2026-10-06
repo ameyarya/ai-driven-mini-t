@@ -77,10 +77,12 @@ header{flex-wrap:wrap;gap:10px}
 .setup-reload{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid #354154;font-size:12px;color:#9caec5}
 button:disabled{cursor:not-allowed}
 @media(max-height:650px){#shooting-setup[open]{padding:12px}.setup-step{padding:7px 0}.setup-step p{font-size:10px}.setup-step button{padding:7px 10px}}
+.camera-views.portrait{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+.camera-views.portrait .camera-pane:first-child .video{position:absolute;left:50%;top:50%;width:var(--pane-height);height:var(--pane-width);transform:translate(-50%,-50%) rotate(var(--camera-rotation,90deg));max-height:none}
 </style></head><body>
 <header><h1>AI-Driven Mini-T</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools" hidden><span id="vision-status" hidden></span></div></header>
-<main><section><div class="camera-views"><div class="camera-pane"><span class="pane-label">Live camera · about 1 second delay</span><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&amp;muted=true&amp;controls=false" title="Live DJI camera video" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera source · checking…</span></div></div><div class="camera-pane exact-input"><span class="pane-label" id="input-stage">Planner / controller input · waiting</span><canvas id="model-canvas" width="640" height="360" aria-label="Exact labeled planner or controller input image"></canvas><div id="model-empty">Start a goal to capture Qwen's first frame</div><span id="frame-age">No frame yet</span></div></div></section>
-<aside class="panel"><h2>Tank actions</h2><p class="hint">Target: bullseye on the stand</p><div class="mission-actions"><button data-goal="Find the bullseye by turning in place, center it, then stop." disabled>Find</button><button data-goal="Center the bullseye, then stop." disabled>Align</button><button data-goal="Approach the bullseye until it occupies 20% of image height. Keep it centered, then stop." disabled>Approach</button><button data-goal="Center the bullseye, then shoot once and stop." id="aim-shoot" disabled>Aim &amp; shoot</button><button id="complete-mission" class="primary complete-mission" data-goal="Find the bullseye by turning in place, then approach until it occupies 20% of image height. Keep it centered, then shoot once and stop." disabled>Complete mission</button></div><p class="hint">Find scans and aligns. Approach stops at 20% image height. Aim &amp; shoot approaches the saved distance, restores height and fires once. Complete mission adds a search to the saved shooting setup.</p><div class="actions"><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Top: live camera. Bottom: labeled controller input.<br>Qwen plans; Python adjusts using fresh measurements. Press Stop to cancel.</div>
+<main><section><div class="camera-views portrait"><div class="camera-pane"><span class="pane-label">Live camera · about 1 second delay</span><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&amp;muted=true&amp;controls=false" title="Live DJI camera video" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera source · checking…</span></div></div><div class="camera-pane exact-input"><span class="pane-label" id="input-stage">Planner / controller input · waiting</span><canvas id="model-canvas" width="640" height="360" aria-label="Exact labeled planner or controller input image"></canvas><div id="model-empty">Start a goal to capture Qwen's first frame</div><span id="frame-age">No frame yet</span></div></div></section>
+<aside class="panel"><h2>Tank actions</h2><p class="hint">Target: bullseye on the stand</p><div class="mission-actions"><button data-goal="Find the bullseye by turning in place, center it, then stop." disabled>Find</button><button data-goal="Center the bullseye, then stop." disabled>Align</button><button data-goal="Approach the bullseye until it occupies 11.25% of image height. Keep it centered, then stop." disabled>Approach</button><button data-goal="Center the bullseye, then shoot once and stop." id="aim-shoot" disabled>Aim &amp; shoot</button><button id="complete-mission" class="primary complete-mission" data-goal="Find the bullseye by turning in place, then approach until it occupies 11.25% of image height. Keep it centered, then shoot once and stop." disabled>Complete mission</button></div><p class="hint">Approach keeps its distance. Aim &amp; shoot uses your saved setup. Complete adds a search.</p><div class="actions"><button id="auto-stop">Stop</button></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Live camera and labeled controller input.<br>Qwen plans; Python adjusts using fresh measurements. Press Stop to cancel.</div>
 <p id="search-note" class="hint" hidden></p>
 <div class="telemetry" aria-live="polite">
 <div><span>Target direction</span><strong id="target-direction">—</strong></div>
@@ -105,6 +107,17 @@ button:disabled{cursor:not-allowed}
 </aside><div hidden id="result"><img id="snapshot" alt=""><span id="answer"></span><span id="action"></span><span id="scene"></span><span id="reason"></span><span id="obstacles"></span><span id="uncertainties"></span><span id="timing"></span></div></main><script>
 
 
+const cameraViews=document.querySelector('.camera-views');
+const livePane=cameraViews.querySelector('.camera-pane');
+new ResizeObserver(([entry])=>{
+ livePane.style.setProperty('--pane-width',entry.contentRect.width+'px');
+ livePane.style.setProperty('--pane-height',entry.contentRect.height+'px');
+}).observe(livePane);
+fetch('/camera/orientation',{cache:'no-store'}).then(r=>r.json()).then(c=>{
+ cameraViews.classList.toggle('portrait',[90,270].includes(c.rotation));
+ livePane.style.setProperty('--camera-rotation',c.rotation+'deg');
+ if(![90,270].includes(c.rotation))livePane.querySelector('iframe').style.transform=c.rotation===180?'rotate(180deg)':'';
+}).catch(()=>{});
 let wanted='X', fire=0, aim=0, busy=false, last='X|0|0';
 const held=new Set();
 const keyMap={ArrowUp:'W',ArrowLeft:'A',ArrowDown:'S',ArrowRight:'D','1':'Q','2':'E',' ':'F',Escape:'X'};

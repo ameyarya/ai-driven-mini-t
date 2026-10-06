@@ -8,6 +8,7 @@ import re
 import os
 import time
 import rover_vision as vision
+from camera_orientation import standoff_limit
 
 MAX_DURATION_MS = 1000
 MIN_DURATION_MS = 50
@@ -236,12 +237,12 @@ def control_decision(plan, measurement, history):
     # Image size is a conservative proxy for this setup, not measured range.
     if measurement.get('source')=='Bullseye reference matcher':
         height=measurement.get('target_height')
-        if type(height) in (float,int) and height>=25:
+        if type(height) in (float,int) and height>=standoff_limit()*1.25:
             return dict(assessment,reason='Too close to bullseye stand; move tank back before continuing',
                         uncertainties=['Standoff limit reached'])
-        if plan.get('mode') in ('approach_size','find_approach_size','approach_shoot','find_approach_shoot') and plan.get('height_percent',0)>20:
+        if plan.get('mode') in ('approach_size','find_approach_size','approach_shoot','find_approach_shoot') and plan.get('height_percent',0)>standoff_limit():
             return dict(assessment,reason='Requested approach exceeds physical standoff limit',
-                        uncertainties=['Use at most 20% bullseye image height'])
+                        uncertainties=[f'Use at most {standoff_limit()}% bullseye image height'])
     if plan['mode'] in SHOOT_MODES:
         if any(h.get('action')=='fire' for h in history):
             return dict(assessment, reason='Fire command already attempted; no automatic retry',

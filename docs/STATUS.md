@@ -231,3 +231,7 @@ stopped without firing. Historical can/simulation setpoints remain unchanged.
 Shooting setup now opens in a wider dialog with four spaced steps, a status strip, and separate reload controls. Browser rendering verified. Final attempt left unused because the second projectile trajectory was unclear.
 
 Calibration follow-up: frame-by-frame review of the +50 ms shot showed the blue projectile near the stand base, below the bullseye. A third test at +150 ms offset also left the target standing. Three attempts were used in this test session, taking the existing ledger from three remaining to zero. The tank did not approach during those shots. User took over physical calibration; no hit profile was saved. Current launcher offset remains +150 ms from the confirmed reference. Reload is required before further shots. UI now disables firing actions at zero attempts and serializes height adjustments.
+
+Portrait camera: live feed rotates 90° clockwise and the two views sit side by side. Snapshots and shot clips use the same upright transform, at 360×640. Rotation is configured in camera-orientation.json. Changing camera orientation invalidates previous image-size shooting calibration; collect a new successful setup.
+
+Portrait standoff preserves the previous target pixel size relative to the short edge: Approach uses 11.25% portrait height (equivalent to 20% landscape height), with a 14.06% portrait stop limit. Rotation does not permit approaching closer simply because the image is taller.

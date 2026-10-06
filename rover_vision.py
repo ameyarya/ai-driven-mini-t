@@ -1,3 +1,4 @@
+from camera_orientation import video_filter
 """Capture one live DJI frame and ask local Qwen for navigation advice.
 
 Run: python3 rover_vision.py [--goal 'Find a clear path ahead']
@@ -56,7 +57,7 @@ def capture_frame(autonomous=True):
     subprocess.run([
         'ffmpeg', '-hide_banner', '-loglevel', 'error', '-rw_timeout', '15000000',
         '-i', 'rtmp://192.168.1.192:1935/live/tank', '-an', '-frames:v', '1',
-        '-vf', 'scale=%d:-2' % FRAME_WIDTH, '-q:v', '3', '-y', str(frame),
+        '-vf', video_filter(), '-q:v', '3', '-y', str(frame),
     ], check=True, timeout=25)
     return frame
 
