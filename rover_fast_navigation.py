@@ -50,7 +50,7 @@ def planner_request(goal, image, measurement, history=None, shooting_enabled=Tru
         'uncertainties':{'type':'array','items':{'type':'string'},'maxItems':3}},
         'required':['mode','target','height_percent','reason','uncertainties'],
         'additionalProperties':False}
-    if shooting_enabled and re.search(r'\bcan\b|coca.?cola', goal, re.I):
+    if shooting_enabled and re.search(r'\b(can|bullseye)\b|coca.?cola', goal, re.I):
         # Shooting POC has one supported target; annotation text must not become
         # an actuator target. Goal validation still rejects unnamed/other targets.
         from rover_detector import target_description
@@ -72,7 +72,7 @@ def planner_request(goal, image, measurement, history=None, shooting_enabled=Tru
                 'Return unsupported for '+('' if shooting_enabled else 'firing, ')+
                 'moving away, physical distances, or other missions. Never silently omit '
                 'parts of a mission. target is an object name, not an action. height_percent '
-                'For can goals use can, ignoring color words in the goal. '
+                'For can goals use can, ignoring color words in the goal. For bullseye goals use bullseye target. '
                 'is 0 for center; approach_size requires an explicit size in the goal. '
                 'Only genuine visibility/ambiguity/path-clearance concerns are uncertainties; '
                 'an unfinished goal is not uncertainty. Stop if approach clearance is uncertain. '
@@ -131,12 +131,15 @@ def validate_plan(plan, goal=None):
     if shooting != bool(goal and shooting_goal(goal)):
         raise ValueError('Planner omitted requested shooting or added unrequested firing')
     if shooting:
-        if not re.search(r'\bcan\b',goal,re.I):
-            raise ValueError('Name the can target explicitly in a shooting goal')
+        if not re.search(r'\b(can|bullseye)\b',goal,re.I):
+            raise ValueError('Name the can or bullseye target explicitly in a shooting goal')
         if re.search(r'\b(?:six|multiple|repeat|retry|again)\b|\b[2-6]\s+(?:shots?|times)|until.*\b(?:hit|falls?|knock)',goal,re.I):
             raise ValueError('Only one-shot missions are supported; automatic retries require hit verification')
-        if not re.search(r'\bcan\b', str(plan.get('target','')), re.I):
-            raise ValueError('Shooting POC supports the toy can target only')
+        if not re.search(r'\b(can|bullseye)\b', str(plan.get('target','')), re.I):
+            raise ValueError('Shooting POC supports can or bullseye targets only')
+        from rover_detector import target_description
+        if target_description(goal) != target_description(str(plan.get('target',''))):
+            raise ValueError('Planner changed the requested shooting target')
         # Reuse every navigation validation; firing cannot hide omitted search/approach.
         base_goal = re.sub(r'\b(shoot|fire)\b', '', goal, flags=re.I)
         validate_plan(dict(plan, mode=SHOOT_MODES[plan['mode']]), base_goal)

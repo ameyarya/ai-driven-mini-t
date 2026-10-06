@@ -16,6 +16,18 @@ def measurement(x=50, visible=True, clipped=False):
 
 
 class ShootingTests(unittest.TestCase):
+    def test_bullseye_mission_preserves_target_and_shot_guards(self):
+        from rover_detector import target_description
+        goal='Find the bullseye, approach until 50% of image height, then shoot once'
+        self.assertEqual(target_description(goal),'bullseye target')
+        request=fast.planner_request(goal,b'image',measurement())
+        self.assertEqual(request['format']['properties']['target']['enum'],['bullseye target'])
+        plan=dict(mode='find_approach_shoot',target='bullseye target',height_percent=50,uncertainties=[])
+        fast.validate_plan(plan,goal)
+        with self.assertRaises(ValueError):fast.validate_plan(dict(plan,target='can'),goal)
+        with self.assertRaises(ValueError):fast.validate_plan(plan,'Find bullseye, approach until 50% image height, then shoot six shots')
+        self.assertNotEqual(fast.control_decision(dict(plan,mode='shoot',height_percent=0),measurement(visible=False),[])['suggested_action'],'fire')
+
     def test_shooting_schema_cannot_name_overlay_text_as_target(self):
         request=fast.planner_request('Center can then shoot once',b'image',measurement())
         self.assertEqual(request['format']['properties']['target']['enum'],['can'])

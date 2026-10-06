@@ -72,3 +72,7 @@ The physical dashboard replaces free text with Find, Align, Approach and Shoot. 
 Find the can by turning in place, then approach until it occupies 50% of image height. Keep it centered, then shoot once and stop.
 
 Uses the existing combined search/approach/shoot controller. It does not add physical obstacle avoidance, automatic launcher elevation or confirmed-hit detection.
+
+## Current dashboard target: bullseye
+
+The physical action buttons now substitute **bullseye** for can in the above missions. Complete mission searches, approaches until the matched bullseye square occupies 50% of image height, aligns, then fires once. Historical can prompts and simulation fixtures remain for regression testing. Detection uses a private grayscale reference matcher rather than YOLO-World for this drawing.

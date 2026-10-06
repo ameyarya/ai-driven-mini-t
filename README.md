@@ -418,3 +418,7 @@ locked MicroPython firmware and preserve original receiver files before changes.
 - [LLM Vision](https://llmvision.org/) — saved inspiration; Home Assistant integration, not a current dependency.
 
 Saved-image detector comparison: [four color-free descriptions](docs/COLOR_FREE_DETECTOR.md), with per-frame evidence and threshold tradeoffs.
+
+### Current physical target: bullseye
+
+The dashboard now targets the hand-drawn bullseye on its stand. Find, Align, Approach, Shoot and Complete mission use the bullseye; apparent height refers to the matched square, not the entire stand. YOLO-World missed the supplied photo and fresh camera frame for four target descriptions. A scale-only grayscale reference matcher detected the fresh frame at 0.930 correlation and none of 42 earlier frames. This small development check is not a reliability benchmark. The private reference lives at `vision-output/bullseye-reference.jpg`; provide it locally before using these actions. Missing reference fails closed. Strong perspective changes, occlusion or new drawings need revalidation. Matching score is not a probability. Multiple matches stop as ambiguous; elevation and hit verification remain manual/unconfirmed.

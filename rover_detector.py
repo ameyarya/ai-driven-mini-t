@@ -13,9 +13,42 @@ def target_description(goal):
     # The current POC target. Other descriptions are passed through, not silently
     # replaced with the can; their detection quality has not been validated.
     import re
+    if re.search(r'\bbullseye\b', goal, re.I):
+        return 'bullseye target'
     if re.search(r'\bcan\b|coca.?cola', goal, re.I):
         return 'can'
     return goal
+
+
+def bullseye_candidates(image, reference):
+    """Scale-only grayscale reference matching; score is not a probability."""
+    import cv2
+    import numpy as np
+    if reference is None:
+        raise ValueError('Bullseye reference image missing')
+    gray=cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    template=cv2.cvtColor(reference,cv2.COLOR_BGR2GRAY)
+    h,w=gray.shape
+    matches=[]
+    for scale in np.geomspace(.2,3,55):
+        resized=cv2.resize(template,None,fx=scale,fy=scale)
+        rh,rw=resized.shape
+        if min(rh,rw)<12 or rh>=h or rw>=w:continue
+        scores=cv2.matchTemplate(gray,resized,cv2.TM_CCOEFF_NORMED)
+        for _ in range(4):
+            _,score,_,(x,y)=cv2.minMaxLoc(scores)
+            if score<.70:break
+            matches.append((score,[x,y,x+rw,y+rh]))
+            cv2.rectangle(scores,(max(0,x-rw//2),max(0,y-rh//2)),(x+rw//2,y+rh//2),-1,-1)
+    kept=[]
+    for score,box in sorted(matches,reverse=True):
+        duplicate=False
+        for _,old in kept:
+            inter=max(0,min(box[2],old[2])-max(box[0],old[0]))*max(0,min(box[3],old[3])-max(box[1],old[1]))
+            small=min((box[2]-box[0])*(box[3]-box[1]),(old[2]-old[0])*(old[3]-old[1]))
+            if inter/max(1,small)>.5:duplicate=True;break
+        if not duplicate:kept.append((score,box))
+    return [{'confidence':round(float(score),4),'bbox':[round(box[0]/w*1000),round(box[1]/h*1000),round(box[2]/w*1000),round(box[3]/h*1000)]} for score,box in kept]
 
 
 def progress(measurement, history):
@@ -38,7 +71,7 @@ class Detector:
         self.torch = torch
         self.device = device
         self.model = YOLOWorld(weights)
-        self.description = 'can'
+        self.description = 'bullseye target'
         self.model.set_classes([self.description])
         import numpy as np
         self.model.predict(np.zeros((360,640,3),dtype=np.uint8),device=device,imgsz=640,conf=.10,verbose=False)
@@ -48,24 +81,29 @@ class Detector:
     def prepare(self, frame, goal, history):
         import cv2
         description = target_description(goal)
-        if description != self.description:
-            self.model.set_classes([description])
-            self.description = description
         start = time.perf_counter()
-        prediction = self.model.predict(str(frame), device=self.device, imgsz=640, conf=.10, verbose=False)[0]
-        if self.device == 'mps':
-            self.torch.mps.synchronize()
-        candidates = []
-        h, w = prediction.orig_shape
-        for box in prediction.boxes:
-            xy = box.xyxy[0].cpu().tolist()
-            candidates.append({'confidence': round(float(box.conf[0]), 4),
-                               'bbox': [round(xy[0]/w*1000), round(xy[1]/h*1000), round(xy[2]/w*1000), round(xy[3]/h*1000)]})
+        image=cv2.imread(str(frame))
+        if image is None:raise ValueError('Cannot read captured frame')
+        h,w=image.shape[:2]
+        source='YOLO-World'
+        if description=='bullseye target':
+            source='Bullseye reference matcher'
+            candidates=bullseye_candidates(image,cv2.imread(str(ROOT/'vision-output/bullseye-reference.jpg')))
+        else:
+            if description != self.description:
+                self.model.set_classes([description])
+                self.description=description
+            prediction=self.model.predict(str(frame),device=self.device,imgsz=640,conf=.10,verbose=False)[0]
+            if self.device=='mps':self.torch.mps.synchronize()
+            candidates=[]
+            for box in prediction.boxes:
+                xy=box.xyxy[0].cpu().tolist()
+                candidates.append({'confidence':round(float(box.conf[0]),4),'bbox':[round(xy[0]/w*1000),round(xy[1]/h*1000),round(xy[2]/w*1000),round(xy[3]/h*1000)]})
         candidates.sort(key=lambda c: c['confidence'], reverse=True)
         # Several separate candidates cannot establish target identity.
         selected = candidates[0] if len(candidates) == 1 else None
         bbox = selected['bbox'] if selected else None
-        measurement = {'source': 'YOLO-World', 'target_description': description,
+        measurement = {'source': source, 'target_description': description,
                        'target_visible': selected is not None, 'target_bbox': bbox,
                        'target_confidence': selected['confidence'] if selected else None,
                        'candidate_count': len(candidates), 'candidates': candidates,
@@ -97,6 +135,7 @@ class Detector:
         for old,new in zip(trail,trail[1:]):
             cv2.line(image,(round(old*w/100),h//2),(round(new*w/100),h//2),(90,200,240),2)
         labels=['SOURCE IMAGE: width/height normalized 0-100%; center=50%']
+        if source=='Bullseye reference matcher':labels.append('REFERENCE MATCH: score is correlation, not probability')
         if bbox:
             labels += [f"TARGET x={measurement['target_x']:.1f}% offset={measurement['target_x']-50:+.1f}%",
                        f"HEIGHT={measurement['target_height']:.1f}% score={measurement['target_confidence']:.2f} clipped={measurement['target_clipped']}"]

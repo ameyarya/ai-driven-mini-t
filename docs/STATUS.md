@@ -183,3 +183,7 @@ Replaced the physical dashboard prompt box with Find, Align, Approach and Shoot 
 ## Complete mission action — 2026-10-06
 
 Added the Complete mission dashboard button, using existing find_approach_shoot planning with a 50% image-height goal and one shot. Uses the same camera, ambiguity, cancellation and shot-ledger checks as other actions. Physical combined acceptance remains pending; this is not real-world obstacle avoidance or automatic elevation aiming.
+
+## Bullseye target — 2026-10-06
+
+Switched physical buttons and planning to the hand-drawn bullseye. YOLO-World found no boxes for four descriptions on supplied photo/fresh frame. A multi-scale grayscale reference matcher detects the fresh camera target (0.9302 correlation), with zero matches on 42 earlier development frames. Synthetic checks cover three scales, absent target and duplicate-target ambiguity; 81 host tests pass. Reference remains private in vision-output; missing reference blocks operation. Match measures the square, not the stand. Physical acceptance, perspective robustness, elevation and impact verification remain pending.
