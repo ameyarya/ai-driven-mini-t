@@ -4,7 +4,7 @@ import time
 import rover_vision
 
 ACTIONS = {'forward': 'W', 'backward': 'S', 'left': 'A', 'right': 'D', 'stop': 'X'}
-MAX_STEPS = 40
+MAX_STEPS = 50
 
 
 def autonomous_speed(key):

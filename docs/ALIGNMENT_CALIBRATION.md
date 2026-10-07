@@ -10,7 +10,7 @@ Baseline Align accepted 3.3% left offset because final tolerance was ±5%. The c
 | 32 ms (calibrated run) | 46.70% | 48.75% | +2.05% |
 | 20 ms (calibrated run) | 48.75% | 50.50% | +1.75% |
 
-The measured initial left-turn gain is 0.068 percentage points/ms. In-run feedback continues to update the duration estimate. Reference-matched bullseyes allow 20 ms minimum turns, avoiding the previous 50 ms minimum near the center. An unmeasured reverse direction uses a conservative error-dependent seed and reversal halving; it is not claimed calibrated.
+The measured initial left-turn gain was 0.068 percentage points/ms on 854-wide analyzed frames; rescaled ×1.3344 to 0.0907 on 2026-10-06 for 640-wide upright frames (same optics and speed; raw observations below predate the rescale). In-run feedback continues to update the duration estimate. Reference-matched bullseyes allow 20 ms minimum turns, avoiding the previous 50 ms minimum near the center. An unmeasured reverse direction uses a conservative error-dependent seed and reversal halving; it is not claimed calibrated.
 
 The browser-run test finished at **0.5% right**, step 3/40. Repeating Align finished at the same 0.5% right, step 1/40, without another movement. 82 host tests pass, including precise-target tolerance and sub-50 ms correction regression.
 

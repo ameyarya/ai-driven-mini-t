@@ -14,8 +14,8 @@ MAX_DURATION_MS = 1000
 MIN_DURATION_MS = 50
 CENTER_TOLERANCE = 5.0
 HEIGHT_TOLERANCE = 1.0
-SEARCH_PULSE_MS = 250
-DEFAULT_SEARCH_BUDGET_MS = 9750
+SEARCH_PULSE_MS = 100
+DEFAULT_SEARCH_BUDGET_MS = 5000
 SHOOT_MODES = {'shoot':'center', 'find_shoot':'find',
                'approach_shoot':'approach_size', 'find_approach_shoot':'find_approach_size'}
 
@@ -365,8 +365,14 @@ def search_decision(plan, measurement, history, assessment):
     if spent>=limit:
         reason='Configured full-turn time reached; target not found' if calibrated_limit is not None else 'Search budget reached; target not found; 360 not calibrated'
         return dict(assessment,reason=reason,phase='search_exhausted')
+    # Slow scan: a 100 ms pulse shifts the view ~7% at the calibrated turn
+    # gain, so consecutive observations overlap and the target cannot slip
+    # through unseen between frames. The tank must stop for every
+    # observation; rotating through a capture would blind the matcher and the
+    # receiver watchdog would cut the motors mid-capture anyway. The default
+    # budget equals 50 steps of one pulse, matching the run step cap.
     duration=min(SEARCH_PULSE_MS,limit-spent)
-    reason='Search in place; timed heading estimate' if calibrated_limit is not None else 'Search in place; heading uncalibrated'
+    reason='Slow search in place; timed heading estimate' if calibrated_limit is not None else 'Slow search in place; heading uncalibrated'
     return dict(assessment,suggested_action=direction,duration_ms=duration,reason=reason,
                 phase='search',scan_motor_ms=spent,heading_calibrated=calibrated_limit is not None)
 

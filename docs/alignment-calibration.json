@@ -2,7 +2,7 @@
   "date": "2026-10-06",
   "target": "bullseye",
   "turn_gain_percent_per_ms": {
-    "left": 0.068
+    "left": 0.0907
   },
   "observations": [
     {
@@ -37,5 +37,8 @@
     "repeat_steps": 1,
     "repeat_offset_percent": 0.5,
     "shots": 0
-  }
+  },
+  "rescale_notes": [
+    "2026-10-06: gains x1.3344 from 854-wide to 640-wide analyzed frames (rotation 0); same optics and speed; raw observations below predate the rescale"
+  ]
 }

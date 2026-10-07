@@ -131,7 +131,7 @@ class ControllerTests(unittest.TestCase):
         c, moves = self.controller(lambda *a, **k: result('right'))
         with patch.object(c.cancelled, 'wait', return_value=False):
             c.run(c.cancelled)
-        self.assertEqual(moves.count('D'), 40)
+        self.assertEqual(moves.count('D'), 50)
         self.assertEqual(moves[-1], 'X')
         self.assertEqual(c.snapshot()['state'], 'stopped')
 

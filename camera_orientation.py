@@ -15,5 +15,7 @@ def video_filter(angle=None):
     return transforms[angle]+('scale=-2:640' if angle in (90,270) else 'scale=640:-2')
 
 def standoff_limit():
-    # Same target pixel size relative to the short edge after a 16:9 rotation.
-    return 11.25 if rotation() in (90,270) else 20.0
+    # Fixed portrait sensor: preserve the physical stand distance (72 px target
+    # height) in current analyzed-frame units. Analyzed height is 640 px when
+    # rotated, 854 px (720x960 sensor scaled to width 640) when upright.
+    return 11.25 if rotation() in (90,270) else round(11.25*640/854, 2)

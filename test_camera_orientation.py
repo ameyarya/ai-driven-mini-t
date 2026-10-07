@@ -10,6 +10,6 @@ class OrientationTests(unittest.TestCase):
   self.assertEqual(video_filter(180),'hflip,vflip,scale=640:-2')
  def test_rotation_preserves_short_edge_standoff(self):
   with patch('camera_orientation.rotation',return_value=90):self.assertEqual(standoff_limit(),11.25)
-  with patch('camera_orientation.rotation',return_value=0):self.assertEqual(standoff_limit(),20)
+  with patch('camera_orientation.rotation',return_value=0):self.assertEqual(standoff_limit(),8.43)
  def test_invalid_rotation(self):
   with self.assertRaises(ValueError):video_filter(45)

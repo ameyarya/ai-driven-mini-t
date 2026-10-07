@@ -75,11 +75,11 @@ See [setup and limitations](PLAYGROUND.md).
 
 ## Bounds and remaining work
 
-- Exact 360° coverage remains uncalibrated; search has explicit time/step bounds.
+- Exact 360° coverage remains uncalibrated; search has explicit time/step bounds. Find now scans in 100 ms pulses (~7% view shift) so the target cannot slip between observations; stop-on-sight with auto-centering is unchanged.
 - No physical obstacle avoidance or calibrated physical ranging. Automatic firing is
   implemented but not physically validated.
 - Receiver watchdog, Stop, stale-frame checks, clipping/ambiguity checks,
-  wrong-way turn checks, and 40-step limit remain active.
+  wrong-way turn checks, and 50-step limit remain active.
 - Live capture plus controller observation was around two seconds in recorded
   tests; the 1.5-second settling wait and movement time are additional.
 - 79 host tests pass. Hardware behavior still needs physical
@@ -232,9 +232,7 @@ Shooting setup now opens in a wider dialog with four spaced steps, a status stri
 
 Calibration follow-up: frame-by-frame review of the +50 ms shot showed the blue projectile near the stand base, below the bullseye. A third test at +150 ms offset also left the target standing. Three attempts were used in this test session, taking the existing ledger from three remaining to zero. The tank did not approach during those shots. User took over physical calibration; no hit profile was saved. Current launcher offset remains +150 ms from the confirmed reference. Reload is required before further shots. UI now disables firing actions at zero attempts and serializes height adjustments.
 
-Portrait camera: live feed rotates 90° clockwise and the two views sit side by side. Snapshots and shot clips use the same upright transform, at 360×640. Rotation is configured in camera-orientation.json. Changing camera orientation invalidates previous image-size shooting calibration; collect a new successful setup.
-
-Portrait standoff preserves the previous target pixel size relative to the short edge: Approach uses 11.25% portrait height (equivalent to 20% landscape height), with a 14.06% portrait stop limit. Rotation does not permit approaching closer simply because the image is taller.
+Upright stream (rotation 0, 2026-10-06): the sensor streams upright 720×960 portrait, verified from an unfiltered RTMP snapshot, so rotation was set to 0. Live view needs no CSS rotation; snapshots stay 640×854 upright. Approach uses 8.43% image height with a 10.54% stop limit, preserving the same 72 px physical standoff. Saved shooting setups rescaled ×0.7494 (preset 10.4% → 7.79%); turn gain rescaled ×1.3344 to 0.0907. Confirm both with one Align run and one test shot.
 
 Shooting setup now expands within the right control column, with no centered popup or dimming over the cameras. The setup includes its own Stop button.
 

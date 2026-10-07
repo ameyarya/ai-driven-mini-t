@@ -37,6 +37,6 @@ stopped without firing. Historical can/simulation setpoints remain unchanged.
 
 The setup dialog groups reference, adjustment, test/save and enabling into four steps. Height pulse timing changes elevation; the separate 350 ms firing pulse remains unchanged. Testing firing duration against range is future work and should hold height and distance constant.
 
-Portrait camera: live feed rotates 90° clockwise and the two views sit side by side. Snapshots and shot clips use the same upright transform, at 360×640. Rotation is configured in camera-orientation.json. Changing camera orientation invalidates previous image-size shooting calibration; collect a new successful setup.
+Upright stream (rotation 0): the sensor streams upright 720×960 portrait, verified from an unfiltered RTMP snapshot on 2026-10-06, so no rotation is applied. Live view needs no CSS rotation; snapshots and shot clips stay 640×854 upright. Rotation remains configured in camera-orientation.json.
 
-Portrait standoff preserves the previous target pixel size relative to the short edge: Approach uses 11.25% portrait height (equivalent to 20% landscape height), with a 14.06% portrait stop limit. Rotation does not permit approaching closer simply because the image is taller.
+Upright standoff preserves the same physical stand distance (72 px target height): Approach uses 8.43% image height, with a 10.54% stop limit. Saved setups were rescaled ×0.7494 on 2026-10-06 (preset 10.4% → 7.79%) without moving the tank; confirm with one test shot before trusting the converted preset.

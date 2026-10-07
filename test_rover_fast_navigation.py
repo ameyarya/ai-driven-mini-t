@@ -81,7 +81,7 @@ class FastNavigationTests(unittest.TestCase):
         fast.validate_plan(plan,'Find the can by doing 360 turn in place')
         a=fast.control_decision(plan,measurement(visible=False),[])
         self.assertEqual(a['suggested_action'],'right')
-        self.assertEqual(a['duration_ms'],250)
+        self.assertEqual(a['duration_ms'],100)
         self.assertFalse(a.get('needs_replan',False))
         self.assertFalse(a['heading_calibrated'])
 
@@ -134,11 +134,21 @@ class FastNavigationTests(unittest.TestCase):
 
     def test_uncalibrated_search_exhausts_without_claiming_360_or_success(self):
         plan=dict(PLAN,mode='find',height_percent=0)
-        h=[{'action':'right','phase':'search','duration_ms':250}]*39
+        h=[{'action':'right','phase':'search','duration_ms':100}]*50
         a=fast.control_decision(plan,measurement(visible=False),h)
         self.assertEqual(a['suggested_action'],'stop')
         self.assertFalse(a['goal_achieved'])
         self.assertIn('360 not calibrated',a['reason'])
+
+    def test_slow_scan_pulse_keeps_views_overlapping(self):
+        plan=dict(PLAN,mode='find',height_percent=0,search_direction='right',full_turn_ms=None)
+        a=fast.control_decision(plan,measurement(visible=False),[])
+        self.assertEqual(a['suggested_action'],'right')
+        self.assertLessEqual(a['duration_ms'],100)
+        partial=[{'action':'right','phase':'search','duration_ms':100}]*39
+        b=fast.control_decision(plan,measurement(visible=False),partial)
+        self.assertEqual(b['suggested_action'],'right')
+        self.assertFalse(b['goal_achieved'])
 
     def test_find_controller_confirms_candidate_without_extra_turn(self):
         plan=dict(PLAN,mode='find',height_percent=0)
