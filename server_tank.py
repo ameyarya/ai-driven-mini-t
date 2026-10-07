@@ -7,6 +7,7 @@ Notes:  close Thonny first (it holds the serial port), battery connected.
 """
 import threading
 import os
+import sys
 import time
 import json
 from pathlib import Path
@@ -30,7 +31,7 @@ MOVES = {
     "X": (0, 0),               # stop
 }
 
-BOARD_CODE = 'import espnow\nimport network\nimport time\ne = espnow.ESPNow()\ne.active(True)\npeer = bytes.fromhex("206ef1497d7c")\ntry:\n e.add_peer(peer)\nexcept OSError:\n pass\ndef wire(c):\n for attempt in range(3):\n  if e.send(peer,b"cbdrive1:"+c.encode()):\n   return\n  time.sleep_ms(10)\n raise OSError("Receiver unavailable")\nconfirmed = False\nfor attempt in range(5):\n try:\n  wire("X")\n  ack = e.recv(150)\n  if ack[0] == peer and ack[1] == b"cbdrive1:ACK":\n   confirmed = True\n   break\n except OSError:\n  pass\n time.sleep_ms(20)\nif not confirmed:\n raise OSError("Receiver did not acknowledge stop")\nprint("WIRELESS HOLD CONTROL READY")\nimport ubinascii\ndef ota(raw):\n packet = bytes.fromhex(raw)\n e.send(peer,packet,False)\n start = time.ticks_ms()\n while time.ticks_diff(time.ticks_ms(),start)<280:\n  host,msg = e.recv(0)\n  if host==peer and msg and msg.startswith(b"CBU1"):\n   print("OTA",ubinascii.hexlify(msg).decode())\n   return\n  time.sleep_ms(2)\n print("OTA NONE")\n'
+BOARD_CODE = 'import espnow\nimport network\nimport time\ne = espnow.ESPNow()\ne.active(True)\npeer = bytes.fromhex("206ef1497d7c")\ntry:\n e.add_peer(peer)\nexcept OSError:\n pass\ndef wire(c):\n for attempt in range(3):\n  if e.send(peer,b"cbdrive1:"+c.encode()):\n   return\n  time.sleep_ms(10)\n raise OSError("Receiver unavailable")\nconfirmed = False\nfor attempt in range(5):\n try:\n  wire("X")\n  ack = e.recv(150)\n  if ack[0] == peer and ack[1] == b"cbdrive1:ACK":\n   confirmed = True\n   break\n except OSError:\n  pass\n time.sleep_ms(20)\nif not confirmed:\n raise OSError("Receiver did not acknowledge stop")\nprint("WIRELESS HOLD CONTROL READY")\ntry:\n import neopixel as _npm,machine as _mch\n _np=_npm.NeoPixel(_mch.Pin(8,_mch.Pin.OUT),1);_np[0]=(0,64,0);_np.write()\nexcept Exception:\n pass\nimport ubinascii\ndef ota(raw):\n packet = bytes.fromhex(raw)\n e.send(peer,packet,False)\n start = time.ticks_ms()\n while time.ticks_diff(time.ticks_ms(),start)<280:\n  host,msg = e.recv(0)\n  if host==peer and msg and msg.startswith(b"CBU1"):\n   print("OTA",ubinascii.hexlify(msg).decode())\n   return\n  time.sleep_ms(2)\n print("OTA NONE")\n'
 SETUP = 'exec(%r)\r\n' % BOARD_CODE
 
 lock = threading.RLock()
@@ -60,6 +61,23 @@ def send(line):
                 break
         if b'Traceback' in response or not response.endswith(b'>>> '):
             raise RuntimeError(response.decode(errors='replace'))
+
+
+def restart_process():
+    # Replace this process with a fresh server after the HTTP reply is out.
+    # The tank must stay powered: startup re-runs the wireless handshake and
+    # exits if the receiver does not acknowledge. In-memory launcher
+    # reference is lost; the saved setup on disk is kept.
+    time.sleep(1)
+    try:
+        send("wire('X')")
+    except Exception:
+        pass
+    try:
+        ser.close()
+    except Exception:
+        pass
+    os.execv(sys.executable, [sys.executable, str(Path(__file__).resolve())])
 
 
 def init_board():
@@ -389,6 +407,15 @@ class Handler(BaseHTTPRequestHandler):
                 shots.acknowledge_reload()
                 self.text_result(200,'Six automatic attempts available; actual ammunition is not sensed')
             except Exception as error:self.text_result(400,str(error))
+            return
+        if urlparse(self.path).path == '/server/restart':
+            try:
+                if autonomy.active() or feedback.active():
+                    raise ValueError('Stop the mission and wait for feedback first')
+                self.text_result(202, 'Restarting; launcher reference will need re-confirming')
+                threading.Thread(target=restart_process, daemon=True).start()
+            except Exception as error:
+                self.text_result(409 if autonomy.active() or feedback.active() else 500, str(error))
             return
         if urlparse(self.path).path in ('/autonomy/start', '/autonomy/stop', '/autonomy/heartbeat'):
             try:

@@ -92,7 +92,7 @@ button:disabled{cursor:not-allowed}
 </style></head><body>
 <header><h1>AI-Driven Mini-T</h1><span class="muted">Local Qwen · Tank POC</span><div class="camera-tools" hidden><span id="vision-status" hidden></span></div></header>
 <main><section><div class="camera-views portrait"><div class="camera-pane"><span class="pane-label">Live camera · about 1 second delay</span><iframe class="video" src="http://localhost:8889/live/tank/?autoplay=true&amp;muted=true&amp;controls=false" title="Live DJI camera video" tabindex="-1"></iframe><div class="camera-note"><span id="camera-status" role="status">Camera source · checking…</span></div></div><div class="camera-pane exact-input"><span class="pane-label" id="input-stage">Planner / controller input · waiting</span><canvas id="model-canvas" width="640" height="360" aria-label="Exact labeled planner or controller input image"></canvas><div id="model-empty">Start a goal to capture Qwen's first frame</div><span id="frame-age">No frame yet</span></div></div></section>
-<aside class="panel"><h2>Tank actions</h2><p class="hint">Target: bullseye on the stand</p><div class="mission-actions"><button data-goal="Find the bullseye by turning in place, center it, then stop." disabled>Find</button><button data-goal="Center the bullseye, then stop." disabled>Align</button><button data-goal="Approach the bullseye until it occupies 8.43% of image height. Keep it centered, then stop." disabled>Approach</button><button data-goal="Center the bullseye, then shoot once and stop." id="aim-shoot" disabled>Aim &amp; shoot</button><button id="complete-mission" class="primary complete-mission" data-goal="Find the bullseye by turning in place, then approach until it occupies 8.43% of image height. Keep it centered, then shoot once and stop." disabled>Complete mission</button></div><p class="hint">Approach keeps its distance. Aim &amp; shoot uses your saved setup. Complete adds a search.</p><div class="actions"><button id="auto-stop">Stop</button></div><div class="shot-progress"><progress max="4" value="0" aria-label="Shot progress"></progress><small>Ready · Analyze → Aim → Shoot → Feedback</small></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Live camera and labeled controller input.<br>Qwen plans; Python adjusts using fresh measurements. Press Stop to cancel.</div>
+<aside class="panel"><h2>Tank actions</h2><p class="hint">Target: bullseye on the stand</p><div class="mission-actions"><button data-goal="Find the bullseye by turning in place, center it, then stop." disabled>Find Target</button><button data-goal="Center the bullseye, then stop." disabled>Align Target</button><button data-goal="Approach the bullseye until it occupies 8.43% of image height. Keep it centered, then stop." disabled>Approach Target</button><button data-goal="Center the bullseye, then shoot once and stop." id="aim-shoot" disabled>Aim &amp; shoot</button><button id="complete-mission" class="primary complete-mission" data-goal="Find the bullseye by turning in place, then approach until it occupies 8.43% of image height. Keep it centered, then shoot once and stop." disabled>Execute Full Mission</button></div><p class="hint">Approach keeps its distance. Aim &amp; shoot uses your saved setup. Complete adds a search.</p><div class="actions"><button id="auto-stop">Stop</button><button id="server-restart" title="Restart the tank server process">Restart server</button></div><div class="shot-progress"><progress max="4" value="0" aria-label="Shot progress"></progress><small>Ready · Analyze → Aim → Shoot → Feedback</small></div><p id="auto-status" role="status" aria-live="polite">Ready</p><p id="decision" class="hint" role="status">No decision yet.</p><div class="hint">Live camera and labeled controller input.<br>Qwen plans; Python adjusts using fresh measurements. Press Stop to cancel.</div>
 <p id="search-note" class="hint" hidden></p>
 <div class="telemetry" aria-live="polite">
 <div><span>Target direction</span><strong id="target-direction">—</strong></div>
@@ -463,6 +463,23 @@ document.querySelectorAll('[data-goal]').forEach(button=>button.addEventListener
 }));
 document.querySelector('#height-stop').addEventListener('click',()=>document.querySelector('#auto-stop').click());
 document.querySelector('#auto-stop').addEventListener('click',()=>{stopAuto();held.clear();wanted='X';fire=0;aim=0;last=state();});
+document.querySelector('#server-restart').addEventListener('click',async()=>{
+ if(autoActive||feedbackActive||startingGoal){document.querySelector('#auto-status').textContent='Stop the mission and wait for feedback first';return;}
+ if(!confirm('Restart the tank server? Reconnects in a few seconds; the launcher reference will need re-confirming.'))return;
+ const status=document.querySelector('#auto-status');
+ try{
+  const r=await fetch('/server/restart',{method:'POST',signal:AbortSignal.timeout(5000)});
+  if(!r.ok)throw Error(await r.text());
+  for(let i=0;i<20;i++){
+   await new Promise(resolve=>setTimeout(resolve,1500));
+   try{
+    const h=await fetch('/autonomy/status',{cache:'no-store',signal:AbortSignal.timeout(3000)});
+    if(h.ok){status.textContent='Server restarted · confirm the launcher reference height';await pollHeight();return;}
+   }catch{}
+  }
+  status.textContent='Server did not come back; check its terminal (tank must stay powered).';
+ }catch(e){status.textContent=e.message;}
+});
 
 async function pollCamera(){
  try{
